@@ -1,0 +1,1 @@
+pyinstaller  -F -w --add-data "template.xlsx;." --onefile --icon=logo.ico --onefile --add-data "logo.ico;." --hidden-import=pandas --hidden-import=json --hidden-import=sys --hidden-import=shutil --hidden-import=PIL --hidden-import=openpyxl --hidden-import=openpyxl.cell._writer jxj_main.py

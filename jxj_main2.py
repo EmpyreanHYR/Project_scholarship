@@ -1,0 +1,845 @@
+# ——————————————————————
+#
+# Copyright (c) 2024 北京理工大学珠海学院 黄耀荣 马荣斌 陈彩蝶 高新雅 王俞欢 张舒一 All rights reserved.
+#
+# ——————————————————————
+
+# 导入库
+import os
+import tkinter as tk
+from tkinter import filedialog, ttk, messagebox
+import pandas as pd
+import re
+import openpyxl
+import json
+from tkinter import Toplevel
+import pkg_resources  # 用于打包时访问资源
+import sys
+import shutil
+from PIL import Image, ImageTk
+import time
+
+
+class LoginManager:
+    def __init__(self, root, scholarship_reviewer):
+        self.root = root
+        self.scholarship_reviewer = scholarship_reviewer
+        self.user_data_file = "users.json"
+        self.users = self.load_user_data()
+        self.failed_attempts = {}  # 记录登录失败次数
+
+    def load_user_data(self):
+        if not os.path.exists(self.user_data_file):
+            with open(self.user_data_file, "w") as f:
+                json.dump({}, f)
+        with open(self.user_data_file, "r") as f:
+            users = json.load(f)
+
+        # 修正旧的用户数据格式（如果值是字符串，将其转换为嵌套字典）
+        for username, data in users.items():
+            if isinstance(data, str):  # 如果是旧格式，值是字符串（密码）
+                users[username] = {"password": data, "locked": False}
+
+        # 保存修正后的数据（如果有修正）
+        with open(self.user_data_file, "w") as f:
+            json.dump(users, f)
+
+        return users
+
+    def save_user_data(self):
+        with open(self.user_data_file, "w") as f:
+            json.dump(self.users, f)
+
+    def register(self):
+        """显示注册窗口"""
+        register_window = Toplevel(self.root)
+        register_window.title("注册")
+
+        tk.Label(register_window, text="用户名:").grid(row=0, column=0, padx=5, pady=5)
+        tk.Label(register_window, text="密码:").grid(row=1, column=0, padx=5, pady=5)
+
+        username_var = tk.StringVar()
+        password_var = tk.StringVar()
+
+        username_entry = tk.Entry(register_window, textvariable=username_var)
+        password_entry = tk.Entry(register_window, textvariable=password_var, show="*")
+        username_entry.grid(row=0, column=1, padx=5, pady=5)
+        password_entry.grid(row=1, column=1, padx=5, pady=5)
+
+        def attempt_register():
+            username = username_var.get()
+            password = password_var.get()
+            if not username or not password:
+                messagebox.showerror("错误", "用户名和密码不能为空！")
+                return
+            if username in self.users:
+                messagebox.showerror("错误", "用户名已存在")
+            else:
+                # 确保每个用户数据是嵌套字典结构
+                self.users[username] = {"password": password, "locked": False}
+                self.save_user_data()
+                messagebox.showinfo("成功", "注册成功！")
+                register_window.destroy()
+
+        tk.Button(register_window, text="注册", command=attempt_register).grid(row=2, column=0, columnspan=2, pady=10)
+
+    def login(self):
+        """显示登录窗口"""
+        login_window = Toplevel(self.root)
+        login_window.title("登录")
+
+        tk.Label(login_window, text="用户名:").grid(row=0, column=0, padx=5, pady=5)
+        tk.Label(login_window, text="密码:").grid(row=1, column=0, padx=5, pady=5)
+
+        username_var = tk.StringVar()
+        password_var = tk.StringVar()
+
+        username_entry = tk.Entry(login_window, textvariable=username_var)
+        password_entry = tk.Entry(login_window, textvariable=password_var, show="*")
+        username_entry.grid(row=0, column=1, padx=5, pady=5)
+        password_entry.grid(row=1, column=1, padx=5, pady=5)
+
+        def attempt_login():
+            username = username_var.get()
+            password = password_var.get()
+
+            if not username or not password:
+                messagebox.showerror("错误", "用户名和密码不能为空！")
+                return
+
+            if username not in self.users:
+                messagebox.showerror("错误", "用户名不存在！")
+                return
+
+            user_data = self.users[username]  # 获取用户的数据（字典形式）
+
+            # 如果账户被锁定，且输入的是管理员密码，解锁该账户
+            if user_data.get("locked"):
+                if password == "deblocking":
+                    user_data["locked"] = False
+                    self.save_user_data()
+                    messagebox.showinfo("成功", f"账户 {username} 已解锁！")
+                    login_window.destroy()
+                    return
+                else:
+                    messagebox.showerror("错误", "账户已锁定，且密码错误！")
+                    return
+
+            if user_data["password"] == password:
+                messagebox.showinfo("成功", f"欢迎，{username}！")
+                self.scholarship_reviewer.enable_import_excel()  # 启用导入Excel功能
+                self.failed_attempts[username] = 0  # 重置失败次数
+                login_window.destroy()
+            else:
+                self.failed_attempts[username] = self.failed_attempts.get(username, 0) + 1
+                if self.failed_attempts[username] >= 3:
+                    user_data["locked"] = True
+                    self.save_user_data()
+                    messagebox.showerror("错误", "登录失败3次，账户已锁定！")
+                else:
+                    remaining_attempts = 3 - self.failed_attempts[username]
+                    messagebox.showerror("错误", f"密码错误！还有{remaining_attempts}次机会。")
+
+        tk.Button(login_window, text="登录", command=attempt_login).grid(row=2, column=0, columnspan=2, pady=10)
+
+class AboutHelp:
+    @staticmethod
+    def show_about(root):
+        """显示关于窗口"""
+        about_window = Toplevel(root)
+        about_window.title("关于")
+        tk.Label(about_window, text="优秀学生奖学金加分项目评审软件 V1.0", font=("Arial", 14)).pack(pady=10)
+        tk.Label(about_window, text="版权所有: 北京理工大学珠海学院，黄耀荣，马荣斌，陈彩蝶，高新雅，王俞欢，张舒一").pack(pady=5)
+
+    @staticmethod
+    def show_help(root):
+        """显示帮助窗口"""
+        help_window = Toplevel(root)
+        help_window.title("帮助")
+        help_text = """使用说明：
+1. 点击“选择文件”按钮加载学生信息。
+2. 在奖项表中逐项进行评审。
+3. 确认后点击导出按钮生成结果文件。
+"""
+        tk.Label(help_window, text=help_text, justify=tk.LEFT, padx=10, pady=10).pack()
+
+class ScholarshipReviewer:
+
+    def __init__(self, root):
+        self.root = root
+
+        # 获取屏幕的宽度和高度
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # 设置窗口大小为屏幕大小
+        self.root.geometry(f"{screen_width}x{screen_height}+0+0")
+        self.is_logged_in = False  # 记录用户登录状态
+
+        # 创建注册、登录、关于、帮助功能
+        self.login_manager = LoginManager(root, self)
+        # 创建按钮菜单，放置在顶部
+        self.create_top_buttons()
+
+        self.default_bg = self.root.cget('bg')  # 保存默认背景色
+
+        # 在加载新数据时初始化 exported 属性
+        self.exported = True  # 数据未导入，可直接关闭窗口
+
+        self.root.title("优秀学生奖学金加分项目评审软件 V1.0")
+
+
+        # 当前选中的Excel数据
+        self.df = None
+        self.current_file = ""
+
+        # 绑定窗口关闭事件
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        # 文件选择按钮
+        self.file_btn = ttk.Button(root, text="请选择Excel文件", command=self.load_file)
+        self.file_btn.pack(pady=10)
+
+        # 学生信息展示区，用来显示学院、姓名、年级、班级、学号等信息
+        self.student_info_frame = ttk.LabelFrame(root, text="学生信息")
+        self.student_info_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+        self.info_labels = {
+            "学院": tk.Label(self.student_info_frame, text="学院: "),
+            "姓名": tk.Label(self.student_info_frame, text="姓名: "),
+            "年级": tk.Label(self.student_info_frame, text="年级: "),
+            "班级": tk.Label(self.student_info_frame, text="班级: "),
+            "学号": tk.Label(self.student_info_frame, text="学号: "),
+        }
+
+        for label in self.info_labels.values():
+            label.pack(side=tk.LEFT, padx=5)
+
+            # 奖项信息展示区（表格），用于显示奖项名称、获奖时间、奖项等级
+            self.tree = ttk.Treeview(root, columns=(
+                "Award", "Time", "Level", "Project", "Evaluated Level", "Recognition", "Points", "Remarks"),
+                                     show="headings")
+            # 设置每一列的表头和宽度
+            self.tree.heading("Award", text="所获奖项名称")
+            self.tree.column("Award", width=400)  # 设置"所获奖项名称"列的宽度
+
+            self.tree.heading("Time", text="获奖时间")
+            self.tree.column("Time", width=150)  # 设置"获奖时间"列的宽度
+
+            self.tree.heading("Level", text="奖项等级")
+            self.tree.column("Level", width=150)  # 设置"奖项等级"列的宽度
+
+            self.tree.heading("Project", text="项目类型")
+            self.tree.column("Project", width=150)  # 设置"项目类型"列的宽度
+
+            self.tree.heading("Evaluated Level", text="评定等级")  # 新增评定等级列
+            self.tree.column("Evaluated Level", width=150)  # 设置"评定等级"列的宽度
+
+            self.tree.heading("Recognition", text="认定情况")
+            self.tree.column("Recognition", width=150)  # 设置"认定情况"列的宽度
+
+            self.tree.heading("Points", text="加分")
+            self.tree.column("Points", width=50)  # 设置"加分"列的宽度
+
+            self.tree.heading("Remarks", text="备注")
+            self.tree.column("Remarks", width=250)  # 设置"备注"列的宽度
+        # 显示表格
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.tree.bind("<<TreeviewSelect>>", self.on_select)  # 绑定点击事件，当选择一行时触发
+
+        # 添加关闭窗口时的退出确认和导出提醒
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        # 评审界面，用来输入和选择项目类型、奖项级别、认定情况、备注等
+        self.review_frame = ttk.LabelFrame(root, text="评审内容")
+        self.review_frame.pack(side=tk.LEFT, fill=tk.X, padx=10, pady=15)
+
+        # 评审内容的各类变量定义
+        self.project_type_var = tk.StringVar()
+        self.level_var = tk.StringVar()
+        self.recognition_var = tk.StringVar()
+        self.remarks_var = tk.StringVar()
+
+        def adjust_combobox_width(combobox, max_width=60):
+            def on_postcommand(event):
+                width = max(max_width, combobox.winfo_reqwidth())
+                combobox.config(width=width)
+
+            combobox.bind('<Configure>', on_postcommand)
+
+        # 项目类型下拉菜单
+        self.project_type_label = tk.Label(self.review_frame, text="项目类型: ")
+        self.project_type_label.pack(side=tk.TOP, padx=5)
+        self.project_type_dropdown = ttk.Combobox(self.review_frame, textvariable=self.project_type_var, width=40)
+        self.project_type_dropdown['values'] = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+        self.project_type_dropdown.pack(side=tk.TOP, padx=5)
+        adjust_combobox_width(self.project_type_dropdown)
+
+        # 奖项级别下拉菜单
+        self.level_label = tk.Label(self.review_frame, text="奖项级别: ")
+        self.level_label.pack(side=tk.TOP, padx=5)
+        self.level_dropdown = ttk.Combobox(self.review_frame, textvariable=self.level_var, width=40)
+        self.level_dropdown.pack(side=tk.TOP, padx=5)
+        adjust_combobox_width(self.level_dropdown)
+
+        # 认定情况下拉菜单
+        self.recognition_label = tk.Label(self.review_frame, text="认定情况: ")
+        self.recognition_label.pack(side=tk.TOP, padx=5)
+        self.recognition_dropdown = ttk.Combobox(self.review_frame, textvariable=self.recognition_var, width=40)
+        self.recognition_dropdown['values'] = ["认定", "不予认定"]
+        self.recognition_dropdown.pack(side=tk.TOP, padx=5)
+        self.recognition_dropdown.bind("<<ComboboxSelected>>", self.on_recognition_select)
+        adjust_combobox_width(self.recognition_dropdown)
+
+        # 备注下拉菜单，默认禁用，只有在选择“不予认定”时启用
+        self.remarks_label = tk.Label(self.review_frame, text="备注: ")
+        self.remarks_label.pack(side=tk.TOP, padx=5)
+        self.remarks_dropdown = ttk.Combobox(self.review_frame, textvariable=self.remarks_var, state='disabled',
+                                             width=40)
+        self.remarks_dropdown['values'] = [
+            "时间不符",
+            "名次不符",
+            "该材料不符合本次奖项加分材料认定范围",
+            "支撑材料不足，补交后可认定",
+            "同一赛事奖项已认定最高分，不予重复加分",
+            "线上比赛不符合认定要求",
+            "其他（需补充文本内容）"
+        ]
+        self.remarks_dropdown.pack(side=tk.TOP, padx=5)
+        adjust_combobox_width(self.remarks_dropdown)
+
+        # 加分显示标签，初始值为0
+        self.points_label = tk.Label(self.review_frame, text="加分: 0")
+        self.points_label.pack(side=tk.TOP, padx=5)
+
+        # 确定按钮，点击后将评审内容写入表格的相应行
+        self.confirm_btn = ttk.Button(self.review_frame, text="确定", command=self.confirm_review)
+        self.confirm_btn.pack(side=tk.TOP, padx=5, pady=10)
+
+        # Excel 导出按钮，点击后保存评审结果到新的 Excel 文件
+        self.export_btn = ttk.Button(self.review_frame, text="评审结果导出Excel", command=self.export_excel)
+        self.export_btn.pack(side=tk.TOP, padx=5, pady=10)
+
+        # 统计结果导出按钮，点击后统计评审结果到新的 Excel 文件
+        self.stats_export_btn = ttk.Button(self.review_frame, text="统计结果导出Excel", command=self.stats_export_excel)
+        self.stats_export_btn.pack(side=tk.TOP, padx=5, pady=10)
+
+        # 当选择项目类型时，动态更新奖项级别的选项
+        self.project_type_dropdown.bind("<<ComboboxSelected>>", self.update_award_levels)
+
+    def create_top_buttons(self):
+        """创建功能按钮"""
+        top_frame = tk.Frame(self.root)
+        top_frame.pack(side=tk.TOP, fill=tk.X)
+
+        "注册"
+        login_btn = ttk.Button(top_frame, text="注册", command=self.login_manager.register)
+        login_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        "登录"
+        login_btn = ttk.Button(top_frame, text="登录", command=self.login_manager.login)
+        login_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        "关于"
+        about_btn = ttk.Button(top_frame, text="关于", command=lambda: AboutHelp.show_about(self.root))
+        about_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        "帮助"
+        help_btn = ttk.Button(top_frame, text="帮助", command=lambda: AboutHelp.show_help(self.root))
+        help_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        "模板"
+        download_template_btn = ttk.Button(top_frame, text="模板", command=self.download_template)
+        download_template_btn.pack(side=tk.LEFT, padx=5, pady=30)
+        "浅色模式"
+        light_btn = ttk.Button(top_frame, text="浅色模式", command=lambda: self.apply_theme("light"))
+        light_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        "深色模式"
+        dark_btn = ttk.Button(top_frame, text="深色模式", command=lambda: self.apply_theme("dark"))
+        dark_btn.pack(side=tk.LEFT, padx=5, pady=5)
+
+    def download_template(self, template_name="template" + ".xlsx"):
+        """下载模板文件"""
+        # 定义模板文件名
+        template_filename = "template.xlsx"
+
+        # 打包时使用 pkg_resources 访问模板文件
+        if getattr(sys, 'frozen', False):  # 判断是否为打包后的exe文件
+            template_path = pkg_resources.resource_filename(__name__, template_filename)
+        else:
+            # 在开发环境中直接使用本地路径
+            template_path = os.path.join(os.path.dirname(__file__), template_filename)
+
+        # 检查模板文件是否存在
+        if not os.path.exists(template_path):
+            messagebox.showerror("错误", "模板文件不存在！")
+            return
+
+        # 文件保存对话框，用户选择保存位置
+        save_path = filedialog.asksaveasfilename(initialfile=template_name, defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
+
+        if save_path:
+            try:
+                # 复制模板文件到用户选择的路径
+                shutil.copy(template_path, save_path)
+                messagebox.showinfo("成功", f"模板文件已保存到: {save_path}")
+            except Exception as e:
+                messagebox.showerror("错误", f"文件保存失败: {str(e)}")
+
+    def apply_theme(self, theme):
+        """应用主题"""
+        if theme == "dark":
+            self.root.tk_setPalette(background="black" , foreground="white")
+        else:
+            self.root.tk_setPalette(background=self.default_bg, foreground="black")
+
+    def enable_import_excel(self):
+        """启用导入Excel功能"""
+        self.is_logged_in = True
+        self.import_btn.config(state=tk.NORMAL)
+
+    def load_file(self):
+        """打开文件选择对话框，并读取Excel文件"""
+        if not self.is_logged_in:
+            messagebox.showerror("错误", "请先登录！")
+            return
+
+        file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+        if file_path:
+            self.load_excel_data(file_path)
+
+    def load_excel_data(self, excel_path):
+        """加载Excel文件并将数据添加到表格中"""
+        # 清空之前的数据
+        self.tree.delete(*self.tree.get_children())  # 清空表格中的内容
+        self.df = None  # 清空之前的df数据
+
+        # 加载新的Excel文件
+        self.df = pd.read_excel(excel_path)
+
+        # 在成功加载数据时更新状态
+        self.exported = False  # 数据未导出
+        messagebox.showinfo("成功", f"文件已加载: {excel_path}")
+
+        #加载学生基本信息
+        for idx, row in self.df.iterrows():
+            # 显示学生基本信息
+            self.info_labels["学院"].config(text=f"学院: {row['学院']}")
+            self.info_labels["姓名"].config(text=f"姓名: {row['姓名']}")
+            self.info_labels["年级"].config(text=f"年级: {row['年级']}")
+            self.info_labels["班级"].config(text=f"班级: {row['班级']}")
+            self.info_labels["学号"].config(text=f"学号: {row['学号']}")
+
+            # 添加每行奖项信息到表格中
+            self.tree.insert("", "end", values=(row['所获奖项名称'], row['获奖时间'], row['奖项等级'], "", "", "", ""))
+
+
+    def on_select(self, event):
+        """当用户点击表格中的一行时，更新右侧的评审界面"""
+        selected_item = self.tree.selection()
+        if selected_item:
+            # 获取所选行的数据
+            selected_values = self.tree.item(selected_item)['values']
+
+            # 这里更新评审界面对应的输入框或标签
+            award_name = selected_values[0]  # 奖项名称
+            level = selected_values[2]  # 奖项等级
+
+            # 将奖项名称和等级显示在评审界面上
+            self.project_type_var.set("")  # 清空项目类型选择
+            self.level_var.set("")  # 不默认显示读取的Excel的奖项等级
+            self.recognition_var.set("")  # 清空认定情况选择
+            self.remarks_var.set("")  # 清空备注选择
+            self.points_label.config(text="加分: 0")  # 重置加分为0
+
+    def update_award_levels(self, event=None):
+        """根据选择的项目类型，动态更新奖项级别下拉列表的选项"""
+        project_type = self.project_type_var.get()
+        if project_type == "竞赛类加分":
+            self.level_dropdown['values'] = [
+                "国家级一等奖", "国家级二等奖", "国家级三等奖",
+                "省级一等奖", "省级二等奖", "省级三等奖",
+                "市级一等奖", "市级二等奖", "市级三等奖",
+                "校级一等奖", "校级二等奖", "校级三等奖",
+                "院级一等奖", "院级二等奖", "院级三等奖"
+            ]
+        elif project_type == "科研创新类加分":
+            self.level_dropdown['values'] = [
+                "国家级立项主持人", "国家级立项学生成员",
+                "省级重点立项主持人", "省级重点立项学生成员",
+                "省级一般立项主持人", "省级一般立项学生成员",
+                "校级立项主持人", "校级立项学生成员",
+                "SCI论文一作", "SCI论文二作", "SCI论文三作",
+                "核心期刊论文一作", "核心期刊论文二作", "核心期刊论文三作",
+                "普通期刊论文一作", "普通期刊论文二作", "普通期刊论文三作",
+                "版权著作",
+                "发明专利一作", "发明专利二作", "发明专利三作",
+                "实用新型专利一作", "实用新型专利二作", "实用新型专利三作",
+                "外观专利一作", "外观专利二作", "外观专利三作",
+            ]
+        elif project_type == "外语类加分":
+            self.level_dropdown['values'] = [
+                "大学英语四级（CET4）", "大学英语六级（CET6）",
+                "英语专业四级（TEM4）", "英语专业八级（TEM8）",
+                "雅思（IELTS）",
+                "托福（TOEFL）",
+                "剑桥英语考试（Cambridge English Exams）",
+                "培生英语考试（Pearson Test of English Academic, PTE Academic）",
+                "GRE（Graduate Record Examination）",
+                "GMAT（Graduate Management Admission Test）",
+                "其他符合外语类加分项目（2分）",
+                "其他符合外语类加分项目（1分）",
+            ]
+        self.level_var.set("")  # 清空选择
+
+    def on_recognition_select(self, event=None):
+        """当用户选择认定情况时，启用或禁用备注下拉菜单"""
+        if self.recognition_var.get() == "不予认定":
+            self.remarks_dropdown.config(state='readonly')  # 启用备注选择
+            # 备注必须填写，所以这里设置为不能为空
+            self.remarks_var.set("请填写备注")
+        else:
+            self.remarks_dropdown.config(state='disabled')  # 禁用备注选择
+            self.remarks_var.set("")  # 清空备注选择
+
+    def calculate_points(self, project_type, level):
+        """根据项目类型和级别计算加分"""
+        # 奖项对应的分数映射
+        points_dict = {
+            "竞赛类加分": {
+                "国家级一等奖": 6, "国家级二等奖": 4, "国家级三等奖": 3,
+                "省级一等奖": 5, "省级二等奖": 3, "省级三等奖": 2,
+                "市级一等奖": 3, "市级二等奖": 2, "市级三等奖": 1,
+                "校级一等奖": 2, "校级二等奖": 1, "校级三等奖": 0.5,
+                "院级一等奖": 1, "院级二等奖": 0.5, "院级三等奖": 0.3
+            },
+            "科研创新类加分": {
+                "国家级立项主持人": 6, "国家级立项学生成员": 4,
+                "省级重点立项主持人": 5, "省级重点立项学生成员": 3,
+                "省级一般立项主持人": 3, "省级一般立项学生成员": 2,
+                "校级立项主持人": 2, "校级立项学生成员": 1,
+                "SCI论文一作": 6, "SCI论文二作": 4, "SCI论文三作": 3,
+                "核心期刊论文一作": 3, "核心期刊论文二作": 2, "核心期刊论文三作": 1,
+                "普通期刊论文一作": 2, "普通期刊论文二作": 1, "普通期刊论文三作": 0.5,
+                "版权著作": 1,
+                "发明专利一作": 6, "发明专利二作": 4, "发明专利三作": 3,
+                "实用新型专利一作": 2, "实用新型专利二作": 1, "实用新型专利三作": 0.5,
+                "外观专利一作": 2, "外观专利二作": 1, "外观专利三作": 0.5,
+            },
+            "外语类加分": {
+                "大学英语四级（CET4）": 1, "大学英语六级（CET6）": 2,
+                "英语专业四级（TEM4）": 1, "英语专业八级（TEM8）": 2,
+                "雅思（IELTS）": 2,
+                "托福（TOEFL）": 2,
+                "剑桥英语考试（Cambridge English Exams）": 2,
+                "培生英语考试（Pearson Test of English Academic）": 2,
+                "GRE（Graduate Record Examination）": 2,
+                "GMAT（Graduate Management Admission Test）": 2,
+                "其他符合外语类加分项目（2分）": 2,
+                "其他符合外语类加分项目（1分）": 1
+            }
+        }
+        # 查找对应的加分值
+        if project_type in points_dict and level in points_dict[project_type]:
+            return points_dict[project_type][level]
+        return 0  # 如果没有找到对应的加分项，返回0分
+
+    def confirm_review(self):
+        """确认评审结果并更新表格"""
+        selected_item = self.tree.selection()
+        if not selected_item:
+            messagebox.showerror("错误", "请先选择一行进行评审")
+            return
+
+        if selected_item:
+            # 获取当前选中的行号
+            selected_idx = self.tree.index(selected_item[0])
+            # 获取用户输入的内容
+            project_type = self.project_type_var.get()
+            level = self.level_var.get()
+            recognition = self.recognition_var.get()
+            remarks = self.remarks_var.get()
+
+            # 如果认定情况为“不予认定”，则必须有备注
+            if recognition == "不予认定" and not remarks:
+                messagebox.showerror("错误", "请填写备注信息")
+                return  # 退出方法，不更新表格
+
+            # 如果认定情况为“认定”，则项目类型和评定等级不能为空
+            if recognition == "认定" and (not project_type or not level):
+                messagebox.showerror("错误", "项目类型和评定等级不能为空")
+                return  # 退出方法，不更新表格
+
+            if recognition == "认定":
+                points = self.calculate_points(project_type, level)
+            else:
+                points = 0
+
+            # 更新 TreeView 的选中行
+            self.tree.item(selected_item, values=(
+                self.tree.item(selected_item, "values")[0],  # 奖项名称
+                self.tree.item(selected_item, "values")[1],  # 获奖时间
+                self.tree.item(selected_item, "values")[2],  # 奖项等级
+                project_type,  # 项目类型
+                level,  # 评定等级
+                recognition,  # 认定情况
+                points,  # 加分
+                remarks  # 备注
+            ))
+
+            # 更新 DataFrame 中的数据
+            self.df.loc[selected_idx, '项目类型'] = project_type
+            self.df.loc[selected_idx, '评定等级'] = level
+            self.df.loc[selected_idx, '认定情况'] = recognition
+            self.df.loc[selected_idx, '加分'] = points
+            self.df.loc[selected_idx, '备注'] = remarks
+
+            # 更新界面的加分显示
+
+            # 计算加分
+            points = self.calculate_points(project_type, level)
+
+            # 如果认定情况为“不予认定”，则加分为0
+            if recognition == "不予认定":
+                points = 0
+
+            # 获取当前选中行的索引
+            index = self.tree.index(selected_item)
+            award_name = self.tree.item(selected_item)['values'][0]  # 奖项名称
+
+            self.points_label.config(text=f"加分: {points}")  # 更新加分显示
+
+            # 更新表格
+            self.tree.item(selected_item, values=(
+                award_name,
+                self.tree.item(selected_item)['values'][1],  # 保持获奖时间不变
+                self.tree.item(selected_item)['values'][2],  # 保持奖项等级不变
+                project_type,
+                level,
+                recognition,
+                points,
+                remarks
+            ))
+
+            # 自动选择下一行
+            self.select_next_item(index)
+
+    def select_next_item(self, current_index):
+        """选择下一行，如果没有则从头开始检查未评审的行"""
+        next_index = current_index + 1
+
+        # 检查是否到达最后一行
+        if next_index >= len(self.tree.get_children()):
+            next_index = 0  # 如果到达最后一行，则从头开始
+
+        # 从当前索引或头开始，寻找未评审的行
+        for i in range(next_index, len(self.tree.get_children())):
+            item = self.tree.get_children()[i]
+            recognition = self.tree.item(item)['values'][5]  # 认定情况的列索引
+            if recognition == "":  # 如果认定情况为空，则选中该行
+                self.tree.selection_set(item)
+                self.tree.focus(item)
+                return
+
+        # 如果从当前位置没有找到未评审的，则从头开始查找
+        for i in range(0, next_index):
+            item = self.tree.get_children()[i]
+            recognition = self.tree.item(item)['values'][5]  # 认定情况的列索引
+            if recognition == "":  # 如果认定情况为空，则选中该行
+                self.tree.selection_set(item)
+                self.tree.focus(item)
+                return
+
+    def on_closing(self):
+        """当用户尝试关闭窗口时，检查是否有未导出的数据"""
+        if not self.exported:  # 如果数据未导出
+            if messagebox.askokcancel("未导出数据", "你还有未导出的评审结果，确定要关闭吗？"):
+                self.root.destroy()  # 用户确认后关闭窗口
+        else:
+            self.root.destroy()  # 如果数据已导出，直接关闭窗口
+
+    def export_excel(self):
+        """导出评审结果到新的Excel文件"""
+        if self.df is not None:
+            # 检查所有奖项是否都有认定情况和备注是否已填写
+            unreviewed_awards = []
+            incomplete_remarks = []
+
+            for item in self.tree.get_children():
+                values = self.tree.item(item)['values']
+                recognition = values[5] if len(values) > 5 else None  # 安全获取认定情况列
+                remarks = values[7] if len(values) > 7 else None  # 安全获取备注列
+
+                if not recognition:  # 如果认定情况为空
+                    unreviewed_awards.append(values[0])  # 记录未审核的奖项名称
+                if remarks == "请填写备注":  # 如果备注列存在“请填写备注”
+                    incomplete_remarks.append(values[0])  # 记录备注未完成的奖项名称
+
+            if unreviewed_awards or incomplete_remarks:
+                # 如果存在未审核或未填写备注的奖项，显示提示信息并终止导出
+                error_message = ""
+                if unreviewed_awards:
+                    error_message += f"以下奖项未完成审核：\n{', '.join(map(str,unreviewed_awards))}\n"
+
+                if incomplete_remarks:
+                    error_message += f"以下奖项需要填写备注：\n{', '.join(map(str,incomplete_remarks))}\n"
+                messagebox.showerror("错误", error_message + "请先完成所有奖项的审核。")
+                return  # 终止函数的执行
+
+            # 获取当前选中学生的基本信息
+            basic_info = {
+                "学院": self.info_labels["学院"].cget("text").split(": ")[1],
+                "姓名": self.info_labels["姓名"].cget("text").split(": ")[1],
+                "年级": self.info_labels["年级"].cget("text").split(": ")[1],
+                "班级": self.info_labels["班级"].cget("text").split(": ")[1],
+                "学号": self.info_labels["学号"].cget("text").split(": ")[1]
+            }
+
+            export_data = []
+            for item in self.tree.get_children():
+                values = self.tree.item(item)['values']
+                # 将基本信息添加到每一行的前面
+                row_data = [basic_info["学院"], basic_info["姓名"], basic_info["年级"], basic_info["班级"],
+                            basic_info["学号"]] + list(values)
+                export_data.append(row_data)
+
+            # 导出Excel的逻辑
+            # 获取学生信息
+            student_info = self.df.iloc[0][['学院', '姓名', '年级', '班级', '学号']]
+            file_name = "_".join(student_info.astype(str)) + ".xlsx"
+
+            # 导出Excel的数据内容
+            df_export = pd.DataFrame(export_data,
+                                     columns=["学院", "姓名", "年级", "班级", "学号", "所获奖项名称", "获奖时间",
+                                              "奖项等级", "项目类型", "评定等级", "认定情况", "加分", "备注"])
+
+            # 设置文件默认保存名格式，“学院_姓名_年级_班级_学号.xlsx”
+            save_path = filedialog.asksaveasfilename(initialfile=file_name, defaultextension=".xlsx",
+                                                         filetypes=[("Excel files", "*.xlsx")])
+            if not save_path:
+                messagebox.showerror("错误", "文件路径未选择！")
+                return  # 终止函数的执行
+
+            df_export.to_excel(save_path, index=False)
+            messagebox.showinfo("成功", f"Excel文件导出成功！导出至{save_path}")
+            self.exported = True
+
+        else:
+            messagebox.showerror("错误", "没有可导出的数据！")
+
+    def stats_export_excel(self):
+        """导出统计结果到新的Excel文件"""
+        if self.df is not None:
+            # 检查所有奖项是否都有认定情况和备注是否已填写
+            unreviewed_awards = []
+            incomplete_remarks = []
+
+            for item in self.tree.get_children():
+                values = self.tree.item(item)['values']
+                recognition = values[5] if len(values) > 5 else None  # 安全获取认定情况列
+                remarks = values[7] if len(values) > 7 else None  # 安全获取备注列
+
+                if not recognition:  # 如果认定情况为空
+                    unreviewed_awards.append(values[0])  # 记录未审核的奖项名称
+                if remarks == "请填写备注":  # 如果备注列存在“请填写备注”
+                    incomplete_remarks.append(values[0])  # 记录备注未完成的奖项名称
+
+            if unreviewed_awards or incomplete_remarks:
+                # 如果存在未审核或未填写备注的奖项，显示提示信息并终止导出
+                error_message = ""
+                if unreviewed_awards:
+                    error_message += f"以下奖项未完成审核：\n{', '.join(map(str, unreviewed_awards))}\n"
+
+                if incomplete_remarks:
+                    error_message += f"以下奖项需要填写备注：\n{', '.join(map(str, incomplete_remarks))}\n"
+                messagebox.showerror("错误", error_message + "请先完成所有奖项的审核。")
+                return  # 终止函数的执行
+
+            # 定义项目类型
+            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+
+            # 初始化统计字典
+            statistics = {ptype: 0 for ptype in project_types}
+
+            # 遍历表格，按项目类型统计总分
+            for _, row in self.df.iterrows():
+                project_type = row.get("项目类型", "")
+                points = row.get("加分", 0)
+                if project_type in statistics:
+                    statistics[project_type] += points
+
+            # 限制每类总分最大为6分
+            for key in statistics:
+                statistics[key] = min(statistics[key], 6)
+
+            # 获取当前选中学生的基本信息
+            basic_info = {
+                "学院": self.info_labels["学院"].cget("text").split(": ")[1],
+                "姓名": self.info_labels["姓名"].cget("text").split(": ")[1],
+                "年级": self.info_labels["年级"].cget("text").split(": ")[1],
+                "班级": self.info_labels["班级"].cget("text").split(": ")[1],
+                "学号": self.info_labels["学号"].cget("text").split(": ")[1]
+            }
+
+            # 构建导出的行数据
+            export_row = [
+                basic_info["学院"],
+                basic_info["姓名"],
+                basic_info["年级"],
+                basic_info["班级"],
+                basic_info["学号"],
+                statistics["竞赛类加分"],
+                statistics["科研创新类加分"],
+                statistics["外语类加分"]
+            ]
+
+            # 定义列名
+            columns = ["学院", "姓名", "年级", "班级", "学号", "竞赛类加分", "科研创新类加分", "外语类加分"]
+
+            # 设置文件默认保存名格式，“学院_姓名_年级_班级_学号.xlsx”
+            file_name = f"{basic_info['学院']}_{basic_info['姓名']}_{basic_info['年级']}_{basic_info['班级']}_{basic_info['学号']}_统计.xlsx"
+            save_path = filedialog.asksaveasfilename(initialfile=file_name, defaultextension=".xlsx",
+                                                     filetypes=[("Excel files", "*.xlsx")])
+            if not save_path:
+                messagebox.showerror("错误", "文件路径未选择！")
+                return  # 终止函数的执行
+
+            # 创建导出 DataFrame 并保存为 Excel
+            df_export = pd.DataFrame([export_row], columns=columns)
+            df_export.to_excel(save_path, index=False)
+            messagebox.showinfo("成功", f"Excel文件导出成功！导出至{save_path}")
+            self.exported = True
+
+        else:
+            messagebox.showerror("错误", "没有可导出的数据！")
+
+
+if __name__ == "__main__":
+    # 创建主窗口
+    root = tk.Tk()
+    app = ScholarshipReviewer(root)
+
+    # 加载图标
+    icon_path = "logo.ico"
+    icon_image = ImageTk.PhotoImage(file=icon_path)
+    # 设置窗口 Logo
+    root.iconphoto(False, icon_image)
+
+    class CustomToplevel(Toplevel):
+        def __init__(self, master=None, icon=None, **kwargs):
+            super().__init__(master, **kwargs)
+            if icon:
+                self.iconphoto(False, icon)  # 自动设置图标
+
+
+    # 使用封装的弹窗类
+    def create_popup():
+        popup = CustomToplevel(root, icon=icon_image)
+        popup.title("统一图标的弹窗")
+        popup.geometry("512*512")
+
+        # 添加内容
+        label = tk.Label(popup, text="这是一个统一图标的弹窗")
+        label.pack(pady=20)
+
+        button_close = tk.Button(popup, text="关闭", command=popup.destroy)
+        button_close.pack(pady=10)
+
+    # 窗口主循环
+    root.mainloop()
