@@ -1,9 +1,3 @@
-# ——————————————————————
-#
-# Copyright (c) 2024 北京理工大学珠海学院 黄耀荣 马荣斌 陈彩蝶 高新雅 王俞欢 张舒一 All rights reserved.
-#
-# ——————————————————————
-
 # 导入库
 import os
 import tkinter as tk
@@ -149,7 +143,9 @@ class AboutHelp:
         about_window = Toplevel(root)
         about_window.title("关于")
         tk.Label(about_window, text="优秀学生奖学金加分项目评审软件 V1.0", font=("Arial", 14)).pack(pady=10)
-        tk.Label(about_window, text="版权所有: 北京理工大学珠海学院，黄耀荣，马荣斌，陈彩蝶，高新雅，王俞欢，张舒一").pack(pady=5)
+        tk.Label(about_window, text="版权所有: 黄耀荣，马荣斌，陈彩蝶，高新雅，王俞欢，张舒一").pack(pady=5)
+        # 绑定关闭事件，确保资源释放
+        about_window.protocol("WM_DELETE_WINDOW", about_window.destroy)
 
     @staticmethod
     def show_help(root):
@@ -162,6 +158,8 @@ class AboutHelp:
 3. 确认后点击导出按钮生成结果文件。
 """
         tk.Label(help_window, text=help_text, justify=tk.LEFT, padx=10, pady=10).pack()
+        # 绑定关闭事件，确保资源释放
+        help_window.protocol("WM_DELETE_WINDOW", help_window.destroy)
 
 class ScholarshipReviewer:
 
@@ -188,7 +186,6 @@ class ScholarshipReviewer:
 
         self.root.title("优秀学生奖学金加分项目评审软件 V1.0")
 
-
         # 当前选中的Excel数据
         self.df = None
         self.current_file = ""
@@ -196,12 +193,20 @@ class ScholarshipReviewer:
         # 绑定窗口关闭事件
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        # 文件选择按钮
-        self.file_btn = ttk.Button(root, text="请选择Excel文件", command=self.load_file)
-        self.file_btn.pack(pady=10)
+        # ========== 新布局：主Frame横向分为左右 ==========
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # 学生信息展示区，用来显示学院、姓名、年级、班级、学号等信息
-        self.student_info_frame = ttk.LabelFrame(root, text="学生信息")
+        # 左侧Frame（纵向分为上：奖项信息展示区，下：支撑材料展示区）
+        left_frame = tk.Frame(main_frame)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # 右侧Frame（评审界面）
+        right_frame = tk.Frame(main_frame)
+        right_frame.pack(side=tk.LEFT, fill=tk.Y)
+
+        # 学生信息展示区
+        self.student_info_frame = ttk.LabelFrame(left_frame, text="学生信息")
         self.student_info_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
         self.info_labels = {
@@ -211,48 +216,48 @@ class ScholarshipReviewer:
             "班级": tk.Label(self.student_info_frame, text="班级: "),
             "学号": tk.Label(self.student_info_frame, text="学号: "),
         }
-
         for label in self.info_labels.values():
             label.pack(side=tk.LEFT, padx=5)
 
-            # 奖项信息展示区（表格），用于显示奖项名称、获奖时间、奖项等级
-            self.tree = ttk.Treeview(root, columns=(
-                "Award", "Time", "Level", "Project", "Evaluated Level", "Recognition", "Points", "Remarks"),
-                                     show="headings")
-            # 设置每一列的表头和宽度
-            self.tree.heading("Award", text="所获奖项名称")
-            self.tree.column("Award", width=400)  # 设置"所获奖项名称"列的宽度
-
-            self.tree.heading("Time", text="获奖时间")
-            self.tree.column("Time", width=150)  # 设置"获奖时间"列的宽度
-
-            self.tree.heading("Level", text="奖项等级")
-            self.tree.column("Level", width=150)  # 设置"奖项等级"列的宽度
-
-            self.tree.heading("Project", text="项目类型")
-            self.tree.column("Project", width=150)  # 设置"项目类型"列的宽度
-
-            self.tree.heading("Evaluated Level", text="评定等级")  # 新增评定等级列
-            self.tree.column("Evaluated Level", width=150)  # 设置"评定等级"列的宽度
-
-            self.tree.heading("Recognition", text="认定情况")
-            self.tree.column("Recognition", width=150)  # 设置"认定情况"列的宽度
-
-            self.tree.heading("Points", text="加分")
-            self.tree.column("Points", width=50)  # 设置"加分"列的宽度
-
-            self.tree.heading("Remarks", text="备注")
-            self.tree.column("Remarks", width=250)  # 设置"备注"列的宽度
-        # 显示表格
+        # ========== 奖项信息展示区（表格） ==========  高度减少 ==========
+        table_frame = tk.Frame(left_frame)
+        table_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=False, padx=10, pady=5)
+        self.tree = ttk.Treeview(table_frame, columns=(
+            "Award", "Time", "Level", "Project", "Evaluated Level", "Recognition", "Points", "Remarks"),
+                                 show="headings", height=10)  # 设置height减少高度
+        # 设置每一列的表头和宽度
+        self.tree.heading("Award", text="所获奖项名称")
+        self.tree.column("Award", width=400)
+        self.tree.heading("Time", text="获奖时间")
+        self.tree.column("Time", width=150)
+        self.tree.heading("Level", text="奖项等级")
+        self.tree.column("Level", width=150)
+        self.tree.heading("Project", text="项目类型")
+        self.tree.column("Project", width=150)
+        self.tree.heading("Evaluated Level", text="评定等级")
+        self.tree.column("Evaluated Level", width=150)
+        self.tree.heading("Recognition", text="认定情况")
+        self.tree.column("Recognition", width=150)
+        self.tree.heading("Points", text="加分")
+        self.tree.column("Points", width=50)
+        self.tree.heading("Remarks", text="备注")
+        self.tree.column("Remarks", width=250)
         self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.tree.bind("<<TreeviewSelect>>", self.on_select)  # 绑定点击事件，当选择一行时触发
+        self.tree.bind("<<TreeviewSelect>>", self.on_select)
 
-        # 添加关闭窗口时的退出确认和导出提醒
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        # ========== 支撑材料展示区（在表格下方） ========== 位置调整 ==========
+        self.material_frame = tk.Frame(left_frame)
+        self.material_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=5)
+        self.material_label = tk.Label(self.material_frame, text="支撑材料预览区", anchor="center")
+        self.material_label.pack(side=tk.TOP, fill=tk.X)
+        self.material_canvas = tk.Canvas(self.material_frame, bg="white", height=300)
+        self.material_canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.material_img = None
+        self.material_pdf_btn = None
 
-        # 评审界面，用来输入和选择项目类型、奖项级别、认定情况、备注等
-        self.review_frame = ttk.LabelFrame(root, text="评审内容")
-        self.review_frame.pack(side=tk.LEFT, fill=tk.X, padx=10, pady=15)
+        # ========== 评审界面放在右侧 ==========
+        self.review_frame = ttk.LabelFrame(right_frame, text="评审内容")
+        self.review_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=15)
 
         # 评审内容的各类变量定义
         self.project_type_var = tk.StringVar()
@@ -332,27 +337,66 @@ class ScholarshipReviewer:
         top_frame = tk.Frame(self.root)
         top_frame.pack(side=tk.TOP, fill=tk.X)
 
-        "注册"
-        login_btn = ttk.Button(top_frame, text="注册", command=self.login_manager.register)
-        login_btn.pack(side=tk.LEFT, padx=5, pady=5)
-        "登录"
+        register_btn = ttk.Button(top_frame, text="注册", command=self.login_manager.register)
+        register_btn.pack(side=tk.LEFT, padx=5, pady=5)
         login_btn = ttk.Button(top_frame, text="登录", command=self.login_manager.login)
         login_btn.pack(side=tk.LEFT, padx=5, pady=5)
-        "关于"
         about_btn = ttk.Button(top_frame, text="关于", command=lambda: AboutHelp.show_about(self.root))
         about_btn.pack(side=tk.LEFT, padx=5, pady=5)
-        "帮助"
         help_btn = ttk.Button(top_frame, text="帮助", command=lambda: AboutHelp.show_help(self.root))
         help_btn.pack(side=tk.LEFT, padx=5, pady=5)
-        "模板"
         download_template_btn = ttk.Button(top_frame, text="模板", command=self.download_template)
         download_template_btn.pack(side=tk.LEFT, padx=5, pady=30)
-        "浅色模式"
         light_btn = ttk.Button(top_frame, text="浅色模式", command=lambda: self.apply_theme("light"))
         light_btn.pack(side=tk.LEFT, padx=5, pady=5)
-        "深色模式"
         dark_btn = ttk.Button(top_frame, text="深色模式", command=lambda: self.apply_theme("dark"))
         dark_btn.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # ========== 导入Excel文件按钮 ==========
+        self.file_btn = ttk.Button(top_frame, text="请选择Excel文件", command=self.load_file)
+        self.file_btn.pack(side=tk.LEFT, padx=5, pady=10)
+        self.file_btn.config(state=tk.DISABLED)  # 默认禁用，登录后启用
+
+        # ========== 新增：打开PDF支撑材料按钮 ==========
+        self.open_pdf_btn = ttk.Button(top_frame, text="打开PDF支撑材料", command=self.open_selected_pdf)
+        self.open_pdf_btn.pack(side=tk.LEFT, padx=5, pady=10)
+        self.open_pdf_btn.config(state=tk.NORMAL)
+
+        # ========== 新增：打开Excel文件所在目录按钮 ==========
+        self.open_excel_dir_btn = ttk.Button(top_frame, text="打开Excel文件位置", command=self.open_excel_dir)
+        self.open_excel_dir_btn.pack(side=tk.LEFT, padx=5, pady=10)
+        self.open_excel_dir_btn.config(state=tk.NORMAL)
+
+    def open_selected_pdf(self):
+        """在顶部按钮栏打开当前选中行的PDF支撑材料"""
+        if not self.current_file:
+            messagebox.showerror("错误", "请先导入Excel文件！")
+            return
+        selected_item = self.tree.selection()
+        if not selected_item:
+            messagebox.showerror("错误", "请先在表格中选择一行奖项！")
+            return
+        award_name = self.tree.item(selected_item)['values'][0]
+        base_dir = os.path.dirname(self.current_file)
+        safe_award_name = ''.join([c for c in str(award_name) if '\u4e00' <= c <= '\u9fff' or c.isalnum()])
+        pdf_path = os.path.join(base_dir, safe_award_name + ".pdf")
+        if os.path.exists(pdf_path):
+            import webbrowser
+            webbrowser.open(pdf_path)
+        else:
+            messagebox.showerror("错误", "未找到对应的PDF文件！")
+
+    def open_excel_dir(self):
+        """打开导入的Excel文件所在目录"""
+        if not self.current_file:
+            messagebox.showerror("错误", "请先导入Excel文件！")
+            return
+        import subprocess
+        folder = os.path.dirname(os.path.abspath(self.current_file))
+        try:
+            os.startfile(folder)
+        except Exception as e:
+            messagebox.showerror("错误", f"无法打开目录: {e}")
 
     def download_template(self, template_name="template" + ".xlsx"):
         """下载模板文件"""
@@ -392,7 +436,21 @@ class ScholarshipReviewer:
     def enable_import_excel(self):
         """启用导入Excel功能"""
         self.is_logged_in = True
-        self.import_btn.config(state=tk.NORMAL)
+        self.file_btn.config(state=tk.NORMAL)
+
+    def validate_review_completion(self):
+        """校验所有奖项是否审核完毕及备注填写完整，返回(未审核列表, 未备注列表)"""
+        unreviewed_awards = []
+        incomplete_remarks = []
+        for item in self.tree.get_children():
+            values = self.tree.item(item)['values']
+            recognition = values[5] if len(values) > 5 else None
+            remarks = values[7] if len(values) > 7 else None
+            if not recognition:
+                unreviewed_awards.append(values[0])
+            if remarks == "请填写备注":
+                incomplete_remarks.append(values[0])
+        return unreviewed_awards, incomplete_remarks
 
     def load_file(self):
         """打开文件选择对话框，并读取Excel文件"""
@@ -412,6 +470,7 @@ class ScholarshipReviewer:
 
         # 加载新的Excel文件
         self.df = pd.read_excel(excel_path)
+        self.current_file = excel_path  # 关键：记录当前excel文件路径，供支撑材料查找
 
         # 在成功加载数据时更新状态
         self.exported = False  # 数据未导出
@@ -431,7 +490,7 @@ class ScholarshipReviewer:
 
 
     def on_select(self, event):
-        """当用户点击表格中的一行时，更新右侧的评审界面"""
+        """当用户点击表格中的一行时，更新右侧的评审界面，并显示奖项支撑材料"""
         selected_item = self.tree.selection()
         if selected_item:
             # 获取所选行的数据
@@ -447,6 +506,46 @@ class ScholarshipReviewer:
             self.recognition_var.set("")  # 清空认定情况选择
             self.remarks_var.set("")  # 清空备注选择
             self.points_label.config(text="加分: 0")  # 重置加分为0
+
+            # 新增：查找并显示奖项支撑材料
+            self.show_award_material(award_name)
+
+    def show_award_material(self, award_name):
+        """查找并显示与奖项名称相关的图片或pdf文件"""
+        # 清空canvas和pdf按钮
+        self.material_canvas.delete("all")
+        if self.material_pdf_btn:
+            self.material_pdf_btn.destroy()
+            self.material_pdf_btn = None
+        if not self.current_file:
+            return
+        base_dir = os.path.dirname(self.current_file)
+        safe_award_name = ''.join([c for c in str(award_name) if '\u4e00' <= c <= '\u9fff' or c.isalnum()])
+        # 优先查找图片
+        for ext in [".jpg", ".jpeg", ".png"]:
+            file_path = os.path.join(base_dir, safe_award_name + ext)
+            if os.path.exists(file_path):
+                try:
+                    from PIL import Image, ImageTk
+                    img = Image.open(file_path)
+                    img.thumbnail((400, 300))
+                    self.material_img = ImageTk.PhotoImage(img)
+                    self.material_canvas.create_image(200, 150, image=self.material_img)
+                    return
+                except Exception as e:
+                    self.material_canvas.create_text(200, 150, text=f"图片加载失败: {e}")
+                    return
+        # 查找pdf
+        pdf_path = os.path.join(base_dir, safe_award_name + ".pdf")
+        if os.path.exists(pdf_path):
+            def open_pdf():
+                import webbrowser
+                webbrowser.open(pdf_path)
+            self.material_pdf_btn = tk.Button(self.material_frame, text="打开PDF支撑材料", command=open_pdf)
+            self.material_pdf_btn.pack(side=tk.TOP, pady=10)
+            self.material_canvas.create_text(200, 150, text="点击上方按钮打开PDF文件")
+            return
+        self.material_canvas.create_text(200, 150, text="未找到相关支撑材料（图片或PDF）")
 
     def update_award_levels(self, event=None):
         """根据选择的项目类型，动态更新奖项级别下拉列表的选项"""
@@ -657,30 +756,15 @@ class ScholarshipReviewer:
     def export_excel(self):
         """导出评审结果到新的Excel文件"""
         if self.df is not None:
-            # 检查所有奖项是否都有认定情况和备注是否已填写
-            unreviewed_awards = []
-            incomplete_remarks = []
-
-            for item in self.tree.get_children():
-                values = self.tree.item(item)['values']
-                recognition = values[5] if len(values) > 5 else None  # 安全获取认定情况列
-                remarks = values[7] if len(values) > 7 else None  # 安全获取备注列
-
-                if not recognition:  # 如果认定情况为空
-                    unreviewed_awards.append(values[0])  # 记录未审核的奖项名称
-                if remarks == "请填写备注":  # 如果备注列存在“请填写备注”
-                    incomplete_remarks.append(values[0])  # 记录备注未完成的奖项名称
-
+            unreviewed_awards, incomplete_remarks = self.validate_review_completion()
             if unreviewed_awards or incomplete_remarks:
-                # 如果存在未审核或未填写备注的奖项，显示提示信息并终止导出
                 error_message = ""
                 if unreviewed_awards:
                     error_message += f"以下奖项未完成审核：\n{', '.join(map(str,unreviewed_awards))}\n"
-
                 if incomplete_remarks:
                     error_message += f"以下奖项需要填写备注：\n{', '.join(map(str,incomplete_remarks))}\n"
                 messagebox.showerror("错误", error_message + "请先完成所有奖项的审核。")
-                return  # 终止函数的执行
+                return
 
             # 获取当前选中学生的基本信息
             basic_info = {
@@ -726,30 +810,15 @@ class ScholarshipReviewer:
     def stats_export_excel(self):
         """导出统计结果到新的Excel文件"""
         if self.df is not None:
-            # 检查所有奖项是否都有认定情况和备注是否已填写
-            unreviewed_awards = []
-            incomplete_remarks = []
-
-            for item in self.tree.get_children():
-                values = self.tree.item(item)['values']
-                recognition = values[5] if len(values) > 5 else None  # 安全获取认定情况列
-                remarks = values[7] if len(values) > 7 else None  # 安全获取备注列
-
-                if not recognition:  # 如果认定情况为空
-                    unreviewed_awards.append(values[0])  # 记录未审核的奖项名称
-                if remarks == "请填写备注":  # 如果备注列存在“请填写备注”
-                    incomplete_remarks.append(values[0])  # 记录备注未完成的奖项名称
-
+            unreviewed_awards, incomplete_remarks = self.validate_review_completion()
             if unreviewed_awards or incomplete_remarks:
-                # 如果存在未审核或未填写备注的奖项，显示提示信息并终止导出
                 error_message = ""
                 if unreviewed_awards:
                     error_message += f"以下奖项未完成审核：\n{', '.join(map(str, unreviewed_awards))}\n"
-
                 if incomplete_remarks:
                     error_message += f"以下奖项需要填写备注：\n{', '.join(map(str, incomplete_remarks))}\n"
                 messagebox.showerror("错误", error_message + "请先完成所有奖项的审核。")
-                return  # 终止函数的执行
+                return
 
             # 定义项目类型
             project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
