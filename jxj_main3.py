@@ -190,6 +190,10 @@ class ScholarshipReviewer:
         self.df = None
         self.current_file = ""
         
+        # 批量导入相关的数据结构
+        self.students_data = {}  # 存储所有学生的数据：{学生标识: {'df': DataFrame, 'file_path': str}}
+        self.current_student_id = None  # 当前选中的学生标识
+        
         # 加分规则管理：保存默认和自定义的加分规则
         self.init_default_scoring_rules()
         self.custom_scoring_rules = None  # 自定义加分规则，为None时使用默认规则
@@ -209,6 +213,15 @@ class ScholarshipReviewer:
         right_frame = tk.Frame(main_frame)
         right_frame.pack(side=tk.LEFT, fill=tk.Y)
 
+        # 学生选择下拉菜单
+        self.student_select_frame = ttk.LabelFrame(left_frame, text="学生选择")
+        self.student_select_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+        
+        self.student_var = tk.StringVar()
+        self.student_dropdown = ttk.Combobox(self.student_select_frame, textvariable=self.student_var, width=40, state='readonly')
+        self.student_dropdown.pack(side=tk.LEFT, padx=5, pady=5)
+        self.student_dropdown.bind("<<ComboboxSelected>>", self.on_student_select)
+        
         # 学生信息展示区
         self.student_info_frame = ttk.LabelFrame(left_frame, text="学生信息")
         self.student_info_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
@@ -372,6 +385,11 @@ class ScholarshipReviewer:
         self.file_btn.pack(side=tk.LEFT, padx=5, pady=10)
         self.file_btn.config(state=tk.DISABLED)  # 默认禁用，登录后启用
 
+        # ========== 批量导入Excel文件按钮 ==========
+        self.batch_file_btn = ttk.Button(top_frame, text="批量导入Excel文件", command=self.batch_load_files)
+        self.batch_file_btn.pack(side=tk.LEFT, padx=5, pady=10)
+        self.batch_file_btn.config(state=tk.DISABLED)  # 默认禁用，登录后启用
+
         # ========== 新增：打开PDF支撑材料按钮 ==========
         self.open_pdf_btn = ttk.Button(top_frame, text="打开PDF支撑材料", command=self.open_selected_pdf)
         self.open_pdf_btn.pack(side=tk.LEFT, padx=5, pady=10)
@@ -452,6 +470,7 @@ class ScholarshipReviewer:
         """启用导入Excel功能"""
         self.is_logged_in = True
         self.file_btn.config(state=tk.NORMAL)
+        self.batch_file_btn.config(state=tk.NORMAL)
 
     def validate_review_completion(self):
         """校验所有奖项是否审核完毕及备注填写完整，返回(未审核列表, 未备注列表)"""
@@ -476,6 +495,20 @@ class ScholarshipReviewer:
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
         if file_path:
             self.load_excel_data(file_path)
+
+    def batch_load_files(self):
+        """批量导入多个Excel文件"""
+        if not self.is_logged_in:
+            messagebox.showerror("错误", "请先登录！")
+            return
+
+        file_paths = filedialog.askopenfilenames(
+            title="选择多个Excel文件",
+            filetypes=[("Excel files", "*.xlsx")]
+        )
+        
+        if file_paths:
+            self.batch_load_excel_data(file_paths)
 
     def load_excel_data(self, excel_path):
         """加载Excel文件并将数据添加到表格中"""
