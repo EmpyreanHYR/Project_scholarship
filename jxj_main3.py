@@ -398,6 +398,11 @@ class ScholarshipReviewer:
         self.batch_file_btn.pack(side=tk.LEFT, padx=5, pady=10)
         self.batch_file_btn.config(state=tk.DISABLED)  # 默认禁用，登录后启用
 
+        # ========== 补充导入Excel文件按钮 ==========
+        self.supplement_file_btn = ttk.Button(top_frame, text="补充导入Excel文件", command=self.supplement_import_files)
+        self.supplement_file_btn.pack(side=tk.LEFT, padx=5, pady=10)
+        self.supplement_file_btn.config(state=tk.DISABLED)  # 默认禁用，登录后启用
+
         # ========== 新增：打开PDF支撑材料按钮 ==========
         self.open_pdf_btn = ttk.Button(top_frame, text="打开PDF支撑材料", command=self.open_selected_pdf)
         self.open_pdf_btn.pack(side=tk.LEFT, padx=5, pady=10)
@@ -479,6 +484,7 @@ class ScholarshipReviewer:
         self.is_logged_in = True
         self.file_btn.config(state=tk.NORMAL)
         self.batch_file_btn.config(state=tk.NORMAL)
+        self.supplement_file_btn.config(state=tk.NORMAL)
 
     def validate_review_completion(self):
         """校验所有奖项是否审核完毕及备注填写完整，返回(未审核列表, 未备注列表)"""
@@ -517,6 +523,29 @@ class ScholarshipReviewer:
         
         if file_paths:
             self.batch_load_excel_data(file_paths)
+
+    def supplement_import_files(self):
+        """补充导入Excel文件 - 在现有数据基础上添加新的学生文件"""
+        if not self.is_logged_in:
+            messagebox.showerror("错误", "请先登录！")
+            return
+
+        # 选择要补充的文件
+        file_paths = filedialog.askopenfilenames(
+            title="选择要补充导入的Excel文件",
+            filetypes=[("Excel files", "*.xlsx")]
+        )
+        
+        if not file_paths:
+            return
+
+        # 情况1：当前是单个文件模式，转换为批量模式
+        if self.df is not None and not self.students_data:
+            # 先将当前单个文件数据转换为批量数据结构
+            self.convert_single_to_batch_mode()
+        
+        # 情况2：已经是批量模式或刚转换为批量模式，补充新文件
+        self.supplement_batch_load_excel_data(file_paths)
 
     def load_excel_data(self, excel_path):
         """加载Excel文件并将数据添加到表格中"""
@@ -631,6 +660,120 @@ class ScholarshipReviewer:
             self.exported = False  # 数据未导出
         else:
             messagebox.showerror("批量导入失败", result_message)
+
+    def convert_single_to_batch_mode(self):
+        """将当前单个文件模式转换为批量处理模式"""
+        if self.df is None or self.current_file is None:
+            return
+        
+        # 获取当前学生的基本信息
+        student_info = self.df.iloc[0]
+        student_id = f"{student_info['学院']}_{student_info['姓名']}_{student_info['年级']}_{student_info['班级']}_{student_info['学号']}"
+        
+        # 确保DataFrame包含所有必要的评审列
+        review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
+        for col in review_columns:
+            if col not in self.df.columns:
+                self.df[col] = ''
+        
+        # 将当前数据转存到students_data结构中
+        self.students_data = {
+            student_id: {
+                'df': self.df.copy(),
+                'file_path': self.current_file,
+                'student_info': {
+                    '学院': student_info['学院'],
+                    '姓名': student_info['姓名'],
+                    '年级': student_info['年级'],
+                    '班级': student_info['班级'],
+                    '学号': student_info['学号']
+                }
+            }
+        }
+        self.current_student_id = student_id
+        
+        # 更新学生选择下拉菜单
+        info = self.students_data[student_id]['student_info']
+        display_name = f"{info['姓名']} - {info['学院']} - {info['班级']}"
+        self.student_dropdown['values'] = [display_name]
+        self.student_dropdown.current(0)
+
+    def supplement_batch_load_excel_data(self, file_paths):
+        """补充加载Excel文件到现有的学生数据中"""
+        success_count = 0
+        error_files = []
+        skipped_files = []
+        
+        for file_path in file_paths:
+            try:
+                # 加载Excel文件
+                df = pd.read_excel(file_path)
+                
+                # 验证必要的列是否存在
+                required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
+                missing_columns = [col for col in required_columns if col not in df.columns]
+                
+                if missing_columns:
+                    error_files.append(f"{os.path.basename(file_path)}: 缺少列 {missing_columns}")
+                    continue
+                
+                # 添加评审相关的列（如果不存在的话）
+                review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
+                for col in review_columns:
+                    if col not in df.columns:
+                        df[col] = ''
+                
+                # 获取学生基本信息（取第一行）
+                student_info = df.iloc[0]
+                student_id = f"{student_info['学院']}_{student_info['姓名']}_{student_info['年级']}_{student_info['班级']}_{student_info['学号']}"
+                
+                # 检查是否有重复学生
+                if student_id in self.students_data:
+                    skipped_files.append(f"{os.path.basename(file_path)}: 学生信息已存在，跳过")
+                    continue
+                
+                # 存储学生数据
+                self.students_data[student_id] = {
+                    'df': df,
+                    'file_path': file_path,
+                    'student_info': {
+                        '学院': student_info['学院'],
+                        '姓名': student_info['姓名'],
+                        '年级': student_info['年级'],
+                        '班级': student_info['班级'],
+                        '学号': student_info['学号']
+                    }
+                }
+                success_count += 1
+                
+            except Exception as e:
+                error_files.append(f"{os.path.basename(file_path)}: {str(e)}")
+        
+        # 更新学生选择下拉菜单
+        if self.students_data:
+            student_names = []
+            for student_id, data in self.students_data.items():
+                info = data['student_info']
+                display_name = f"{info['姓名']} - {info['学院']} - {info['班级']}"
+                student_names.append(display_name)
+            
+            self.student_dropdown['values'] = student_names
+        
+        # 显示补充导入结果
+        result_message = f"成功补充导入 {success_count} 个学生文件"
+        if skipped_files:
+            result_message += f"\n\n跳过的重复文件：\n" + "\n".join(skipped_files)
+        if error_files:
+            result_message += f"\n\n导入失败的文件：\n" + "\n".join(error_files)
+        
+        if success_count > 0:
+            messagebox.showinfo("补充导入结果", result_message)
+            self.exported = False  # 数据未导出
+        else:
+            if skipped_files and not error_files:
+                messagebox.showinfo("补充导入结果", result_message)
+            else:
+                messagebox.showerror("补充导入失败", result_message)
 
     def on_student_select(self, event=None):
         """当用户选择不同学生时，切换显示的数据"""
@@ -1003,9 +1146,12 @@ class ScholarshipReviewer:
                 if project_type in statistics:
                     statistics[project_type] += points
 
-            # 限制每类总分最大为6分
+            # 限制每类总分最大为自定义上限或6分
             for key in statistics:
-                statistics[key] = min(statistics[key], 6)
+                max_score = 6
+                if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
+                    max_score = self.custom_scoring_rules['max_dict'].get(key, 6)
+                statistics[key] = min(statistics[key], max_score)
 
             # 获取当前选中学生的基本信息
             basic_info = {
@@ -1200,9 +1346,12 @@ class ScholarshipReviewer:
                         except (ValueError, TypeError):
                             pass
                 
-                # 限制每类总分最大为6分
+                # 限制每类总分最大为自定义上限或6分
                 for key in statistics:
-                    statistics[key] = min(statistics[key], 6)
+                    max_score = 6
+                    if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
+                        max_score = self.custom_scoring_rules['max_dict'].get(key, 6)
+                    statistics[key] = min(statistics[key], max_score)
                 
                 # 构建统计行数据
                 stats_row = [
@@ -1348,11 +1497,31 @@ class ScholarshipReviewer:
                             messagebox.showwarning("警告", f"无法解析加分值: {points}，将设为0")
                             custom_points_dict[project_type][level] = 0
             
+            # 检查是否有加分上限列
+            max_col = col_names[3] if len(col_names) >= 4 else None
+            custom_max_dict = {}
+            if max_col:
+                for project_type in custom_project_types:
+                    # 取该类型下的第一个非空上限
+                    type_data = df[df[project_type_col] == project_type]
+                    max_val = type_data[max_col].dropna()
+                    if not max_val.empty:
+                        try:
+                            custom_max_dict[project_type] = float(max_val.iloc[0])
+                        except Exception:
+                            custom_max_dict[project_type] = 6  # 解析失败默认6分
+                    else:
+                        custom_max_dict[project_type] = 6
+            else:
+                for project_type in custom_project_types:
+                    custom_max_dict[project_type] = 6
+
             # 更新自定义规则
             self.custom_scoring_rules = {
                 'project_types': custom_project_types,
                 'level_mapping': custom_level_mapping,
-                'points_dict': custom_points_dict
+                'points_dict': custom_points_dict,
+                'max_dict': custom_max_dict
             }
             
             # 更新界面
