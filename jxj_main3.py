@@ -756,7 +756,7 @@ class ScholarshipReviewer:
                 info = data['student_info']
                 display_name = f"{info['姓名']} - {info['学院']} - {info['班级']}"
                 student_names.append(display_name)
-            
+        
             self.student_dropdown['values'] = student_names
         
         # 显示补充导入结果
@@ -1133,8 +1133,11 @@ class ScholarshipReviewer:
                 messagebox.showerror("错误", error_message + "请先完成所有奖项的审核。")
                 return
 
-            # 定义项目类型
-            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+            # 动态获取项目类型
+            if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
+                project_types = self.custom_scoring_rules['project_types']
+            else:
+                project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
 
             # 初始化统计字典
             statistics = {ptype: 0 for ptype in project_types}
@@ -1162,20 +1165,17 @@ class ScholarshipReviewer:
                 "学号": self.info_labels["学号"].cget("text").split(": ")[1]
             }
 
-            # 构建导出的行数据
+            # 构建导出的行数据（动态项目类型）
             export_row = [
                 basic_info["学院"],
                 basic_info["姓名"],
                 basic_info["年级"],
                 basic_info["班级"],
-                basic_info["学号"],
-                statistics["竞赛类加分"],
-                statistics["科研创新类加分"],
-                statistics["外语类加分"]
-            ]
+                basic_info["学号"]
+            ] + [statistics[ptype] for ptype in project_types]
 
             # 定义列名
-            columns = ["学院", "姓名", "年级", "班级", "学号", "竞赛类加分", "科研创新类加分", "外语类加分"]
+            columns = ["学院", "姓名", "年级", "班级", "学号"] + project_types
 
             # 设置文件默认保存名格式，“学院_姓名_年级_班级_学号.xlsx”
             file_name = f"{basic_info['学院']}_{basic_info['姓名']}_{basic_info['年级']}_{basic_info['班级']}_{basic_info['学号']}_统计.xlsx"
@@ -1355,16 +1355,13 @@ class ScholarshipReviewer:
                 
                 # 构建统计行数据
                 stats_row = [
-                    info['学院'], info['姓名'], info['年级'], info['班级'], info['学号'],
-                    statistics["竞赛类加分"], statistics["科研创新类加分"], statistics["外语类加分"]
-                ]
+                    info['学院'], info['姓名'], info['年级'], info['班级'], info['学号']
+                ] + [statistics[ptype] for ptype in project_types]
                 all_stats_data.append(stats_row)
-                
             except Exception as e:
                 print(f"处理学生 {student_id} 时出错: {e}")
-        
         # 创建统计DataFrame
-        columns = ["学院", "姓名", "年级", "班级", "学号", "竞赛类加分", "科研创新类加分", "外语类加分"]
+        columns = ["学院", "姓名", "年级", "班级", "学号"] + project_types
         df_stats = pd.DataFrame(all_stats_data, columns=columns)
         
         try:
