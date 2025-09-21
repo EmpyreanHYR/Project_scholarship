@@ -1232,6 +1232,7 @@ class ScholarshipReviewer:
         
         success_count = 0
         error_files = []
+        result_message = ""
         
         for student_id, data in self.students_data.items():
             try:
@@ -1270,6 +1271,35 @@ class ScholarshipReviewer:
                 
             except Exception as e:
                 error_files.append(f"{student_id}: {str(e)}")
+        
+        # 生成全部学生评审结果总表
+        all_export_data = []
+        for student_id, data in self.students_data.items():
+            df = data['df']
+            info = data['student_info']
+            for idx, row in df.iterrows():
+                project_type = row.get('项目类型', '') if '项目类型' in df.columns else ''
+                level = row.get('评定等级', '') if '评定等级' in df.columns else ''
+                recognition = row.get('认定情况', '') if '认定情况' in df.columns else ''
+                points = row.get('加分', '') if '加分' in df.columns else ''
+                remarks = row.get('备注', '') if '备注' in df.columns else ''
+                row_data = [
+                    info['学院'], info['姓名'], info['年级'], info['班级'], info['学号'],
+                    row['所获奖项名称'], row['获奖时间'], row['奖项等级'],
+                    project_type, level, recognition, points, remarks
+                ]
+                all_export_data.append(row_data)
+        if all_export_data:
+            df_all = pd.DataFrame(all_export_data,
+                columns=["学院", "姓名", "年级", "班级", "学号", "所获奖项名称", "获奖时间",
+                         "奖项等级", "项目类型", "评定等级", "认定情况", "加分", "备注"])
+            all_save_path = os.path.join(save_dir, "全部学生评审结果总表.xlsx")
+            try:
+                df_all.to_excel(all_save_path, index=False)
+            except Exception as e:
+                result_message += f"\n\n总表导出失败：{e}"
+            else:
+                result_message += f"\n\n已生成全部学生评审结果总表：{all_save_path}"
         
         # 显示结果
         result_message = f"成功导出 {success_count} 个学生的评审结果到：\n{save_dir}"
@@ -1326,33 +1356,34 @@ class ScholarshipReviewer:
         all_stats_data = []
         project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
         
+        # 动态获取项目类型
+        if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
+            project_types = self.custom_scoring_rules['project_types']
+        else:
+            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+
         for student_id, data in self.students_data.items():
             try:
                 df = data['df']
                 info = data['student_info']
-                
                 # 初始化统计字典
                 statistics = {ptype: 0 for ptype in project_types}
-                
                 # 统计各类加分
                 for idx, row in df.iterrows():
                     project_type = row.get('项目类型', '') if '项目类型' in df.columns else ''
                     points = row.get('加分', 0) if '加分' in df.columns else 0
-                    
                     if project_type in statistics:
                         try:
                             points_value = float(points) if points else 0
                             statistics[project_type] += points_value
                         except (ValueError, TypeError):
                             pass
-                
                 # 限制每类总分最大为自定义上限或6分
                 for key in statistics:
                     max_score = 6
                     if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
                         max_score = self.custom_scoring_rules['max_dict'].get(key, 6)
                     statistics[key] = min(statistics[key], max_score)
-                
                 # 构建统计行数据
                 stats_row = [
                     info['学院'], info['姓名'], info['年级'], info['班级'], info['学号']
@@ -1506,7 +1537,7 @@ class ScholarshipReviewer:
                         try:
                             custom_max_dict[project_type] = float(max_val.iloc[0])
                         except Exception:
-                            custom_max_dict[project_type] = 6  # 解析失败默认6分
+                            custom_max_dict[project_type] = 6  #  解析失败默认6分
                     else:
                         custom_max_dict[project_type] = 6
             else:
