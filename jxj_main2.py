@@ -142,7 +142,7 @@ class AboutHelp:
         """显示关于窗口"""
         about_window = Toplevel(root)
         about_window.title("关于")
-        tk.Label(about_window, text="优秀学生奖学金加分项目评审软件 V1.0", font=("Arial", 14)).pack(pady=10)
+        tk.Label(about_window, text="优秀学生奖学金加分项目评审软件 V3.0", font=("Arial", 14)).pack(pady=10)
         tk.Label(about_window, text="版权所有: 黄耀荣，马荣斌，陈彩蝶，高新雅，王俞欢，张舒一").pack(pady=5)
         # 绑定关闭事件，确保资源释放
         about_window.protocol("WM_DELETE_WINDOW", about_window.destroy)
@@ -184,11 +184,19 @@ class ScholarshipReviewer:
         # 在加载新数据时初始化 exported 属性
         self.exported = True  # 数据未导入，可直接关闭窗口
 
-        self.root.title("优秀学生奖学金加分项目评审软件 V1.0")
+        self.root.title("优秀学生奖学金加分项目评审软件 V3.0")
 
         # 当前选中的Excel数据
         self.df = None
         self.current_file = ""
+        
+        # 批量导入相关的数据结构
+        self.students_data = {}  # 存储所有学生的数据：{学生标识: {'df': DataFrame, 'file_path': str}}
+        self.current_student_id = None  # 当前选中的学生标识
+        
+        # 加分规则管理：保存默认和自定义的加分规则
+        self.init_default_scoring_rules()
+        self.custom_scoring_rules = None  # 自定义加分规则，为None时使用默认规则
 
         # 绑定窗口关闭事件
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -205,6 +213,15 @@ class ScholarshipReviewer:
         right_frame = tk.Frame(main_frame)
         right_frame.pack(side=tk.LEFT, fill=tk.Y)
 
+        # 学生选择下拉菜单
+        self.student_select_frame = ttk.LabelFrame(left_frame, text="学生选择")
+        self.student_select_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+        
+        self.student_var = tk.StringVar()
+        self.student_dropdown = ttk.Combobox(self.student_select_frame, textvariable=self.student_var, width=40, state='readonly')
+        self.student_dropdown.pack(side=tk.LEFT, padx=5, pady=5)
+        self.student_dropdown.bind("<<ComboboxSelected>>", self.on_student_select)
+        
         # 学生信息展示区
         self.student_info_frame = ttk.LabelFrame(left_frame, text="学生信息")
         self.student_info_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
@@ -272,11 +289,22 @@ class ScholarshipReviewer:
 
             combobox.bind('<Configure>', on_postcommand)
 
+        # 导入加分详情和重置按钮
+        self.import_frame = tk.Frame(self.review_frame)
+        self.import_frame.pack(side=tk.TOP, padx=5, pady=5)
+        
+        self.import_scoring_btn = ttk.Button(self.import_frame, text="导入加分详情", command=self.import_scoring_details)
+        self.import_scoring_btn.pack(side=tk.LEFT, padx=5)
+        
+        self.reset_scoring_btn = ttk.Button(self.import_frame, text="重置为默认", command=self.reset_scoring_details)
+        self.reset_scoring_btn.pack(side=tk.LEFT, padx=5)
+
         # 项目类型下拉菜单
         self.project_type_label = tk.Label(self.review_frame, text="项目类型: ")
         self.project_type_label.pack(side=tk.TOP, padx=5)
         self.project_type_dropdown = ttk.Combobox(self.review_frame, textvariable=self.project_type_var, width=40)
-        self.project_type_dropdown['values'] = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+        # 初始化时使用默认的项目类型
+        self.project_type_dropdown['values'] = self.default_project_types
         self.project_type_dropdown.pack(side=tk.TOP, padx=5)
         adjust_combobox_width(self.project_type_dropdown)
 
@@ -329,6 +357,14 @@ class ScholarshipReviewer:
         self.stats_export_btn = ttk.Button(self.review_frame, text="统计结果导出Excel", command=self.stats_export_excel)
         self.stats_export_btn.pack(side=tk.TOP, padx=5, pady=10)
 
+        # 批量导出按钮
+        self.batch_export_btn = ttk.Button(self.review_frame, text="批量评审结果导出", command=self.batch_export_excel)
+        self.batch_export_btn.pack(side=tk.TOP, padx=5, pady=10)
+
+        # 批量统计导出按钮
+        self.batch_stats_export_btn = ttk.Button(self.review_frame, text="批量统计结果导出", command=self.batch_stats_export_excel)
+        self.batch_stats_export_btn.pack(side=tk.TOP, padx=5, pady=10)
+
         # 当选择项目类型时，动态更新奖项级别的选项
         self.project_type_dropdown.bind("<<ComboboxSelected>>", self.update_award_levels)
 
@@ -356,6 +392,16 @@ class ScholarshipReviewer:
         self.file_btn = ttk.Button(top_frame, text="请选择Excel文件", command=self.load_file)
         self.file_btn.pack(side=tk.LEFT, padx=5, pady=10)
         self.file_btn.config(state=tk.DISABLED)  # 默认禁用，登录后启用
+
+        # ========== 批量导入Excel文件按钮 ==========
+        self.batch_file_btn = ttk.Button(top_frame, text="批量导入Excel文件", command=self.batch_load_files)
+        self.batch_file_btn.pack(side=tk.LEFT, padx=5, pady=10)
+        self.batch_file_btn.config(state=tk.DISABLED)  # 默认禁用，登录后启用
+
+        # ========== 补充导入Excel文件按钮 ==========
+        self.supplement_file_btn = ttk.Button(top_frame, text="补充导入Excel文件", command=self.supplement_import_files)
+        self.supplement_file_btn.pack(side=tk.LEFT, padx=5, pady=10)
+        self.supplement_file_btn.config(state=tk.DISABLED)  # 默认禁用，登录后启用
 
         # ========== 新增：打开PDF支撑材料按钮 ==========
         self.open_pdf_btn = ttk.Button(top_frame, text="打开PDF支撑材料", command=self.open_selected_pdf)
@@ -437,6 +483,8 @@ class ScholarshipReviewer:
         """启用导入Excel功能"""
         self.is_logged_in = True
         self.file_btn.config(state=tk.NORMAL)
+        self.batch_file_btn.config(state=tk.NORMAL)
+        self.supplement_file_btn.config(state=tk.NORMAL)
 
     def validate_review_completion(self):
         """校验所有奖项是否审核完毕及备注填写完整，返回(未审核列表, 未备注列表)"""
@@ -462,6 +510,43 @@ class ScholarshipReviewer:
         if file_path:
             self.load_excel_data(file_path)
 
+    def batch_load_files(self):
+        """批量导入多个Excel文件"""
+        if not self.is_logged_in:
+            messagebox.showerror("错误", "请先登录！")
+            return
+
+        file_paths = filedialog.askopenfilenames(
+            title="选择多个Excel文件",
+            filetypes=[("Excel files", "*.xlsx")]
+        )
+        
+        if file_paths:
+            self.batch_load_excel_data(file_paths)
+
+    def supplement_import_files(self):
+        """补充导入Excel文件 - 在现有数据基础上添加新的学生文件"""
+        if not self.is_logged_in:
+            messagebox.showerror("错误", "请先登录！")
+            return
+
+        # 选择要补充的文件
+        file_paths = filedialog.askopenfilenames(
+            title="选择要补充导入的Excel文件",
+            filetypes=[("Excel files", "*.xlsx")]
+        )
+        
+        if not file_paths:
+            return
+
+        # 情况1：当前是单个文件模式，转换为批量模式
+        if self.df is not None and not self.students_data:
+            # 先将当前单个文件数据转换为批量数据结构
+            self.convert_single_to_batch_mode()
+        
+        # 情况2：已经是批量模式或刚转换为批量模式，补充新文件
+        self.supplement_batch_load_excel_data(file_paths)
+
     def load_excel_data(self, excel_path):
         """加载Excel文件并将数据添加到表格中"""
         # 清空之前的数据
@@ -470,6 +555,13 @@ class ScholarshipReviewer:
 
         # 加载新的Excel文件
         self.df = pd.read_excel(excel_path)
+        
+        # 添加评审相关的列（如果不存在的话）
+        review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
+        for col in review_columns:
+            if col not in self.df.columns:
+                self.df[col] = ''
+                
         self.current_file = excel_path  # 关键：记录当前excel文件路径，供支撑材料查找
 
         # 在成功加载数据时更新状态
@@ -487,6 +579,248 @@ class ScholarshipReviewer:
 
             # 添加每行奖项信息到表格中
             self.tree.insert("", "end", values=(row['所获奖项名称'], row['获奖时间'], row['奖项等级'], "", "", "", ""))
+
+    def batch_load_excel_data(self, file_paths):
+        """批量加载多个Excel文件并将数据添加到学生数据字典中"""
+        success_count = 0
+        error_files = []
+        
+        # 清空之前的数据
+        self.students_data = {}
+        self.current_student_id = None
+        self.tree.delete(*self.tree.get_children())
+        
+        for file_path in file_paths:
+            try:
+                # 加载Excel文件
+                df = pd.read_excel(file_path)
+                
+                # 验证必要的列是否存在
+                required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
+                missing_columns = [col for col in required_columns if col not in df.columns]
+                
+                if missing_columns:
+                    error_files.append(f"{os.path.basename(file_path)}: 缺少列 {missing_columns}")
+                    continue
+                
+                # 添加评审相关的列（如果不存在的话）
+                review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
+                for col in review_columns:
+                    if col not in df.columns:
+                        df[col] = ''
+                
+                # 获取学生基本信息（取第一行）
+                student_info = df.iloc[0]
+                student_id = f"{student_info['学院']}_{student_info['姓名']}_{student_info['年级']}_{student_info['班级']}_{student_info['学号']}"
+                
+                # 检查是否有重复学生
+                if student_id in self.students_data:
+                    error_files.append(f"{os.path.basename(file_path)}: 学生信息重复")
+                    continue
+                
+                # 存储学生数据
+                self.students_data[student_id] = {
+                    'df': df,
+                    'file_path': file_path,
+                    'student_info': {
+                        '学院': student_info['学院'],
+                        '姓名': student_info['姓名'],
+                        '年级': student_info['年级'],
+                        '班级': student_info['班级'],
+                        '学号': student_info['学号']
+                    }
+                }
+                success_count += 1
+                
+            except Exception as e:
+                error_files.append(f"{os.path.basename(file_path)}: {str(e)}")
+        
+        # 更新学生选择下拉菜单
+        if self.students_data:
+            student_names = []
+            for student_id, data in self.students_data.items():
+                info = data['student_info']
+                display_name = f"{info['姓名']} - {info['学院']} - {info['班级']}"
+                student_names.append(display_name)
+            
+            self.student_dropdown['values'] = student_names
+            
+            # 默认选择第一个学生
+            if student_names:
+                self.student_dropdown.current(0)
+                self.on_student_select()
+        
+        # 显示导入结果
+        result_message = f"成功导入 {success_count} 个学生文件"
+        if error_files:
+            result_message += f"\n\n导入失败的文件：\n" + "\n".join(error_files)
+        
+        if success_count > 0:
+            messagebox.showinfo("批量导入结果", result_message)
+            self.exported = False  # 数据未导出
+        else:
+            messagebox.showerror("批量导入失败", result_message)
+
+    def convert_single_to_batch_mode(self):
+        """将当前单个文件模式转换为批量处理模式"""
+        if self.df is None or self.current_file is None:
+            return
+        
+        # 获取当前学生的基本信息
+        student_info = self.df.iloc[0]
+        student_id = f"{student_info['学院']}_{student_info['姓名']}_{student_info['年级']}_{student_info['班级']}_{student_info['学号']}"
+        
+        # 确保DataFrame包含所有必要的评审列
+        review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
+        for col in review_columns:
+            if col not in self.df.columns:
+                self.df[col] = ''
+        
+        # 将当前数据转存到students_data结构中
+        self.students_data = {
+            student_id: {
+                'df': self.df.copy(),
+                'file_path': self.current_file,
+                'student_info': {
+                    '学院': student_info['学院'],
+                    '姓名': student_info['姓名'],
+                    '年级': student_info['年级'],
+                    '班级': student_info['班级'],
+                    '学号': student_info['学号']
+                }
+            }
+        }
+        self.current_student_id = student_id
+        
+        # 更新学生选择下拉菜单
+        info = self.students_data[student_id]['student_info']
+        display_name = f"{info['姓名']} - {info['学院']} - {info['班级']}"
+        self.student_dropdown['values'] = [display_name]
+        self.student_dropdown.current(0)
+
+    def supplement_batch_load_excel_data(self, file_paths):
+        """补充加载Excel文件到现有的学生数据中"""
+        success_count = 0
+        error_files = []
+        skipped_files = []
+        
+        for file_path in file_paths:
+            try:
+                # 加载Excel文件
+                df = pd.read_excel(file_path)
+                
+                # 验证必要的列是否存在
+                required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
+                missing_columns = [col for col in required_columns if col not in df.columns]
+                
+                if missing_columns:
+                    error_files.append(f"{os.path.basename(file_path)}: 缺少列 {missing_columns}")
+                    continue
+                
+                # 添加评审相关的列（如果不存在的话）
+                review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
+                for col in review_columns:
+                    if col not in df.columns:
+                        df[col] = ''
+                
+                # 获取学生基本信息（取第一行）
+                student_info = df.iloc[0]
+                student_id = f"{student_info['学院']}_{student_info['姓名']}_{student_info['年级']}_{student_info['班级']}_{student_info['学号']}"
+                
+                # 检查是否有重复学生
+                if student_id in self.students_data:
+                    skipped_files.append(f"{os.path.basename(file_path)}: 学生信息已存在，跳过")
+                    continue
+                
+                # 存储学生数据
+                self.students_data[student_id] = {
+                    'df': df,
+                    'file_path': file_path,
+                    'student_info': {
+                        '学院': student_info['学院'],
+                        '姓名': student_info['姓名'],
+                        '年级': student_info['年级'],
+                        '班级': student_info['班级'],
+                        '学号': student_info['学号']
+                    }
+                }
+                success_count += 1
+                
+            except Exception as e:
+                error_files.append(f"{os.path.basename(file_path)}: {str(e)}")
+        
+        # 更新学生选择下拉菜单
+        if self.students_data:
+            student_names = []
+            for student_id, data in self.students_data.items():
+                info = data['student_info']
+                display_name = f"{info['姓名']} - {info['学院']} - {info['班级']}"
+                student_names.append(display_name)
+        
+            self.student_dropdown['values'] = student_names
+        
+        # 显示补充导入结果
+        result_message = f"成功补充导入 {success_count} 个学生文件"
+        if skipped_files:
+            result_message += f"\n\n跳过的重复文件：\n" + "\n".join(skipped_files)
+        if error_files:
+            result_message += f"\n\n导入失败的文件：\n" + "\n".join(error_files)
+        
+        if success_count > 0:
+            messagebox.showinfo("补充导入结果", result_message)
+            self.exported = False  # 数据未导出
+        else:
+            if skipped_files and not error_files:
+                messagebox.showinfo("补充导入结果", result_message)
+            else:
+                messagebox.showerror("补充导入失败", result_message)
+
+    def on_student_select(self, event=None):
+        """当用户选择不同学生时，切换显示的数据"""
+        selected_display_name = self.student_var.get()
+        if not selected_display_name:
+            return
+        
+        # 如果有当前学生数据，先保存当前的评审进度
+        if self.current_student_id and self.df is not None:
+            self.students_data[self.current_student_id]['df'] = self.df.copy()
+        
+        # 根据显示名称找到对应的学生ID
+        for student_id, data in self.students_data.items():
+            info = data['student_info']
+            display_name = f"{info['姓名']} - {info['学院']} - {info['班级']}"
+            if display_name == selected_display_name:
+                self.current_student_id = student_id
+                break
+        
+        if self.current_student_id:
+            # 更新当前数据
+            student_data = self.students_data[self.current_student_id]
+            self.df = student_data['df'].copy()  # 使用copy()确保数据独立
+            self.current_file = student_data['file_path']
+            
+            # 更新学生信息显示
+            info = student_data['student_info']
+            self.info_labels["学院"].config(text=f"学院: {info['学院']}")
+            self.info_labels["姓名"].config(text=f"姓名: {info['姓名']}")
+            self.info_labels["年级"].config(text=f"年级: {info['年级']}")
+            self.info_labels["班级"].config(text=f"班级: {info['班级']}")
+            self.info_labels["学号"].config(text=f"学号: {info['学号']}")
+            
+            # 清空并重新加载表格数据
+            self.tree.delete(*self.tree.get_children())
+            for idx, row in self.df.iterrows():
+                # 从DataFrame中获取评审数据，如果存在的话
+                project_type = row.get('项目类型', '')
+                level = row.get('评定等级', '')
+                recognition = row.get('认定情况', '')
+                points = row.get('加分', '')
+                remarks = row.get('备注', '')
+                
+                self.tree.insert("", "end", values=(
+                    row['所获奖项名称'], row['获奖时间'], row['奖项等级'], 
+                    project_type, level, recognition, points, remarks
+                ))
 
 
     def on_select(self, event):
@@ -550,41 +884,13 @@ class ScholarshipReviewer:
     def update_award_levels(self, event=None):
         """根据选择的项目类型，动态更新奖项级别下拉列表的选项"""
         project_type = self.project_type_var.get()
-        if project_type == "竞赛类加分":
-            self.level_dropdown['values'] = [
-                "国家级一等奖", "国家级二等奖", "国家级三等奖",
-                "省级一等奖", "省级二等奖", "省级三等奖",
-                "市级一等奖", "市级二等奖", "市级三等奖",
-                "校级一等奖", "校级二等奖", "校级三等奖",
-                "院级一等奖", "院级二等奖", "院级三等奖"
-            ]
-        elif project_type == "科研创新类加分":
-            self.level_dropdown['values'] = [
-                "国家级立项主持人", "国家级立项学生成员",
-                "省级重点立项主持人", "省级重点立项学生成员",
-                "省级一般立项主持人", "省级一般立项学生成员",
-                "校级立项主持人", "校级立项学生成员",
-                "SCI论文一作", "SCI论文二作", "SCI论文三作",
-                "核心期刊论文一作", "核心期刊论文二作", "核心期刊论文三作",
-                "普通期刊论文一作", "普通期刊论文二作", "普通期刊论文三作",
-                "版权著作",
-                "发明专利一作", "发明专利二作", "发明专利三作",
-                "实用新型专利一作", "实用新型专利二作", "实用新型专利三作",
-                "外观专利一作", "外观专利二作", "外观专利三作",
-            ]
-        elif project_type == "外语类加分":
-            self.level_dropdown['values'] = [
-                "大学英语四级（CET4）", "大学英语六级（CET6）",
-                "英语专业四级（TEM4）", "英语专业八级（TEM8）",
-                "雅思（IELTS）",
-                "托福（TOEFL）",
-                "剑桥英语考试（Cambridge English Exams）",
-                "培生英语考试（Pearson Test of English Academic, PTE Academic）",
-                "GRE（Graduate Record Examination）",
-                "GMAT（Graduate Management Admission Test）",
-                "其他符合外语类加分项目（2分）",
-                "其他符合外语类加分项目（1分）",
-            ]
+        level_mapping = self.get_current_level_mapping()
+        
+        if project_type in level_mapping:
+            self.level_dropdown['values'] = level_mapping[project_type]
+        else:
+            self.level_dropdown['values'] = []
+            
         self.level_var.set("")  # 清空选择
 
     def on_recognition_select(self, event=None):
@@ -599,41 +905,9 @@ class ScholarshipReviewer:
 
     def calculate_points(self, project_type, level):
         """根据项目类型和级别计算加分"""
-        # 奖项对应的分数映射
-        points_dict = {
-            "竞赛类加分": {
-                "国家级一等奖": 6, "国家级二等奖": 4, "国家级三等奖": 3,
-                "省级一等奖": 5, "省级二等奖": 3, "省级三等奖": 2,
-                "市级一等奖": 3, "市级二等奖": 2, "市级三等奖": 1,
-                "校级一等奖": 2, "校级二等奖": 1, "校级三等奖": 0.5,
-                "院级一等奖": 1, "院级二等奖": 0.5, "院级三等奖": 0.3
-            },
-            "科研创新类加分": {
-                "国家级立项主持人": 6, "国家级立项学生成员": 4,
-                "省级重点立项主持人": 5, "省级重点立项学生成员": 3,
-                "省级一般立项主持人": 3, "省级一般立项学生成员": 2,
-                "校级立项主持人": 2, "校级立项学生成员": 1,
-                "SCI论文一作": 6, "SCI论文二作": 4, "SCI论文三作": 3,
-                "核心期刊论文一作": 3, "核心期刊论文二作": 2, "核心期刊论文三作": 1,
-                "普通期刊论文一作": 2, "普通期刊论文二作": 1, "普通期刊论文三作": 0.5,
-                "版权著作": 1,
-                "发明专利一作": 6, "发明专利二作": 4, "发明专利三作": 3,
-                "实用新型专利一作": 2, "实用新型专利二作": 1, "实用新型专利三作": 0.5,
-                "外观专利一作": 2, "外观专利二作": 1, "外观专利三作": 0.5,
-            },
-            "外语类加分": {
-                "大学英语四级（CET4）": 1, "大学英语六级（CET6）": 2,
-                "英语专业四级（TEM4）": 1, "英语专业八级（TEM8）": 2,
-                "雅思（IELTS）": 2,
-                "托福（TOEFL）": 2,
-                "剑桥英语考试（Cambridge English Exams）": 2,
-                "培生英语考试（Pearson Test of English Academic）": 2,
-                "GRE（Graduate Record Examination）": 2,
-                "GMAT（Graduate Management Admission Test）": 2,
-                "其他符合外语类加分项目（2分）": 2,
-                "其他符合外语类加分项目（1分）": 1
-            }
-        }
+        # 获取当前使用的加分字典
+        points_dict = self.get_current_points_dict()
+        
         # 查找对应的加分值
         if project_type in points_dict and level in points_dict[project_type]:
             return points_dict[project_type][level]
@@ -644,6 +918,11 @@ class ScholarshipReviewer:
         selected_item = self.tree.selection()
         if not selected_item:
             messagebox.showerror("错误", "请先选择一行进行评审")
+            return
+
+        # 检查是否有学生数据
+        if not self.df is not None and not self.students_data:
+            messagebox.showerror("错误", "请先导入学生数据")
             return
 
         if selected_item:
@@ -688,6 +967,10 @@ class ScholarshipReviewer:
             self.df.loc[selected_idx, '认定情况'] = recognition
             self.df.loc[selected_idx, '加分'] = points
             self.df.loc[selected_idx, '备注'] = remarks
+
+            # 如果是批量导入模式，同时更新students_data中的数据
+            if self.students_data and self.current_student_id:
+                self.students_data[self.current_student_id]['df'] = self.df.copy()
 
             # 更新界面的加分显示
 
@@ -754,8 +1037,23 @@ class ScholarshipReviewer:
             self.root.destroy()  # 如果数据已导出，直接关闭窗口
 
     def export_excel(self):
-        """导出评审结果到新的Excel文件"""
-        if self.df is not None:
+        """导出当前学生的评审结果到新的Excel文件"""
+        # 检查是否有数据
+        if self.df is None and not self.students_data:
+            messagebox.showerror("错误", "没有可导出的数据！")
+            return
+        
+        # 如果是批量导入模式但没有选中学生
+        if self.students_data and not self.current_student_id:
+            messagebox.showerror("错误", "请先选择要导出的学生！")
+            return
+        
+        # 获取当前数据
+        current_df = self.df
+        if self.students_data and self.current_student_id:
+            current_df = self.students_data[self.current_student_id]['df']
+        
+        if current_df is not None:
             unreviewed_awards, incomplete_remarks = self.validate_review_completion()
             if unreviewed_awards or incomplete_remarks:
                 error_message = ""
@@ -785,7 +1083,7 @@ class ScholarshipReviewer:
 
             # 导出Excel的逻辑
             # 获取学生信息
-            student_info = self.df.iloc[0][['学院', '姓名', '年级', '班级', '学号']]
+            student_info = current_df.iloc[0][['学院', '姓名', '年级', '班级', '学号']]
             file_name = "_".join(student_info.astype(str)) + ".xlsx"
 
             # 导出Excel的数据内容
@@ -808,8 +1106,23 @@ class ScholarshipReviewer:
             messagebox.showerror("错误", "没有可导出的数据！")
 
     def stats_export_excel(self):
-        """导出统计结果到新的Excel文件"""
-        if self.df is not None:
+        """导出当前学生的统计结果到新的Excel文件"""
+        # 检查是否有数据
+        if self.df is None and not self.students_data:
+            messagebox.showerror("错误", "没有可导出的数据！")
+            return
+        
+        # 如果是批量导入模式但没有选中学生
+        if self.students_data and not self.current_student_id:
+            messagebox.showerror("错误", "请先选择要导出的学生！")
+            return
+        
+        # 获取当前数据
+        current_df = self.df
+        if self.students_data and self.current_student_id:
+            current_df = self.students_data[self.current_student_id]['df']
+        
+        if current_df is not None:
             unreviewed_awards, incomplete_remarks = self.validate_review_completion()
             if unreviewed_awards or incomplete_remarks:
                 error_message = ""
@@ -820,22 +1133,28 @@ class ScholarshipReviewer:
                 messagebox.showerror("错误", error_message + "请先完成所有奖项的审核。")
                 return
 
-            # 定义项目类型
-            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+            # 动态获取项目类型
+            if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
+                project_types = self.custom_scoring_rules['project_types']
+            else:
+                project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
 
             # 初始化统计字典
             statistics = {ptype: 0 for ptype in project_types}
 
             # 遍历表格，按项目类型统计总分
-            for _, row in self.df.iterrows():
+            for _, row in current_df.iterrows():
                 project_type = row.get("项目类型", "")
                 points = row.get("加分", 0)
                 if project_type in statistics:
                     statistics[project_type] += points
 
-            # 限制每类总分最大为6分
+            # 限制每类总分最大为自定义上限或6分
             for key in statistics:
-                statistics[key] = min(statistics[key], 6)
+                max_score = 6
+                if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
+                    max_score = self.custom_scoring_rules['max_dict'].get(key, 6)
+                statistics[key] = min(statistics[key], max_score)
 
             # 获取当前选中学生的基本信息
             basic_info = {
@@ -846,20 +1165,17 @@ class ScholarshipReviewer:
                 "学号": self.info_labels["学号"].cget("text").split(": ")[1]
             }
 
-            # 构建导出的行数据
+            # 构建导出的行数据（动态项目类型）
             export_row = [
                 basic_info["学院"],
                 basic_info["姓名"],
                 basic_info["年级"],
                 basic_info["班级"],
-                basic_info["学号"],
-                statistics["竞赛类加分"],
-                statistics["科研创新类加分"],
-                statistics["外语类加分"]
-            ]
+                basic_info["学号"]
+            ] + [statistics[ptype] for ptype in project_types]
 
             # 定义列名
-            columns = ["学院", "姓名", "年级", "班级", "学号", "竞赛类加分", "科研创新类加分", "外语类加分"]
+            columns = ["学院", "姓名", "年级", "班级", "学号"] + project_types
 
             # 设置文件默认保存名格式，“学院_姓名_年级_班级_学号.xlsx”
             file_name = f"{basic_info['学院']}_{basic_info['姓名']}_{basic_info['年级']}_{basic_info['班级']}_{basic_info['学号']}_统计.xlsx"
@@ -877,6 +1193,411 @@ class ScholarshipReviewer:
 
         else:
             messagebox.showerror("错误", "没有可导出的数据！")
+
+    def batch_export_excel(self):
+        """批量导出所有学生的评审结果到Excel文件"""
+        if not self.students_data:
+            messagebox.showerror("错误", "请先导入学生数据！")
+            return
+        
+        # 先保存当前学生的评审进度
+        if self.current_student_id and self.df is not None:
+            self.students_data[self.current_student_id]['df'] = self.df.copy()
+        
+        # 检查是否所有学生都完成了评审
+        unfinished_students = []
+        for student_id, data in self.students_data.items():
+            df = data['df']
+            # 检查是否有未评审的项目
+            unreviewed_count = 0
+            for idx, row in df.iterrows():
+                if pd.isna(df.loc[idx, '认定情况']) or df.loc[idx, '认定情况'] == '':
+                    unreviewed_count += 1
+            
+            if unreviewed_count > 0:
+                info = data['student_info']
+                unfinished_students.append(f"{info['姓名']} - {info['学院']} - {info['班级']} (剩余{unreviewed_count}项未评审)")
+        
+        if unfinished_students:
+            result = messagebox.askyesno("未完成评审", 
+                f"以下学生还有未完成的评审：\n" + "\n".join(unfinished_students) + 
+                "\n\n是否继续导出？")
+            if not result:
+                return
+        
+        # 选择保存目录
+        save_dir = filedialog.askdirectory(title="选择批量导出的保存目录")
+        if not save_dir:
+            return
+        
+        success_count = 0
+        error_files = []
+        result_message = ""
+        
+        for student_id, data in self.students_data.items():
+            try:
+                df = data['df']
+                info = data['student_info']
+                
+                # 准备导出数据
+                export_data = []
+                for idx, row in df.iterrows():
+                    # 构建行数据，安全地获取评审数据
+                    project_type = row.get('项目类型', '') if '项目类型' in df.columns else ''
+                    level = row.get('评定等级', '') if '评定等级' in df.columns else ''
+                    recognition = row.get('认定情况', '') if '认定情况' in df.columns else ''
+                    points = row.get('加分', '') if '加分' in df.columns else ''
+                    remarks = row.get('备注', '') if '备注' in df.columns else ''
+                    
+                    row_data = [
+                        info['学院'], info['姓名'], info['年级'], info['班级'], info['学号'],
+                        row['所获奖项名称'], row['获奖时间'], row['奖项等级'],
+                        project_type, level, recognition, points, remarks
+                    ]
+                    export_data.append(row_data)
+                
+                # 创建DataFrame
+                df_export = pd.DataFrame(export_data,
+                    columns=["学院", "姓名", "年级", "班级", "学号", "所获奖项名称", "获奖时间",
+                             "奖项等级", "项目类型", "评定等级", "认定情况", "加分", "备注"])
+                
+                # 生成文件名
+                file_name = f"{info['学院']}_{info['姓名']}_{info['年级']}_{info['班级']}_{info['学号']}.xlsx"
+                save_path = os.path.join(save_dir, file_name)
+                
+                # 保存文件
+                df_export.to_excel(save_path, index=False)
+                success_count += 1
+                
+            except Exception as e:
+                error_files.append(f"{student_id}: {str(e)}")
+        
+        # 生成全部学生评审结果总表
+        all_export_data = []
+        for student_id, data in self.students_data.items():
+            df = data['df']
+            info = data['student_info']
+            for idx, row in df.iterrows():
+                project_type = row.get('项目类型', '') if '项目类型' in df.columns else ''
+                level = row.get('评定等级', '') if '评定等级' in df.columns else ''
+                recognition = row.get('认定情况', '') if '认定情况' in df.columns else ''
+                points = row.get('加分', '') if '加分' in df.columns else ''
+                remarks = row.get('备注', '') if '备注' in df.columns else ''
+                row_data = [
+                    info['学院'], info['姓名'], info['年级'], info['班级'], info['学号'],
+                    row['所获奖项名称'], row['获奖时间'], row['奖项等级'],
+                    project_type, level, recognition, points, remarks
+                ]
+                all_export_data.append(row_data)
+        if all_export_data:
+            df_all = pd.DataFrame(all_export_data,
+                columns=["学院", "姓名", "年级", "班级", "学号", "所获奖项名称", "获奖时间",
+                         "奖项等级", "项目类型", "评定等级", "认定情况", "加分", "备注"])
+            all_save_path = os.path.join(save_dir, "全部学生评审结果总表.xlsx")
+            try:
+                df_all.to_excel(all_save_path, index=False)
+            except Exception as e:
+                result_message += f"\n\n总表导出失败：{e}"
+            else:
+                result_message += f"\n\n已生成全部学生评审结果总表：{all_save_path}"
+        
+        # 显示结果
+        result_message = f"成功导出 {success_count} 个学生的评审结果到：\n{save_dir}"
+        if error_files:
+            result_message += f"\n\n导出失败的学生：\n" + "\n".join(error_files)
+        
+        if success_count > 0:
+            messagebox.showinfo("批量导出完成", result_message)
+            self.exported = True
+        else:
+            messagebox.showerror("批量导出失败", result_message)
+
+    def batch_stats_export_excel(self):
+        """批量导出所有学生的统计结果到Excel文件"""
+        if not self.students_data:
+            messagebox.showerror("错误", "请先导入学生数据！")
+            return
+        
+        # 先保存当前学生的评审进度
+        if self.current_student_id and self.df is not None:
+            self.students_data[self.current_student_id]['df'] = self.df.copy()
+        
+        # 检查是否所有学生都完成了评审
+        unfinished_students = []
+        for student_id, data in self.students_data.items():
+            df = data['df']
+            # 检查是否有未评审的项目
+            unreviewed_count = 0
+            for idx, row in df.iterrows():
+                if pd.isna(df.loc[idx, '认定情况']) or df.loc[idx, '认定情况'] == '':
+                    unreviewed_count += 1
+            
+            if unreviewed_count > 0:
+                info = data['student_info']
+                unfinished_students.append(f"{info['姓名']} - {info['学院']} - {info['班级']} (剩余{unreviewed_count}项未评审)")
+        
+        if unfinished_students:
+            result = messagebox.askyesno("未完成评审", 
+                f"以下学生还有未完成的评审：\n" + "\n".join(unfinished_students) + 
+                "\n\n是否继续导出？")
+            if not result:
+                return
+        
+        # 选择保存文件
+        save_path = filedialog.asksaveasfilename(
+            title="保存批量统计结果",
+            defaultextension=".xlsx",
+            filetypes=[("Excel files", "*.xlsx")]
+        )
+        if not save_path:
+            return
+        
+        # 准备统计数据
+        all_stats_data = []
+        project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+        
+        # 动态获取项目类型
+        if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
+            project_types = self.custom_scoring_rules['project_types']
+        else:
+            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+
+        for student_id, data in self.students_data.items():
+            try:
+                df = data['df']
+                info = data['student_info']
+                # 初始化统计字典
+                statistics = {ptype: 0 for ptype in project_types}
+                # 统计各类加分
+                for idx, row in df.iterrows():
+                    project_type = row.get('项目类型', '') if '项目类型' in df.columns else ''
+                    points = row.get('加分', 0) if '加分' in df.columns else 0
+                    if project_type in statistics:
+                        try:
+                            points_value = float(points) if points else 0
+                            statistics[project_type] += points_value
+                        except (ValueError, TypeError):
+                            pass
+                # 限制每类总分最大为自定义上限或6分
+                for key in statistics:
+                    max_score = 6
+                    if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
+                        max_score = self.custom_scoring_rules['max_dict'].get(key, 6)
+                    statistics[key] = min(statistics[key], max_score)
+                # 构建统计行数据
+                stats_row = [
+                    info['学院'], info['姓名'], info['年级'], info['班级'], info['学号']
+                ] + [statistics[ptype] for ptype in project_types]
+                all_stats_data.append(stats_row)
+            except Exception as e:
+                print(f"处理学生 {student_id} 时出错: {e}")
+        # 创建统计DataFrame
+        columns = ["学院", "姓名", "年级", "班级", "学号"] + project_types
+        df_stats = pd.DataFrame(all_stats_data, columns=columns)
+        
+        try:
+            # 保存统计结果
+            df_stats.to_excel(save_path, index=False)
+            messagebox.showinfo("成功", f"批量统计结果已导出到：\n{save_path}")
+            self.exported = True
+        except Exception as e:
+            messagebox.showerror("导出失败", f"保存文件时出错：{str(e)}")
+
+    def init_default_scoring_rules(self):
+        """初始化默认的加分规则"""
+        self.default_project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+        
+        self.default_level_mapping = {
+            "竞赛类加分": [
+                "国家级一等奖", "国家级二等奖", "国家级三等奖",
+                "省级一等奖", "省级二等奖", "省级三等奖",
+                "市级一等奖", "市级二等奖", "市级三等奖",
+                "校级一等奖", "校级二等奖", "校级三等奖",
+                "院级一等奖", "院级二等奖", "院级三等奖"
+            ],
+            "科研创新类加分": [
+                "国家级立项主持人", "国家级立项学生成员",
+                "省级重点立项主持人", "省级重点立项学生成员",
+                "省级一般立项主持人", "省级一般立项学生成员",
+                "校级立项主持人", "校级立项学生成员",
+                "SCI论文一作", "SCI论文二作", "SCI论文三作",
+                "核心期刊论文一作", "核心期刊论文二作", "核心期刊论文三作",
+                "普通期刊论文一作", "普通期刊论文二作", "普通期刊论文三作",
+                "版权著作",
+                "发明专利一作", "发明专利二作", "发明专利三作",
+                "实用新型专利一作", "实用新型专利二作", "实用新型专利三作",
+                "外观专利一作", "外观专利二作", "外观专利三作",
+            ],
+            "外语类加分": [
+                "大学英语四级（CET4）", "大学英语六级（CET6）",
+                "英语专业四级（TEM4）", "英语专业八级（TEM8）",
+                "雅思（IELTS）",
+                "托福（TOEFL）",
+                "剑桥英语考试（Cambridge English Exams）",
+                "培生英语考试（Pearson Test of English Academic, PTE Academic）",
+                "GRE（Graduate Record Examination）",
+                "GMAT（Graduate Management Admission Test）",
+                "其他符合外语类加分项目（2分）",
+                "其他符合外语类加分项目（1分）",
+            ]
+        }
+        
+        self.default_points_dict = {
+            "竞赛类加分": {
+                "国家级一等奖": 6, "国家级二等奖": 4, "国家级三等奖": 3,
+                "省级一等奖": 5, "省级二等奖": 3, "省级三等奖": 2,
+                "市级一等奖": 3, "市级二等奖": 2, "市级三等奖": 1,
+                "校级一等奖": 2, "校级二等奖": 1, "校级三等奖": 0.5,
+                "院级一等奖": 1, "院级二等奖": 0.5, "院级三等奖": 0.3
+            },
+            "科研创新类加分": {
+                "国家级立项主持人": 6, "国家级立项学生成员": 4,
+                "省级重点立项主持人": 5, "省级重点立项学生成员": 3,
+                "省级一般立项主持人": 3, "省级一般立项学生成员": 2,
+                "校级立项主持人": 2, "校级立项学生成员": 1,
+                "SCI论文一作": 6, "SCI论文二作": 4, "SCI论文三作": 3,
+                "核心期刊论文一作": 3, "核心期刊论文二作": 2, "核心期刊论文三作": 1,
+                "普通期刊论文一作": 2, "普通期刊论文二作": 1, "普通期刊论文三作": 0.5,
+                "版权著作": 1,
+                "发明专利一作": 6, "发明专利二作": 4, "发明专利三作": 3,
+                "实用新型专利一作": 2, "实用新型专利二作": 1, "实用新型专利三作": 0.5,
+                "外观专利一作": 2, "外观专利二作": 1, "外观专利三作": 0.5,
+            },
+            "外语类加分": {
+                "大学英语四级（CET4）": 1, "大学英语六级（CET6）": 2,
+                "英语专业四级（TEM4）": 1, "英语专业八级（TEM8）": 2,
+                "雅思（IELTS）": 2,
+                "托福（TOEFL）": 2,
+                "剑桥英语考试（Cambridge English Exams）": 2,
+                "培生英语考试（Pearson Test of English Academic）": 2,
+                "GRE（Graduate Record Examination）": 2,
+                "GMAT（Graduate Management Admission Test）": 2,
+                "其他符合外语类加分项目（2分）": 2,
+                "其他符合外语类加分项目（1分）": 1
+            }
+        }
+
+    def import_scoring_details(self):
+        """导入加分详情xlsx文件"""
+        try:
+            file_path = filedialog.askopenfilename(
+                title="选择加分详情Excel文件",
+                filetypes=[("Excel files", "*.xlsx"), ("Excel files", "*.xls")]
+            )
+            
+            if not file_path:
+                return
+            
+            # 读取Excel文件
+            df = pd.read_excel(file_path)
+            
+            # 检查文件格式
+            if len(df.columns) < 3:
+                messagebox.showerror("错误", "文件格式不正确！请确保文件包含三列：项目类型、奖项级别、加分")
+                return
+            
+            # 获取列名（可能是中文或其他语言）
+            col_names = df.columns.tolist()
+            project_type_col = col_names[0]
+            level_col = col_names[1] 
+            points_col = col_names[2]
+            
+            # 构建自定义加分规则
+            custom_project_types = df[project_type_col].dropna().unique().tolist()
+            custom_level_mapping = {}
+            custom_points_dict = {}
+            
+            for project_type in custom_project_types:
+                # 获取该项目类型下的所有奖项级别
+                type_data = df[df[project_type_col] == project_type]
+                levels = type_data[level_col].dropna().unique().tolist()
+                custom_level_mapping[project_type] = levels
+                
+                # 构建加分映射
+                custom_points_dict[project_type] = {}
+                for _, row in type_data.iterrows():
+                    level = row[level_col]
+                    points = row[points_col]
+                    if pd.notna(level) and pd.notna(points):
+                        try:
+                            custom_points_dict[project_type][level] = float(points)
+                        except ValueError:
+                            messagebox.showwarning("警告", f"无法解析加分值: {points}，将设为0")
+                            custom_points_dict[project_type][level] = 0
+            
+            # 检查是否有加分上限列
+            max_col = col_names[3] if len(col_names) >= 4 else None
+            custom_max_dict = {}
+            if max_col:
+                for project_type in custom_project_types:
+                    # 取该类型下的第一个非空上限
+                    type_data = df[df[project_type_col] == project_type]
+                    max_val = type_data[max_col].dropna()
+                    if not max_val.empty:
+                        try:
+                            custom_max_dict[project_type] = float(max_val.iloc[0])
+                        except Exception:
+                            custom_max_dict[project_type] = 6  #  解析失败默认6分
+                    else:
+                        custom_max_dict[project_type] = 6
+            else:
+                for project_type in custom_project_types:
+                    custom_max_dict[project_type] = 6
+
+            # 更新自定义规则
+            self.custom_scoring_rules = {
+                'project_types': custom_project_types,
+                'level_mapping': custom_level_mapping,
+                'points_dict': custom_points_dict,
+                'max_dict': custom_max_dict
+            }
+            
+            # 更新界面
+            self.update_scoring_interface()
+            
+            messagebox.showinfo("成功", f"成功导入加分详情！\n共导入 {len(custom_project_types)} 个项目类型")
+            
+        except Exception as e:
+            messagebox.showerror("错误", f"导入失败：{str(e)}")
+
+    def reset_scoring_details(self):
+        """重置为默认的加分规则"""
+        self.custom_scoring_rules = None
+        self.update_scoring_interface()
+        messagebox.showinfo("成功", "已重置为默认加分规则")
+
+    def update_scoring_interface(self):
+        """根据当前加分规则更新界面"""
+        # 获取当前使用的规则
+        if self.custom_scoring_rules:
+            project_types = self.custom_scoring_rules['project_types']
+        else:
+            project_types = self.default_project_types
+        
+        # 更新项目类型下拉菜单
+        self.project_type_dropdown['values'] = project_types
+        
+        # 清空当前选择
+        self.project_type_var.set("")
+        self.level_var.set("")
+        self.level_dropdown['values'] = []
+        
+        # 重置加分显示
+        self.points_label.config(text="加分: 0")
+
+    def get_current_level_mapping(self):
+        """获取当前使用的奖项级别映射"""
+        if self.custom_scoring_rules:
+            return self.custom_scoring_rules['level_mapping']
+        else:
+            return self.default_level_mapping
+
+    def get_current_points_dict(self):
+        """获取当前使用的加分字典"""
+        if self.custom_scoring_rules:
+            return self.custom_scoring_rules['points_dict']
+        else:
+            return self.default_points_dict
 
 
 if __name__ == "__main__":
