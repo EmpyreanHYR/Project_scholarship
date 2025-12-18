@@ -1,0 +1,109 @@
+\chapter{软件概述}
+\section{启动}
+
+如图 \ref{fig:启动} 所示，文件夹内有三个文件，即“优秀学生奖学金加分项目评审软件.exe”，“users.json”，“logo.ico”，其三者分别是软件本体程序，用户信息存储文件，软件图标。第一次访问启动软件后，才会生成“users.json”。
+
+用户可通过双击或鼠标右键展开菜单的方式打开（启用）“优秀学生奖学金加分项目评审软件.exe”，即实现启动软件。
+\begin{figure}[h]
+	\centering
+	\small
+	\includegraphics[width=0.3\linewidth]{fig/启动}
+	\caption{软件的启动}
+	\label{fig:启动}
+\end{figure}
+
+
+正常启动软件后，界面如图\ref{fig:启动界面}所示。
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/初始界面}
+	\caption{版本V1.0的启动界面}
+	\label{fig:启动界面}
+\end{figure}
+
+
+\textcolor{mygreen}{	
+	版本V2.0的启动界面如图\ref{fig:2.0启动界面}所示。
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{fig/2.0初始界面}
+		\caption{版本V2.0的启动界面}
+		\label{fig:2.0启动界面}
+	\end{figure}
+}
+
+\section{界面介绍}
+\subsection{导航栏}
+
+如图\ref{fig:导航栏}所示，导航栏位于界面的左上角，共有7个操作按钮，分别是注册、登录、关于、帮助、模板、浅色模式、深色模式（默认启动为浅色模式）、文件导入按钮、打开PDF支撑材料、打开Excel文件位置。
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/导航栏}
+	\caption{导航栏}
+	\label{fig:导航栏}
+\end{figure}
+
+\textcolor{mygreen}{
+	如图\ref{fig:2.0导航栏}所示，版本V2.0的导航栏新添加了“批量导入Excel文件”按钮和“补充导入Excel文件”按钮。
+}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\linewidth]{fig/2.0导航条}
+	\caption{版本V2.0的导航栏}
+	\label{fig:2.0导航栏}
+\end{figure}
+
+\subsection{文件导入按钮}
+
+如图\ref{fig:2.0文件导入}所示，文件导入按钮“请选择Excel文件”位于导航栏中，默认为暗色（不要可点选），只有登录后才可点选。
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/2.0文件导入}
+	\caption{文件导入按钮}
+	\label{fig:2.0文件导入}
+\end{figure}
+
+
+\textcolor{mygreen}{
+	如图\ref{fig:3.0文件导入}所示，版本V2.0支持“批量导入Excel文件”和“补充导入Excel文件”这两个文件导入功能，两个功能按钮默认为暗色（不要可点选），只有登录后才可点选。}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{fig/3.0文件导入}
+		\caption{2.0文件导入按钮}
+		\label{fig:3.0文件导入}
+	\end{figure}
+	
+
+
+
+\subsection{评审界面}
+
+如图\ref{fig:评审界面}所示，评审界面位于界面的中间位置，其分为三个片区，红框为读取导入文件后的学生信息，包括学院、姓名、年级、班级、学号；绿框为读取导入文件后的加分项目信息，包括所获奖项名称、获奖时间、奖项等级、项目类型、评定等级、认定情况、加分、备注；蓝框为读取评审人的评审操作按钮，包括对项目类型、奖项级别、认定情况、备注的下拉选择菜单，评审“确定”按钮，以及评审结果导出和统计结果导出两个按钮。
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/评审界面}
+	\caption{评审界面}
+	\label{fig:评审界面}
+\end{figure}
+
+\textcolor{mygreen}{
+	如图\ref{fig:版本V3.0评审界面新功能按钮展示}所示，为版本V2.0的评审界面，在学生信息的上方新增加了“学生选择”下拉菜单；在评审内容区域，新增加了“导入加分详情”按钮、“重置为默认”按钮、“批量评审结果导出”按钮、“批量统计结果导出”按钮，其各自功能将在后续章节内容进行阐述。
+}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/3.0评审界面新功能}
+	\caption{版本V2.0评审界面新功能按钮展示}
+	\label{fig:版本V3.0评审界面新功能按钮展示}
+\end{figure}
+
+   \subsection{支撑材料预览区}
+	如图\ref{fig:支撑材料预览区}所示，为版本V2.0添加的支撑材料预览区，可以显示导入的EXCEL文件的同一目录下的与“所获奖项名称”相同的文件名的图片（jpg、jpeg和png格式），如果文件为pdf文件，则会提示点击“打开PDF支撑材料”按钮进行打开。
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{fig/支撑材料预览区}
+		\caption{支撑材料预览区}
+		\label{fig:支撑材料预览区}
+	\end{figure}
+
+\newpage

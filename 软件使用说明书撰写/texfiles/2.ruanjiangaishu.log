@@ -1,0 +1,2799 @@
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.8.6)  17 DEC 2025 20:28
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**2.ruanjiangaishu.tex
+(./2.ruanjiangaishu.tex
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+! Undefined control sequence.
+l.1 \chapter
+            {软件概述}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1 \chapter{软
+              件概述}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 概 ("6982) in font nullfont!
+Missing character: There is no 述 ("8FF0) in font nullfont!
+! Undefined control sequence.
+l.2 \section
+            {启动}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 1--3
+[]
+ []
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.4 如
+     图 \ref{fig:启动} 所示，文件夹内有三个文件，即“优秀学生奖学金加分项目评审软件.exe”，“users.json”，“logo.i...
+
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ...g: Reference `fig:启动' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.4 如图 \ref{fig:启动}
+                    所示，文件夹内有三个文件，即“优秀学生奖学金加分项目评审软件.exe”，“users.json”，“logo.i...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:启动' on page  undefined on input line 4.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 夹 ("5939) in font nullfont!
+Missing character: There is no 内 ("5185) in font nullfont!
+Missing character: There is no 有 ("6709) in font nullfont!
+Missing character: There is no 三 ("4E09) in font nullfont!
+Missing character: There is no 个 ("4E2A) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 即 ("5373) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 优 ("4F18) in font nullfont!
+Missing character: There is no 秀 ("79C0) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 生 ("751F) in font nullfont!
+Missing character: There is no 奖 ("5956) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 金 ("91D1) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 分 ("5206) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 目 ("76EE) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no u ("75) in font nullfont!
+Missing character: There is no s ("73) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no r ("72) in font nullfont!
+Missing character: There is no s ("73) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no j ("6A) in font nullfont!
+Missing character: There is no s ("73) in font nullfont!
+Missing character: There is no o ("6F) in font nullfont!
+Missing character: There is no n ("6E) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no o ("6F) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no o ("6F) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no c ("63) in font nullfont!
+Missing character: There is no o ("6F) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 其 ("5176) in font nullfont!
+Missing character: There is no 三 ("4E09) in font nullfont!
+Missing character: There is no 者 ("8005) in font nullfont!
+Missing character: There is no 分 ("5206) in font nullfont!
+Missing character: There is no 别 ("522B) in font nullfont!
+Missing character: There is no 是 ("662F) in font nullfont!
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no 体 ("4F53) in font nullfont!
+Missing character: There is no 程 ("7A0B) in font nullfont!
+Missing character: There is no 序 ("5E8F) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 用 ("7528) in font nullfont!
+Missing character: There is no 户 ("6237) in font nullfont!
+Missing character: There is no 信 ("4FE1) in font nullfont!
+Missing character: There is no 息 ("606F) in font nullfont!
+Missing character: There is no 存 ("5B58) in font nullfont!
+Missing character: There is no 储 ("50A8) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+Missing character: There is no 标 ("6807) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+Missing character: There is no 第 ("7B2C) in font nullfont!
+Missing character: There is no 一 ("4E00) in font nullfont!
+Missing character: There is no 次 ("6B21) in font nullfont!
+Missing character: There is no 访 ("8BBF) in font nullfont!
+Missing character: There is no 问 ("95EE) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 后 ("540E) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 才 ("624D) in font nullfont!
+Missing character: There is no 会 ("4F1A) in font nullfont!
+Missing character: There is no 生 ("751F) in font nullfont!
+Missing character: There is no 成 ("6210) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no u ("75) in font nullfont!
+Missing character: There is no s ("73) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no r ("72) in font nullfont!
+Missing character: There is no s ("73) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no j ("6A) in font nullfont!
+Missing character: There is no s ("73) in font nullfont!
+Missing character: There is no o ("6F) in font nullfont!
+Missing character: There is no n ("6E) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 4--5
+[]
+ []
+
+
+Overfull \hbox (10.86pt too wide) in paragraph at lines 4--5
+[]
+ []
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.6 用
+     户可通过双击或鼠标右键展开菜单的方式打开（启用）“优秀学生奖学金加分项目评审软件.exe”，即实现启动软件。
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 用 ("7528) in font nullfont!
+Missing character: There is no 户 ("6237) in font nullfont!
+Missing character: There is no 可 ("53EF) in font nullfont!
+Missing character: There is no 通 ("901A) in font nullfont!
+Missing character: There is no 过 ("8FC7) in font nullfont!
+Missing character: There is no 双 ("53CC) in font nullfont!
+Missing character: There is no 击 ("51FB) in font nullfont!
+Missing character: There is no 或 ("6216) in font nullfont!
+Missing character: There is no 鼠 ("9F20) in font nullfont!
+Missing character: There is no 标 ("6807) in font nullfont!
+Missing character: There is no 右 ("53F3) in font nullfont!
+Missing character: There is no 键 ("952E) in font nullfont!
+Missing character: There is no 展 ("5C55) in font nullfont!
+Missing character: There is no 开 ("5F00) in font nullfont!
+Missing character: There is no 菜 ("83DC) in font nullfont!
+Missing character: There is no 单 ("5355) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 方 ("65B9) in font nullfont!
+Missing character: There is no 式 ("5F0F) in font nullfont!
+Missing character: There is no 打 ("6253) in font nullfont!
+Missing character: There is no 开 ("5F00) in font nullfont!
+Missing character: There is no （ ("FF08) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 用 ("7528) in font nullfont!
+Missing character: There is no ） ("FF09) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 优 ("4F18) in font nullfont!
+Missing character: There is no 秀 ("79C0) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 生 ("751F) in font nullfont!
+Missing character: There is no 奖 ("5956) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 金 ("91D1) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 分 ("5206) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 目 ("76EE) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 即 ("5373) in font nullfont!
+Missing character: There is no 实 ("5B9E) in font nullfont!
+Missing character: There is no 现 ("73B0) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.7 \begin{figure}
+                  [h]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.9 ^^I\small
+             
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.10 ^^I\includegraphics
+                        [width=0.3\linewidth]{fig/启动}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 3 ("33) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.10 ^^I\includegraphics[width=0.3\linewidth]
+                                             {fig/启动}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.10 ^^I\includegraphics[width=0.3\linewidth]
+                                             {fig/启动}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.11 ^^I\caption
+                {软件的启动}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.13 \end{figure}
+                 
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 6--14
+[]
+ []
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.16 正
+      常启动软件后，界面如图\ref{fig:启动界面}所示。
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 正 ("6B63) in font nullfont!
+Missing character: There is no 常 ("5E38) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+Missing character: There is no 软 ("8F6F) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 后 ("540E) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ... Reference `fig:启动界面' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.16 正常启动软件后，界面如图\ref{fig:启动界面}
+                               所示。
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:启动界面' on page  undefined on input line 16.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.17 \begin{figure}
+                   [H]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no H ("48) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.19 ^^I\includegraphics
+                        [width=0.7\linewidth]{fig/初始界面}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.19 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/初始界面}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.19 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/初始界面}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 初 ("521D) in font nullfont!
+Missing character: There is no 始 ("59CB) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.20 ^^I\caption
+                {V1.0的启动界面}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 1 ("31) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.22 \end{figure}
+                 
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (30.86pt too wide) in paragraph at lines 16--23
+[][]
+ []
+
+! Undefined control sequence.
+l.25 \textcolor
+               {mygreen}{^^I
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.25 \textcolor{m
+                 ygreen}{^^I
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no m ("6D) in font nullfont!
+Missing character: There is no y ("79) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no r ("72) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no n ("6E) in font nullfont!
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ...ference `fig:2.0启动界面' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.26 ^^I版本V2.0的启动界面如图\ref{fig:2.0启动界面}
+                                      所示。
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:2.0启动界面' on page  undefined on input line 26.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.27 ^^I\begin{figure}
+                      [H]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no H ("48) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.29 ^^I^^I\includegraphics
+                           [width=0.7\linewidth]{fig/2.0初始界面}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.29 ^^I^^I\includegraphics[width=0.7\linewidth]
+                                                {fig/2.0初始界面}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.29 ^^I^^I\includegraphics[width=0.7\linewidth]
+                                                {fig/2.0初始界面}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 初 ("521D) in font nullfont!
+Missing character: There is no 始 ("59CB) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.30 ^^I^^I\caption
+                   {版本V2.0的启动界面}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.32 ^^I\end{figure}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 25--34
+[]
+ []
+
+
+Overfull \hbox (10.86pt too wide) in paragraph at lines 25--34
+[]
+ []
+
+! Undefined control sequence.
+l.35 \section
+             {界面介绍}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.35 \section{界
+               面介绍}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 介 ("4ECB) in font nullfont!
+Missing character: There is no 绍 ("7ECD) in font nullfont!
+! Undefined control sequence.
+l.36 \subsection
+                {导航栏}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 航 ("822A) in font nullfont!
+Missing character: There is no 栏 ("680F) in font nullfont!
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 35--37
+[]
+ []
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.38 如
+      图\ref{fig:导航栏}所示，导航栏位于界面的左上角，共有7个操作按钮，分别是注册、登录、关于、帮助、模板、浅色模式、深色模式（默认启动...
+
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ...: Reference `fig:导航栏' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.38 如图\ref{fig:导航栏}
+                    所示，导航栏位于界面的左上角，共有7个操作按钮，分别是注册、登录、关于、帮助、模板、浅色模式、深色模式（默认启动...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:导航栏' on page  undefined on input line 38.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 航 ("822A) in font nullfont!
+Missing character: There is no 栏 ("680F) in font nullfont!
+Missing character: There is no 位 ("4F4D) in font nullfont!
+Missing character: There is no 于 ("4E8E) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 左 ("5DE6) in font nullfont!
+Missing character: There is no 上 ("4E0A) in font nullfont!
+Missing character: There is no 角 ("89D2) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 共 ("5171) in font nullfont!
+Missing character: There is no 有 ("6709) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+Missing character: There is no 个 ("4E2A) in font nullfont!
+Missing character: There is no 操 ("64CD) in font nullfont!
+Missing character: There is no 作 ("4F5C) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 分 ("5206) in font nullfont!
+Missing character: There is no 别 ("522B) in font nullfont!
+Missing character: There is no 是 ("662F) in font nullfont!
+Missing character: There is no 注 ("6CE8) in font nullfont!
+Missing character: There is no 册 ("518C) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 登 ("767B) in font nullfont!
+Missing character: There is no 录 ("5F55) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 关 ("5173) in font nullfont!
+Missing character: There is no 于 ("4E8E) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 帮 ("5E2E) in font nullfont!
+Missing character: There is no 助 ("52A9) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 模 ("6A21) in font nullfont!
+Missing character: There is no 板 ("677F) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 浅 ("6D45) in font nullfont!
+Missing character: There is no 色 ("8272) in font nullfont!
+Missing character: There is no 模 ("6A21) in font nullfont!
+Missing character: There is no 式 ("5F0F) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 深 ("6DF1) in font nullfont!
+Missing character: There is no 色 ("8272) in font nullfont!
+Missing character: There is no 模 ("6A21) in font nullfont!
+Missing character: There is no 式 ("5F0F) in font nullfont!
+Missing character: There is no （ ("FF08) in font nullfont!
+Missing character: There is no 默 ("9ED8) in font nullfont!
+Missing character: There is no 认 ("8BA4) in font nullfont!
+Missing character: There is no 启 ("542F) in font nullfont!
+Missing character: There is no 动 ("52A8) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 浅 ("6D45) in font nullfont!
+Missing character: There is no 色 ("8272) in font nullfont!
+Missing character: There is no 模 ("6A21) in font nullfont!
+Missing character: There is no 式 ("5F0F) in font nullfont!
+Missing character: There is no ） ("FF09) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 打 ("6253) in font nullfont!
+Missing character: There is no 开 ("5F00) in font nullfont!
+Missing character: There is no P ("50) in font nullfont!
+Missing character: There is no D ("44) in font nullfont!
+Missing character: There is no F ("46) in font nullfont!
+Missing character: There is no 支 ("652F) in font nullfont!
+Missing character: There is no 撑 ("6491) in font nullfont!
+Missing character: There is no 材 ("6750) in font nullfont!
+Missing character: There is no 料 ("6599) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 打 ("6253) in font nullfont!
+Missing character: There is no 开 ("5F00) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no c ("63) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 位 ("4F4D) in font nullfont!
+Missing character: There is no 置 ("7F6E) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+Overfull \hbox (30.86pt too wide) in paragraph at lines 38--39
+[][] 
+ []
+
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.40 \begin{figure}
+                   [H]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.40 \begin{figure}[
+                    H]
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no H ("48) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.42 ^^I\includegraphics
+                        [width=0.7\linewidth]{fig/导航栏}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.42 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/导航栏}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.42 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/导航栏}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 航 ("822A) in font nullfont!
+Missing character: There is no 栏 ("680F) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.43 ^^I\caption
+                {导航栏}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 航 ("822A) in font nullfont!
+Missing character: There is no 栏 ("680F) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.45 \end{figure}
+                 
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 40--46
+[]
+ []
+
+! Undefined control sequence.
+l.47 \textcolor
+               {mygreen}{
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.47 \textcolor{m
+                 ygreen}{
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no m ("6D) in font nullfont!
+Missing character: There is no y ("79) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no r ("72) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no n ("6E) in font nullfont!
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ...eference `fig:2.0导航栏' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.48 ^^I如图\ref{fig:2.0导航栏}
+                          所示，版本V2.0的导航栏新添加了“批量导入Excel文件”按钮和“补充导入Excel文件”按钮。
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:2.0导航栏' on page  undefined on input line 48.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 航 ("822A) in font nullfont!
+Missing character: There is no 栏 ("680F) in font nullfont!
+Missing character: There is no 新 ("65B0) in font nullfont!
+Missing character: There is no 添 ("6DFB) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 了 ("4E86) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 批 ("6279) in font nullfont!
+Missing character: There is no 量 ("91CF) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no c ("63) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 和 ("548C) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 补 ("8865) in font nullfont!
+Missing character: There is no 充 ("5145) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no c ("63) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.50 \begin{figure}
+                   [H]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no H ("48) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.52 ^^I\includegraphics
+                        [width=1\linewidth]{fig/2.0导航条}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 1 ("31) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.52 ^^I\includegraphics[width=1\linewidth]
+                                           {fig/2.0导航条}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.52 ^^I\includegraphics[width=1\linewidth]
+                                           {fig/2.0导航条}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 航 ("822A) in font nullfont!
+Missing character: There is no 条 ("6761) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.53 ^^I\caption
+                {版本V2.0的导航栏}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 航 ("822A) in font nullfont!
+Missing character: There is no 栏 ("680F) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.55 \end{figure}
+                 
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 47--56
+[]
+ []
+
+
+Overfull \hbox (10.86pt too wide) in paragraph at lines 47--56
+[]
+ []
+
+! Undefined control sequence.
+l.57 \subsection
+                {文件导入按钮}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.57 \subsection{文
+                  件导入按钮}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 57--58
+[] 
+ []
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.59 如
+      图\ref{fig:导入文件}所示，文件导入按钮“请选择Excel文件”位于界面的较上方的中间位置，点击后即可选取对应的Excel.xlsx...
+
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ... Reference `fig:导入文件' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.59 如图\ref{fig:导入文件}
+                     所示，文件导入按钮“请选择Excel文件”位于界面的较上方的中间位置，点击后即可选取对应的Excel.xlsx...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:导入文件' on page  undefined on input line 59.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 请 ("8BF7) in font nullfont!
+Missing character: There is no 选 ("9009) in font nullfont!
+Missing character: There is no 择 ("62E9) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no c ("63) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 位 ("4F4D) in font nullfont!
+Missing character: There is no 于 ("4E8E) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 较 ("8F83) in font nullfont!
+Missing character: There is no 上 ("4E0A) in font nullfont!
+Missing character: There is no 方 ("65B9) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 中 ("4E2D) in font nullfont!
+Missing character: There is no 间 ("95F4) in font nullfont!
+Missing character: There is no 位 ("4F4D) in font nullfont!
+Missing character: There is no 置 ("7F6E) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 点 ("70B9) in font nullfont!
+Missing character: There is no 击 ("51FB) in font nullfont!
+Missing character: There is no 后 ("540E) in font nullfont!
+Missing character: There is no 即 ("5373) in font nullfont!
+Missing character: There is no 可 ("53EF) in font nullfont!
+Missing character: There is no 选 ("9009) in font nullfont!
+Missing character: There is no 取 ("53D6) in font nullfont!
+Missing character: There is no 对 ("5BF9) in font nullfont!
+Missing character: There is no 应 ("5E94) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no c ("63) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no s ("73) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.60 \begin{figure}
+                   [H]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no H ("48) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.62 ^^I\includegraphics
+                        [width=0.7\linewidth]{fig/导入文件}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.62 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/导入文件}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.62 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/导入文件}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.63 ^^I\caption
+                {文件导入按钮}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.65 \end{figure}
+                 
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (30.86pt too wide) in paragraph at lines 59--66
+[][]
+ []
+
+! Undefined control sequence.
+l.68 \textcolor
+               {myred}{
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.68 \textcolor{m
+                 yred}{
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no m ("6D) in font nullfont!
+Missing character: There is no y ("79) in font nullfont!
+Missing character: There is no r ("72) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ...ference `fig:2.0文件导入' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.69 ^^I如图\ref{fig:2.0文件导入}
+                           所示，版本V2.0的文件导入按钮更新到了导航栏中，并且默认为暗色（不要可点选），只有登录后才可点选。
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:2.0文件导入' on page  undefined on input line 69.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 更 ("66F4) in font nullfont!
+Missing character: There is no 新 ("65B0) in font nullfont!
+Missing character: There is no 到 ("5230) in font nullfont!
+Missing character: There is no 了 ("4E86) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 航 ("822A) in font nullfont!
+Missing character: There is no 栏 ("680F) in font nullfont!
+Missing character: There is no 中 ("4E2D) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 并 ("5E76) in font nullfont!
+Missing character: There is no 且 ("4E14) in font nullfont!
+Missing character: There is no 默 ("9ED8) in font nullfont!
+Missing character: There is no 认 ("8BA4) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 暗 ("6697) in font nullfont!
+Missing character: There is no 色 ("8272) in font nullfont!
+Missing character: There is no （ ("FF08) in font nullfont!
+Missing character: There is no 不 ("4E0D) in font nullfont!
+Missing character: There is no 要 ("8981) in font nullfont!
+Missing character: There is no 可 ("53EF) in font nullfont!
+Missing character: There is no 点 ("70B9) in font nullfont!
+Missing character: There is no 选 ("9009) in font nullfont!
+Missing character: There is no ） ("FF09) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 只 ("53EA) in font nullfont!
+Missing character: There is no 有 ("6709) in font nullfont!
+Missing character: There is no 登 ("767B) in font nullfont!
+Missing character: There is no 录 ("5F55) in font nullfont!
+Missing character: There is no 后 ("540E) in font nullfont!
+Missing character: There is no 才 ("624D) in font nullfont!
+Missing character: There is no 可 ("53EF) in font nullfont!
+Missing character: There is no 点 ("70B9) in font nullfont!
+Missing character: There is no 选 ("9009) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.70 ^^I\begin{figure}
+                      [H]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no H ("48) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.72 ^^I^^I\includegraphics
+                           [width=0.7\linewidth]{fig/2.0文件导入}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.72 ^^I^^I\includegraphics[width=0.7\linewidth]
+                                                {fig/2.0文件导入}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.72 ^^I^^I\includegraphics[width=0.7\linewidth]
+                                                {fig/2.0文件导入}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.73 ^^I^^I\caption
+                   {版本V2.0的文件导入按钮}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.75 ^^I\end{figure}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 68--77
+[]
+ []
+
+
+Overfull \hbox (10.86pt too wide) in paragraph at lines 68--77
+[]
+ []
+
+! Undefined control sequence.
+l.78 \textcolor
+               {mygreen}{
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.78 \textcolor{m
+                 ygreen}{
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no m ("6D) in font nullfont!
+Missing character: There is no y ("79) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no r ("72) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no n ("6E) in font nullfont!
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ...eference `fig:3.0导航栏' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.79 ^^I如图\ref{fig:3.0导航栏}
+                          所示，版本V3.0支持“批量导入Excel文件”和“补充导入Excel文件”这两个文件导入功能，两个...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:3.0导航栏' on page  undefined on input line 79.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 3 ("33) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 支 ("652F) in font nullfont!
+Missing character: There is no 持 ("6301) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 批 ("6279) in font nullfont!
+Missing character: There is no 量 ("91CF) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no c ("63) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 和 ("548C) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 补 ("8865) in font nullfont!
+Missing character: There is no 充 ("5145) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no x ("78) in font nullfont!
+Missing character: There is no c ("63) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no l ("6C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 这 ("8FD9) in font nullfont!
+Missing character: There is no 两 ("4E24) in font nullfont!
+Missing character: There is no 个 ("4E2A) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 功 ("529F) in font nullfont!
+Missing character: There is no 能 ("80FD) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 两 ("4E24) in font nullfont!
+Missing character: There is no 个 ("4E2A) in font nullfont!
+Missing character: There is no 功 ("529F) in font nullfont!
+Missing character: There is no 能 ("80FD) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 默 ("9ED8) in font nullfont!
+Missing character: There is no 认 ("8BA4) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 暗 ("6697) in font nullfont!
+Missing character: There is no 色 ("8272) in font nullfont!
+Missing character: There is no （ ("FF08) in font nullfont!
+Missing character: There is no 不 ("4E0D) in font nullfont!
+Missing character: There is no 要 ("8981) in font nullfont!
+Missing character: There is no 可 ("53EF) in font nullfont!
+Missing character: There is no 点 ("70B9) in font nullfont!
+Missing character: There is no 选 ("9009) in font nullfont!
+Missing character: There is no ） ("FF09) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 只 ("53EA) in font nullfont!
+Missing character: There is no 有 ("6709) in font nullfont!
+Missing character: There is no 登 ("767B) in font nullfont!
+Missing character: There is no 录 ("5F55) in font nullfont!
+Missing character: There is no 后 ("540E) in font nullfont!
+Missing character: There is no 才 ("624D) in font nullfont!
+Missing character: There is no 可 ("53EF) in font nullfont!
+Missing character: There is no 点 ("70B9) in font nullfont!
+Missing character: There is no 选 ("9009) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 78--80
+[]
+ []
+
+
+Overfull \hbox (10.86pt too wide) in paragraph at lines 78--80
+[] 
+ []
+
+! Undefined control sequence.
+l.83 \subsection
+                {评审界面}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.83 \subsection{评
+                  审界面}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 83--84
+[] 
+ []
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.85 如
+      图\ref{fig:评审界面}所示，评审界面位于界面的中间位置，其分为三个片区，红框为读取导入文件后的学生信息，包括学院、姓名、年级、班级、...
+
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ... Reference `fig:评审界面' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.85 如图\ref{fig:评审界面}
+                     所示，评审界面位于界面的中间位置，其分为三个片区，红框为读取导入文件后的学生信息，包括学院、姓名、年级、班级、...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:评审界面' on page  undefined on input line 85.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 位 ("4F4D) in font nullfont!
+Missing character: There is no 于 ("4E8E) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 中 ("4E2D) in font nullfont!
+Missing character: There is no 间 ("95F4) in font nullfont!
+Missing character: There is no 位 ("4F4D) in font nullfont!
+Missing character: There is no 置 ("7F6E) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 其 ("5176) in font nullfont!
+Missing character: There is no 分 ("5206) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 三 ("4E09) in font nullfont!
+Missing character: There is no 个 ("4E2A) in font nullfont!
+Missing character: There is no 片 ("7247) in font nullfont!
+Missing character: There is no 区 ("533A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 红 ("7EA2) in font nullfont!
+Missing character: There is no 框 ("6846) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 读 ("8BFB) in font nullfont!
+Missing character: There is no 取 ("53D6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 后 ("540E) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 生 ("751F) in font nullfont!
+Missing character: There is no 信 ("4FE1) in font nullfont!
+Missing character: There is no 息 ("606F) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 包 ("5305) in font nullfont!
+Missing character: There is no 括 ("62EC) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 院 ("9662) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 姓 ("59D3) in font nullfont!
+Missing character: There is no 名 ("540D) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 年 ("5E74) in font nullfont!
+Missing character: There is no 级 ("7EA7) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 班 ("73ED) in font nullfont!
+Missing character: There is no 级 ("7EA7) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 号 ("53F7) in font nullfont!
+Missing character: There is no ； ("FF1B) in font nullfont!
+Missing character: There is no 绿 ("7EFF) in font nullfont!
+Missing character: There is no 框 ("6846) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 读 ("8BFB) in font nullfont!
+Missing character: There is no 取 ("53D6) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 后 ("540E) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 分 ("5206) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 目 ("76EE) in font nullfont!
+Missing character: There is no 信 ("4FE1) in font nullfont!
+Missing character: There is no 息 ("606F) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 包 ("5305) in font nullfont!
+Missing character: There is no 括 ("62EC) in font nullfont!
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 获 ("83B7) in font nullfont!
+Missing character: There is no 奖 ("5956) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 名 ("540D) in font nullfont!
+Missing character: There is no 称 ("79F0) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 获 ("83B7) in font nullfont!
+Missing character: There is no 奖 ("5956) in font nullfont!
+Missing character: There is no 时 ("65F6) in font nullfont!
+Missing character: There is no 间 ("95F4) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 奖 ("5956) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 等 ("7B49) in font nullfont!
+Missing character: There is no 级 ("7EA7) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 目 ("76EE) in font nullfont!
+Missing character: There is no 类 ("7C7B) in font nullfont!
+Missing character: There is no 型 ("578B) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 定 ("5B9A) in font nullfont!
+Missing character: There is no 等 ("7B49) in font nullfont!
+Missing character: There is no 级 ("7EA7) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 认 ("8BA4) in font nullfont!
+Missing character: There is no 定 ("5B9A) in font nullfont!
+Missing character: There is no 情 ("60C5) in font nullfont!
+Missing character: There is no 况 ("51B5) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 分 ("5206) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 备 ("5907) in font nullfont!
+Missing character: There is no 注 ("6CE8) in font nullfont!
+Missing character: There is no ； ("FF1B) in font nullfont!
+Missing character: There is no 蓝 ("84DD) in font nullfont!
+Missing character: There is no 框 ("6846) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 读 ("8BFB) in font nullfont!
+Missing character: There is no 取 ("53D6) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 人 ("4EBA) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 操 ("64CD) in font nullfont!
+Missing character: There is no 作 ("4F5C) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 包 ("5305) in font nullfont!
+Missing character: There is no 括 ("62EC) in font nullfont!
+Missing character: There is no 对 ("5BF9) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 目 ("76EE) in font nullfont!
+Missing character: There is no 类 ("7C7B) in font nullfont!
+Missing character: There is no 型 ("578B) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 奖 ("5956) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 级 ("7EA7) in font nullfont!
+Missing character: There is no 别 ("522B) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 认 ("8BA4) in font nullfont!
+Missing character: There is no 定 ("5B9A) in font nullfont!
+Missing character: There is no 情 ("60C5) in font nullfont!
+Missing character: There is no 况 ("51B5) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no 备 ("5907) in font nullfont!
+Missing character: There is no 注 ("6CE8) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 下 ("4E0B) in font nullfont!
+Missing character: There is no 拉 ("62C9) in font nullfont!
+Missing character: There is no 选 ("9009) in font nullfont!
+Missing character: There is no 择 ("62E9) in font nullfont!
+Missing character: There is no 菜 ("83DC) in font nullfont!
+Missing character: There is no 单 ("5355) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 确 ("786E) in font nullfont!
+Missing character: There is no 定 ("5B9A) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 以 ("4EE5) in font nullfont!
+Missing character: There is no 及 ("53CA) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 结 ("7ED3) in font nullfont!
+Missing character: There is no 果 ("679C) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 出 ("51FA) in font nullfont!
+Missing character: There is no 和 ("548C) in font nullfont!
+Missing character: There is no 统 ("7EDF) in font nullfont!
+Missing character: There is no 计 ("8BA1) in font nullfont!
+Missing character: There is no 结 ("7ED3) in font nullfont!
+Missing character: There is no 果 ("679C) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 出 ("51FA) in font nullfont!
+Missing character: There is no 两 ("4E24) in font nullfont!
+Missing character: There is no 个 ("4E2A) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.86 \begin{figure}
+                   [h]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.88 ^^I\includegraphics
+                        [width=0.7\linewidth]{fig/评审界面}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.88 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/评审界面}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.88 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/评审界面}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.89 ^^I\caption
+                {评审界面}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.91 \end{figure}
+                 
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (30.86pt too wide) in paragraph at lines 85--92
+[][]
+ []
+
+! Undefined control sequence.
+l.93 \textcolor
+               {mygreen}{
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.93 \textcolor{m
+                 ygreen}{
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no m ("6D) in font nullfont!
+Missing character: There is no y ("79) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no r ("72) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no n ("6E) in font nullfont!
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ...ig:版本V3.0评审界面新功能按钮展示' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.94 ^^I如图\ref{fig:版本V3.0评审界面新功能按钮展示}
+                                     所示，为版本V3.0的评审界面，在学生信息的上方新增加了“学生选择”下拉菜单；...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:版本V3.0评审界面新功能按钮展示' on page  undefined on input li
+ne 94.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 3 ("33) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 在 ("5728) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 生 ("751F) in font nullfont!
+Missing character: There is no 信 ("4FE1) in font nullfont!
+Missing character: There is no 息 ("606F) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 上 ("4E0A) in font nullfont!
+Missing character: There is no 方 ("65B9) in font nullfont!
+Missing character: There is no 新 ("65B0) in font nullfont!
+Missing character: There is no 增 ("589E) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 了 ("4E86) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 学 ("5B66) in font nullfont!
+Missing character: There is no 生 ("751F) in font nullfont!
+Missing character: There is no 选 ("9009) in font nullfont!
+Missing character: There is no 择 ("62E9) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 下 ("4E0B) in font nullfont!
+Missing character: There is no 拉 ("62C9) in font nullfont!
+Missing character: There is no 菜 ("83DC) in font nullfont!
+Missing character: There is no 单 ("5355) in font nullfont!
+Missing character: There is no ； ("FF1B) in font nullfont!
+Missing character: There is no 在 ("5728) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 内 ("5185) in font nullfont!
+Missing character: There is no 容 ("5BB9) in font nullfont!
+Missing character: There is no 区 ("533A) in font nullfont!
+Missing character: There is no 域 ("57DF) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 新 ("65B0) in font nullfont!
+Missing character: There is no 增 ("589E) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 了 ("4E86) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 分 ("5206) in font nullfont!
+Missing character: There is no 详 ("8BE6) in font nullfont!
+Missing character: There is no 情 ("60C5) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 重 ("91CD) in font nullfont!
+Missing character: There is no 置 ("7F6E) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 默 ("9ED8) in font nullfont!
+Missing character: There is no 认 ("8BA4) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 批 ("6279) in font nullfont!
+Missing character: There is no 量 ("91CF) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 结 ("7ED3) in font nullfont!
+Missing character: There is no 果 ("679C) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 出 ("51FA) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 批 ("6279) in font nullfont!
+Missing character: There is no 量 ("91CF) in font nullfont!
+Missing character: There is no 统 ("7EDF) in font nullfont!
+Missing character: There is no 计 ("8BA1) in font nullfont!
+Missing character: There is no 结 ("7ED3) in font nullfont!
+Missing character: There is no 果 ("679C) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 出 ("51FA) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 其 ("5176) in font nullfont!
+Missing character: There is no 各 ("5404) in font nullfont!
+Missing character: There is no 自 ("81EA) in font nullfont!
+Missing character: There is no 功 ("529F) in font nullfont!
+Missing character: There is no 能 ("80FD) in font nullfont!
+Missing character: There is no 将 ("5C06) in font nullfont!
+Missing character: There is no 在 ("5728) in font nullfont!
+Missing character: There is no 后 ("540E) in font nullfont!
+Missing character: There is no 续 ("7EED) in font nullfont!
+Missing character: There is no 章 ("7AE0) in font nullfont!
+Missing character: There is no 节 ("8282) in font nullfont!
+Missing character: There is no 内 ("5185) in font nullfont!
+Missing character: There is no 容 ("5BB9) in font nullfont!
+Missing character: There is no 进 ("8FDB) in font nullfont!
+Missing character: There is no 行 ("884C) in font nullfont!
+Missing character: There is no 阐 ("9610) in font nullfont!
+Missing character: There is no 述 ("8FF0) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.96 \begin{figure}
+                   [h]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.98 ^^I\includegraphics
+                        [width=0.7\linewidth]{fig/3.0评审界面新功能}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.98 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/3.0评审界面新功能}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.98 ^^I\includegraphics[width=0.7\linewidth]
+                                             {fig/3.0评审界面新功能}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 3 ("33) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 新 ("65B0) in font nullfont!
+Missing character: There is no 功 ("529F) in font nullfont!
+Missing character: There is no 能 ("80FD) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.99 ^^I\caption
+                {版本V3.0评审界面新功能按钮展示}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 3 ("33) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 评 ("8BC4) in font nullfont!
+Missing character: There is no 审 ("5BA1) in font nullfont!
+Missing character: There is no 界 ("754C) in font nullfont!
+Missing character: There is no 面 ("9762) in font nullfont!
+Missing character: There is no 新 ("65B0) in font nullfont!
+Missing character: There is no 功 ("529F) in font nullfont!
+Missing character: There is no 能 ("80FD) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 展 ("5C55) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.101 \end{figure}
+                  
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 93--102
+[]
+ []
+
+
+Overfull \hbox (10.86pt too wide) in paragraph at lines 93--102
+[]
+ []
+
+! Undefined control sequence.
+l.105 \textcolor
+                {myred}{
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.105 \textcolor{m
+                  yred}{
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no m ("6D) in font nullfont!
+Missing character: There is no y ("79) in font nullfont!
+Missing character: There is no r ("72) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+! Undefined control sequence.
+l.106 ^^I\subsection
+                    {支撑材料预览区}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no 支 ("652F) in font nullfont!
+Missing character: There is no 撑 ("6491) in font nullfont!
+Missing character: There is no 材 ("6750) in font nullfont!
+Missing character: There is no 料 ("6599) in font nullfont!
+Missing character: There is no 预 ("9884) in font nullfont!
+Missing character: There is no 览 ("89C8) in font nullfont!
+Missing character: There is no 区 ("533A) in font nullfont!
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+! Undefined control sequence.
+<write> ...ference `fig:支撑材料预览区' on page \thepage 
+                                                  \space undefined\on@line .^^J
+l.107 ^^I如图\ref{fig:支撑材料预览区}
+                            所示，为版本V2.0添加的支撑材料预览区，可以显示导入的EXCEL文件的同一目录下的与“所获奖项...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Warning: Reference `fig:支撑材料预览区' on page  undefined on input line 107.
+
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no 版 ("7248) in font nullfont!
+Missing character: There is no 本 ("672C) in font nullfont!
+Missing character: There is no V ("56) in font nullfont!
+Missing character: There is no 2 ("32) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no 添 ("6DFB) in font nullfont!
+Missing character: There is no 加 ("52A0) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 支 ("652F) in font nullfont!
+Missing character: There is no 撑 ("6491) in font nullfont!
+Missing character: There is no 材 ("6750) in font nullfont!
+Missing character: There is no 料 ("6599) in font nullfont!
+Missing character: There is no 预 ("9884) in font nullfont!
+Missing character: There is no 览 ("89C8) in font nullfont!
+Missing character: There is no 区 ("533A) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 可 ("53EF) in font nullfont!
+Missing character: There is no 以 ("4EE5) in font nullfont!
+Missing character: There is no 显 ("663E) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no 导 ("5BFC) in font nullfont!
+Missing character: There is no 入 ("5165) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no X ("58) in font nullfont!
+Missing character: There is no C ("43) in font nullfont!
+Missing character: There is no E ("45) in font nullfont!
+Missing character: There is no L ("4C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 同 ("540C) in font nullfont!
+Missing character: There is no 一 ("4E00) in font nullfont!
+Missing character: There is no 目 ("76EE) in font nullfont!
+Missing character: There is no 录 ("5F55) in font nullfont!
+Missing character: There is no 下 ("4E0B) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 与 ("4E0E) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 所 ("6240) in font nullfont!
+Missing character: There is no 获 ("83B7) in font nullfont!
+Missing character: There is no 奖 ("5956) in font nullfont!
+Missing character: There is no 项 ("9879) in font nullfont!
+Missing character: There is no 名 ("540D) in font nullfont!
+Missing character: There is no 称 ("79F0) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 相 ("76F8) in font nullfont!
+Missing character: There is no 同 ("540C) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 名 ("540D) in font nullfont!
+Missing character: There is no 的 ("7684) in font nullfont!
+Missing character: There is no 图 ("56FE) in font nullfont!
+Missing character: There is no 片 ("7247) in font nullfont!
+Missing character: There is no （ ("FF08) in font nullfont!
+Missing character: There is no j ("6A) in font nullfont!
+Missing character: There is no p ("70) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no 、 ("3001) in font nullfont!
+Missing character: There is no j ("6A) in font nullfont!
+Missing character: There is no p ("70) in font nullfont!
+Missing character: There is no e ("65) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no 和 ("548C) in font nullfont!
+Missing character: There is no p ("70) in font nullfont!
+Missing character: There is no n ("6E) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no 格 ("683C) in font nullfont!
+Missing character: There is no 式 ("5F0F) in font nullfont!
+Missing character: There is no ） ("FF09) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 如 ("5982) in font nullfont!
+Missing character: There is no 果 ("679C) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no 为 ("4E3A) in font nullfont!
+Missing character: There is no p ("70) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no 文 ("6587) in font nullfont!
+Missing character: There is no 件 ("4EF6) in font nullfont!
+Missing character: There is no ， ("FF0C) in font nullfont!
+Missing character: There is no 则 ("5219) in font nullfont!
+Missing character: There is no 会 ("4F1A) in font nullfont!
+Missing character: There is no 提 ("63D0) in font nullfont!
+Missing character: There is no 示 ("793A) in font nullfont!
+Missing character: There is no 点 ("70B9) in font nullfont!
+Missing character: There is no 击 ("51FB) in font nullfont!
+Missing character: There is no “ ("201C) in font nullfont!
+Missing character: There is no 打 ("6253) in font nullfont!
+Missing character: There is no 开 ("5F00) in font nullfont!
+Missing character: There is no P ("50) in font nullfont!
+Missing character: There is no D ("44) in font nullfont!
+Missing character: There is no F ("46) in font nullfont!
+Missing character: There is no 支 ("652F) in font nullfont!
+Missing character: There is no 撑 ("6491) in font nullfont!
+Missing character: There is no 材 ("6750) in font nullfont!
+Missing character: There is no 料 ("6599) in font nullfont!
+Missing character: There is no ” ("201D) in font nullfont!
+Missing character: There is no 按 ("6309) in font nullfont!
+Missing character: There is no 钮 ("94AE) in font nullfont!
+Missing character: There is no 进 ("8FDB) in font nullfont!
+Missing character: There is no 行 ("884C) in font nullfont!
+Missing character: There is no 打 ("6253) in font nullfont!
+Missing character: There is no 开 ("5F00) in font nullfont!
+Missing character: There is no 。 ("3002) in font nullfont!
+
+! LaTeX Error: Environment figure undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.108 ^^I\begin{figure}
+                       [H]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no H ("48) in font nullfont!
+Missing character: There is no ] ("5D) in font nullfont!
+! Undefined control sequence.
+l.110 ^^I^^I\includegraphics
+                            [width=0.7\linewidth]{fig/支撑材料预览区}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no [ ("5B) in font nullfont!
+Missing character: There is no w ("77) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no d ("64) in font nullfont!
+Missing character: There is no t ("74) in font nullfont!
+Missing character: There is no h ("68) in font nullfont!
+Missing character: There is no = ("3D) in font nullfont!
+Missing character: There is no 0 ("30) in font nullfont!
+Missing character: There is no . ("2E) in font nullfont!
+Missing character: There is no 7 ("37) in font nullfont!
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.110 ^^I^^I\includegraphics[width=0.7\linewidth]
+                                                 {fig/支撑材料预览区}
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.110 ^^I^^I\includegraphics[width=0.7\linewidth]
+                                                 {fig/支撑材料预览区}
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+Missing character: There is no ] ("5D) in font nullfont!
+Missing character: There is no f ("66) in font nullfont!
+Missing character: There is no i ("69) in font nullfont!
+Missing character: There is no g ("67) in font nullfont!
+Missing character: There is no / ("2F) in font nullfont!
+Missing character: There is no 支 ("652F) in font nullfont!
+Missing character: There is no 撑 ("6491) in font nullfont!
+Missing character: There is no 材 ("6750) in font nullfont!
+Missing character: There is no 料 ("6599) in font nullfont!
+Missing character: There is no 预 ("9884) in font nullfont!
+Missing character: There is no 览 ("89C8) in font nullfont!
+Missing character: There is no 区 ("533A) in font nullfont!
+
+! LaTeX Error: \caption outside float.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.111 ^^I^^I\caption
+                    {支撑材料预览区}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no 支 ("652F) in font nullfont!
+Missing character: There is no 撑 ("6491) in font nullfont!
+Missing character: There is no 材 ("6750) in font nullfont!
+Missing character: There is no 料 ("6599) in font nullfont!
+Missing character: There is no 预 ("9884) in font nullfont!
+Missing character: There is no 览 ("89C8) in font nullfont!
+Missing character: There is no 区 ("533A) in font nullfont!
+
+! LaTeX Error: \begin{document} ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.113 ^^I\end{figure}
+                     
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 105--115
+[]
+ []
+
+
+Overfull \hbox (10.86pt too wide) in paragraph at lines 105--115
+[]
+ []
+
+
+
+
+! LaTeX Error: The font size command \normalsize is not defined:
+               there is probably something wrong with the class file.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.115 \newpage
+              
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+[1
+! Undefined control sequence.
+<write> \newlabel{fig:启动}{{}{\thepage 
+                                      }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:启动}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> \newlabel{fig:启动界面}{{}{\thepage 
+                                        }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:启动界面}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> \newlabel{fig:2.0启动界面}{{}{\thepage 
+                                           }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:2.0启动界面}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> \newlabel{fig:导航栏}{{}{\thepage 
+                                       }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:导航栏}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> \newlabel{fig:2.0导航栏}{{}{\thepage 
+                                          }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:2.0导航栏}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> \newlabel{fig:导入文件}{{}{\thepage 
+                                        }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:导入文件}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> \newlabel{fig:2.0文件导入}{{}{\thepage 
+                                           }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:2.0文件导入}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> \newlabel{fig:评审界面}{{}{\thepage 
+                                        }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:评审界面}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> ...bel{fig:版本V3.0评审界面新功能按钮展示}{{}{\thepage 
+                                                  }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:版本V3.0评审界面新功能按钮展示}{{}{}{}{}{}}
+! Undefined control sequence.
+<write> \newlabel{fig:支撑材料预览区}{{}{\thepage 
+                                           }{}{}{}}
+l.115 \newpage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+\newlabel{fig:支撑材料预览区}{{}{}{}{}{}}
+])
+! Emergency stop.
+<*> 2.ruanjiangaishu.tex
+                        
+*** (job aborted, no legal \end found)
+
+ 
+Here is how much of TeX's memory you used:
+ 35 strings out of 473832
+ 685 string characters out of 5725356
+ 388383 words of memory out of 5000000
+ 23197 multiletter control sequences out of 15000+600000
+ 558853 words of font info for 38 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 22i,5n,23p,270b,107s stack positions out of 10000i,1000n,20000p,200000b,200000s
+Output written on 2.ruanjiangaishu.pdf (1 page).
