@@ -266,3 +266,12 @@ python jxj_main2.py
 - ✨ 支撑材料预览功能
 - ✨ 主题切换功能
 - 🔧 优化评审流程
+
+## 贡献者
+衷心感谢为该仓库优化改进的协作者！
+
+<a href="https://github.com/EmpyreanHYR/Project_scholarship">
+  <img src="https://contrib.rocks/image?repo=EmpyreanHYR/Project_scholarship" />
+</a>
+
+热烈欢迎更多协作者为模板的优化改进提出建议！
