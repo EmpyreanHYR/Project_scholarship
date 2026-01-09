@@ -16,7 +16,7 @@
 正常启动软件后，界面如图\ref{fig:启动界面}所示。
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\linewidth]{fig/初始界面}
+	\includegraphics[width=0.5\linewidth]{fig/初始界面}
 	\caption{版本V1.0的启动界面}
 	\label{fig:启动界面}
 \end{figure}
@@ -26,18 +26,21 @@
 	版本V2.0的启动界面如图\ref{fig:2.0启动界面}所示。
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.7\linewidth]{fig/2.0初始界面}
+		\includegraphics[width=0.5\linewidth]{fig/2.0初始界面}
 		\caption{版本V2.0的启动界面}
 		\label{fig:2.0启动界面}
 	\end{figure}
 }
 
-	extcolor{myred}{
+	\textcolor{myred}{
 	版本V3.0新增了“数据库（可选）”能力：当用户需要对历史评审数据进行查询、导出或追溯操作日志时，可通过配置文件启用数据库功能；当不启用数据库时，软件原有功能不受影响。
-	
+}
+
+	\textcolor{myred}{
 	其中新增/涉及的关键文件包括：\texttt{db\_config.json}（数据库连接配置，默认不启用，可由\texttt{db\_config.example.json}复制得到）、\texttt{verify\_system.py}（配置与完整性验证脚本），以及\texttt{database/}目录（数据库模块）。
 }
 
+\newpage
 \section{界面介绍}
 \subsection{导航栏}
 
@@ -65,7 +68,7 @@
 如图\ref{fig:2.0文件导入}所示，文件导入按钮“请选择Excel文件”位于导航栏中，默认为暗色（不要可点选），只有登录后才可点选。
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\linewidth]{fig/2.0文件导入}
+	\includegraphics[width=0.5\linewidth]{fig/2.0文件导入}
 	\caption{文件导入按钮}
 	\label{fig:2.0文件导入}
 \end{figure}
@@ -103,7 +106,7 @@
 	\label{fig:版本V3.0评审界面新功能按钮展示}
 \end{figure}
 
-	extcolor{myred}{
+\textcolor{myred}{
 	版本V3.0在评审界面新增了“历史记录”入口（仅在数据库功能启用且数据库可用时显示）。点击该入口将打开历史记录查询窗口，支持查询批次、学生、申请与评审记录，并支持导出查询结果或导出完整评审批次。
 }
 

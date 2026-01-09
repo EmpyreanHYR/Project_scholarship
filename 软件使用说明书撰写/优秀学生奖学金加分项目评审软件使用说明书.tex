@@ -16,14 +16,54 @@
 \usepackage{float}%提供float浮动环境
 \usepackage{booktabs}%提供命令\toprule、\midrule、\bottomrule
 
+
+\usepackage{listings}
+\lstset{
+	backgroundcolor=\color{mygray}, % 浅灰背景
+	basicstyle=\ttfamily\small,     % 等宽字体、小号
+	frame=single,                   % 单边框
+	framesep=5pt,                   % 边框与代码的间距
+	columns=fullflexible,           % 自适应列宽
+	breaklines=true,                % 自动换行
+	showspaces=false,               % 不显示空格符号
+	showtabs=false,                 % 不显示Tab符号
+	aboveskip=10pt,                 % 代码块上方间距
+	belowskip=10pt                  % 代码块下方间距
+}
+
 \usepackage{xcolor}
 
 % 自定义RGB颜色
+\definecolor{mygray}{rgb}{0.95,0.95,0.95} % 浅灰色背景
+\definecolor{codebg}{rgb}{0.95,0.95,0.95} % 代码块浅灰背景
+
 \definecolor{myred}{RGB}{200,50,50}
 %	 使用方法  \textcolor{myred}{	}
 \definecolor{mygreen}{RGB}{0,150,0}	
 
 \sloppy % 放宽换行限制
+
+
+\usepackage{tcolorbox} 
+% 配置tcolorbox样式（适配列表的代码块）
+\tcbset{
+	codeblock/.style={
+		colback=codebg,    % 背景色
+		colframe=black!20, % 边框色（浅灰）
+		boxrule=0.5pt,     % 边框粗细
+		left=5pt,          % 内左边距
+		right=5pt,         % 内右边距
+		top=3pt,           % 内上边距
+		bottom=3pt,        % 内下边距
+		boxsep=0pt,        % 盒子内边距
+		arc=0pt,           % 圆角（0为直角，匹配Markdown）
+		outer arc=0pt,
+		left skip=0pt,     % 取消左缩进，适配列表
+		right skip=0pt
+	}
+}
+
+\usepackage{verbatimbox} % 轻量的代码块盒子，完美适配列表
 
 % 中文支持
 \usepackage{ctex}        % 使用ctex宏包，支持中文排版
@@ -57,7 +97,7 @@
 \begin{document}
 	
 	% 首页的标题页
-		itle{\textbf{优秀学生奖学金加分项目评审软件}\\\textbf{版本号：V3.0}\\\textbf{使用说明书}}
+	\title{\textbf{优秀学生奖学金加分项目评审软件}\\\textbf{版本号：V3.0}\\\textbf{使用说明书}}
 	\author{作者：\\黄耀荣\\马荣斌\\陈彩蝶\\高新雅\\王俞欢\\张舒一} 
 	\date{2026年1月9日}    % 可以设置为当前日期 \today  ，或者自定义日期
 	\pdfbookmark[0]{首页}{title}  % 添加书签
