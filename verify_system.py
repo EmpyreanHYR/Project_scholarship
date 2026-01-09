@@ -26,15 +26,22 @@ def print_header(title):
 def check_config_file():
     """检查配置文件"""
     print_header("1. 配置文件检查")
-    
-    if not os.path.exists('db_config.json'):
-        print("⚠️  db_config.json 不存在（数据库功能未配置）")
+
+    config_candidates = ['db_config.json', 'database_config.json']
+    config_path = None
+    for candidate in config_candidates:
+        if os.path.exists(candidate):
+            config_path = candidate
+            break
+
+    if not config_path:
+        print("⚠️  未找到数据库配置文件（db_config.json / database_config.json）")
         return True, None
     
     try:
-        with open('db_config.json', 'r') as f:
+        with open(config_path, 'r') as f:
             config = json.load(f)
-        print("✅ 配置文件格式正确")
+        print(f"✅ 配置文件格式正确：{config_path}")
         return True, config
     except Exception as e:
         print(f"❌ 配置文件错误: {e}")

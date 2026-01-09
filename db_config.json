@@ -1,0 +1,14 @@
+{
+    "enabled": true,
+    "db_type": "mysql",
+    "host": "127.0.0.1",
+    "port": 3306,
+    "database": "scholarship_db",
+    "username": "Anonymous",
+    "password": "jxj123",
+    "pool_size": 5,
+    "max_overflow": 10,
+    "pool_timeout": 30,
+    "pool_recycle": 3600,
+    "echo": false
+}

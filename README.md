@@ -148,6 +148,71 @@ cp db_config.example.json db_config.json
 }
 ```
 
+**（MySQL 可选）2.1 创建数据库与用户（Ubuntu 常见 root auth_socket 场景）**
+
+如果你遇到 MySQL 报错 `ERROR 1698 (28000): Access denied for user 'root'@'localhost'`，通常表示 root 使用了 `auth_socket` 登录方式。此时可用系统管理员权限进入 MySQL 创建专用用户。
+
+在终端执行（会提示输入 sudo 密码）：
+
+```bash
+sudo mysql
+```
+
+进入 MySQL 后执行以下 SQL（创建数据库 `scholarship_db`，并创建用户 `Anonymous`/`jxj123`，授权本机访问）：
+
+```sql
+CREATE DATABASE IF NOT EXISTS scholarship_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
+CREATE USER IF NOT EXISTS 'Anonymous'@'localhost' IDENTIFIED BY 'jxj123';
+GRANT ALL PRIVILEGES ON scholarship_db.* TO 'Anonymous'@'localhost';
+
+CREATE USER IF NOT EXISTS 'Anonymous'@'127.0.0.1' IDENTIFIED BY 'jxj123';
+GRANT ALL PRIVILEGES ON scholarship_db.* TO 'Anonymous'@'127.0.0.1';
+
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+然后把 `db_config.json` 的账号改为：
+
+```json
+{
+  "username": "Anonymous",
+  "password": "jxj123"
+}
+```
+
+**（MySQL 可选）2.2 方案B：无需安装 cryptography 的认证修复（推荐）**
+
+如果在执行 `verify_system.py` 或初始化时出现提示：
+
+- `'cryptography' package is required for sha256_password or caching_sha2_password auth methods`
+
+说明当前 MySQL 用户使用了 `caching_sha2_password/sha256_password` 认证方式，而 PyMySQL 需要额外依赖。此时可以把用户认证方式改为 `mysql_native_password` 来绕开该依赖。
+
+进入 MySQL（需要 sudo 权限）：
+
+```bash
+sudo mysql
+```
+
+执行（将 `Anonymous` 在本机两种来源的认证方式都修改）：
+
+```sql
+ALTER USER 'Anonymous'@'localhost' IDENTIFIED WITH mysql_native_password BY 'jxj123';
+ALTER USER 'Anonymous'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'jxj123';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+如果后续仍提示权限不足，可再次执行授权（通常只需一次）：
+
+```sql
+GRANT ALL PRIVILEGES ON scholarship_db.* TO 'Anonymous'@'localhost';
+GRANT ALL PRIVILEGES ON scholarship_db.* TO 'Anonymous'@'127.0.0.1';
+FLUSH PRIVILEGES;
+```
+
 **3. 初始化数据库**
 
 ```bash
@@ -159,6 +224,28 @@ python3 -c "from database.migrate import init_database_schema; init_database_sch
 ```bash
 python3 verify_system.py
 ```
+
+提示：如果你使用的是 conda/venv，请用同一个环境的 Python 解释器来执行以上命令（例如 `.../envs/myenv/bin/python`），确保已安装 `sqlalchemy` 与 `pymysql`。
+
+### MySQL 启动顺序（建议按此执行）
+
+以下顺序适合“已创建数据库与用户、并已配置好 `db_config.json`”的情况：
+
+```bash
+# 1) 进入运行环境（示例：conda）
+conda activate myenv
+
+# 2) 先验证连接是否正常（确保 MySQL 账户/权限无误）
+python3 verify_system.py
+
+# 3) 初始化/建表（只需首次执行一次）
+python3 -c "from database.migrate import init_database_schema; init_database_schema()"
+
+# 4) 启动主程序
+python3 jxj_main3.py
+```
+
+启动后若数据库启用成功，主界面会出现“历史记录”入口，可查询并导出历史批次。
 
 ### 新增功能
 

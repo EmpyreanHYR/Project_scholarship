@@ -12,6 +12,8 @@ import sys
 import shutil
 from PIL import Image, ImageTk
 import time
+import logging
+import traceback
 
 # 导入数据库集成模块（可选，不影响主程序）
 try:
@@ -137,6 +139,8 @@ class LoginManager:
 
             if user_data["password"] == password:
                 messagebox.showinfo("成功", f"欢迎，{username}！")
+                # 记录当前登录用户（用于数据库旁路记录等可选功能）
+                self.scholarship_reviewer.current_user = username
                 self.scholarship_reviewer.enable_import_excel()  # 启用导入Excel功能
                 self.failed_attempts[username] = 0  # 重置失败次数
                 login_window.destroy()
@@ -189,6 +193,12 @@ class ScholarshipReviewer:
         # 设置窗口大小为屏幕大小
         self.root.geometry(f"{screen_width}x{screen_height}+0+0")
         self.is_logged_in = False  # 记录用户登录状态
+
+        # 当前登录用户（用于数据库旁路记录等可选功能）
+        self.current_user = None
+
+        # 当前导入对应的数据库批次ID（用于把后续导出/统计写入同一批次）
+        self.db_batch_id = None
 
         # 创建注册、登录、关于、帮助功能
         self.login_manager = LoginManager(root, self)
@@ -520,6 +530,11 @@ class ScholarshipReviewer:
         except ImportError as e:
             messagebox.showerror("错误", f"无法打开历史记录窗口: {e}")
         except Exception as e:
+            logging.getLogger(__name__).error(
+                "打开历史记录窗口失败: %s\n%s",
+                e,
+                traceback.format_exc(limit=8)
+            )
             messagebox.showerror("错误", f"打开历史记录窗口失败: {str(e)}")
 
     def validate_review_completion(self):
@@ -607,15 +622,21 @@ class ScholarshipReviewer:
         # 【新增】将导入数据记录到数据库（旁路功能，不影响原逻辑）
         if DB_INTEGRATION_AVAILABLE:
             try:
-                safe_record_single_excel_import(
+                result = safe_record_single_excel_import(
                     file_path=excel_path,
                     df=self.df,
-                    reviewer_account=self.current_user,
-                    reviewer_name=self.current_user
+                    reviewer_account=getattr(self, 'current_user', None),
+                    reviewer_name=getattr(self, 'current_user', None)
                 )
+                if isinstance(result, dict) and result.get('batch_id'):
+                    self.db_batch_id = result.get('batch_id')
             except Exception as e:
                 # 完全静默失败，不影响用户体验
-                pass
+                logging.getLogger(__name__).error(
+                    "记录Excel导入到数据库失败: %s\n%s",
+                    e,
+                    traceback.format_exc(limit=8)
+                )
 
         #加载学生基本信息
         for idx, row in self.df.iterrows():
@@ -711,14 +732,24 @@ class ScholarshipReviewer:
             # 【新增】将批量导入数据记录到数据库（旁路功能，不影响原逻辑）
             if DB_INTEGRATION_AVAILABLE and self.students_data:
                 try:
-                    safe_record_batch_excel_import(
+                    result = safe_record_batch_excel_import(
                         students_data=self.students_data,
-                        reviewer_account=self.current_user,
-                        reviewer_name=self.current_user
+                        reviewer_account=getattr(self, 'current_user', None),
+                        reviewer_name=getattr(self, 'current_user', None)
                     )
+                    if isinstance(result, dict) and result.get('batch_id'):
+                        self.db_batch_id = result.get('batch_id')
+                        # 给每个学生绑定同一个批次ID，供后续导出/统计写库
+                        for sid in self.students_data:
+                            if isinstance(self.students_data.get(sid), dict):
+                                self.students_data[sid]['db_batch_id'] = self.db_batch_id
                 except Exception as e:
                     # 完全静默失败，不影响用户体验
-                    pass
+                    logging.getLogger(__name__).error(
+                        "记录批量Excel导入到数据库失败: %s\n%s",
+                        e,
+                        traceback.format_exc(limit=8)
+                    )
         else:
             messagebox.showerror("批量导入失败", result_message)
 
@@ -742,6 +773,7 @@ class ScholarshipReviewer:
             student_id: {
                 'df': self.df.copy(),
                 'file_path': self.current_file,
+                'db_batch_id': getattr(self, 'db_batch_id', None),
                 'student_info': {
                     '学院': student_info['学院'],
                     '姓名': student_info['姓名'],
@@ -974,6 +1006,50 @@ class ScholarshipReviewer:
             return points_dict[project_type][level]
         return 0  # 如果没有找到对应的加分项，返回0分
 
+    def _compute_statistics_from_df(self, df):
+        """从给定 DataFrame 计算各项目类型统计分（含上限截断）。
+
+        返回: (project_types, statistics_dict, caps_dict, capped_total)
+        - statistics_dict: 截断后的各类型分
+        - caps_dict: 每类上限
+        - capped_total: 截断后合计
+        """
+        # 动态获取项目类型
+        if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
+            project_types = self.custom_scoring_rules['project_types']
+        else:
+            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+
+        statistics = {ptype: 0.0 for ptype in project_types}
+
+        if df is not None:
+            for _, row in df.iterrows():
+                ptype = row.get('项目类型', '') if hasattr(row, 'get') else ''
+                pts = 0.0
+                try:
+                    pts = float(row.get('加分', 0) or 0)
+                except Exception:
+                    pts = 0.0
+                if ptype in statistics:
+                    statistics[ptype] += pts
+
+        # 上限字典
+        if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
+            caps = dict(self.custom_scoring_rules.get('max_dict', {}) or {})
+        else:
+            caps = {ptype: 6 for ptype in project_types}
+
+        # 截断
+        for key in list(statistics.keys()):
+            try:
+                max_score = float(caps.get(key, 6) or 6)
+            except Exception:
+                max_score = 6.0
+            statistics[key] = float(min(statistics[key], max_score))
+
+        capped_total = sum([float(statistics.get(ptype, 0) or 0) for ptype in project_types])
+        return project_types, statistics, caps, capped_total
+
     def confirm_review(self):
         """确认评审结果并更新表格"""
         selected_item = self.tree.selection()
@@ -1168,24 +1244,44 @@ class ScholarshipReviewer:
                 try:
                     # 计算总分
                     total_points = sum([float(row[11]) for row in export_data if row[11]])
+
+                    # 统计结果（按项目类型汇总并应用上限）
+                    stat_project_types, statistics, caps, capped_total = self._compute_statistics_from_df(current_df)
                     
                     # 准备评审详情
                     review_details = {
                         'awards': [[str(x) for x in row] for row in export_data],
+                        'statistics': statistics,
+                        'statistics_project_types': stat_project_types,
+                        'statistics_caps': caps,
+                        'statistics_total_capped': capped_total,
                         'export_time': time.strftime('%Y-%m-%d %H:%M:%S'),
-                        'export_path': save_path
+                        'export_path': save_path,
+                        'export_type': 'review'
                     }
+
+                    # 优先使用导入时生成的批次ID（避免每次导出都新建批次）
+                    batch_id = None
+                    if self.students_data and self.current_student_id:
+                        batch_id = self.students_data.get(self.current_student_id, {}).get('db_batch_id')
+                    else:
+                        batch_id = getattr(self, 'db_batch_id', None)
                     
                     safe_record_review_result(
                         student_info=basic_info,
                         total_points=total_points,
                         review_details=review_details,
-                        reviewer_account=self.current_user,
-                        reviewer_name=self.current_user
+                        reviewer_account=getattr(self, 'current_user', None) or 'unknown',
+                        reviewer_name=getattr(self, 'current_user', None) or 'unknown',
+                        batch_id=batch_id
                     )
-                except Exception:
-                    # 完全静默失败，不影响用户体验
-                    pass
+                except Exception as e:
+                    # 不影响用户体验，但记录日志便于排查
+                    logging.getLogger(__name__).error(
+                        "记录评审结果到数据库失败: %s\n%s",
+                        e,
+                        traceback.format_exc(limit=8)
+                    )
 
         else:
             messagebox.showerror("错误", "没有可导出的数据！")
@@ -1241,6 +1337,17 @@ class ScholarshipReviewer:
                     max_score = self.custom_scoring_rules['max_dict'].get(key, 6)
                 statistics[key] = min(statistics[key], max_score)
 
+            # 统计合计（截断后）
+            capped_total = sum([float(statistics.get(ptype, 0) or 0) for ptype in project_types])
+
+            # 未截断的总分（用于 review.total_points，避免被“统计上限”覆盖）
+            uncapped_total = 0.0
+            for _, row in current_df.iterrows():
+                try:
+                    uncapped_total += float(row.get('加分', 0) or 0)
+                except Exception:
+                    pass
+
             # 获取当前选中学生的基本信息
             basic_info = {
                 "学院": self.info_labels["学院"].cget("text").split(": ")[1],
@@ -1275,6 +1382,44 @@ class ScholarshipReviewer:
             df_export.to_excel(save_path, index=False)
             messagebox.showinfo("成功", f"Excel文件导出成功！导出至{save_path}")
             self.exported = True
+
+            # 【新增】将统计结果记录到数据库（旁路功能，不影响原逻辑）
+            if DB_INTEGRATION_AVAILABLE:
+                try:
+                    caps = {}
+                    if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
+                        caps = self.custom_scoring_rules['max_dict']
+                    else:
+                        caps = {ptype: 6 for ptype in project_types}
+
+                    batch_id = None
+                    if self.students_data and self.current_student_id:
+                        batch_id = self.students_data.get(self.current_student_id, {}).get('db_batch_id')
+                    else:
+                        batch_id = getattr(self, 'db_batch_id', None)
+
+                    safe_record_review_result(
+                        student_info=basic_info,
+                        total_points=uncapped_total,
+                        review_details={
+                            'statistics': statistics,
+                            'statistics_project_types': project_types,
+                            'statistics_caps': caps,
+                            'statistics_total_capped': capped_total,
+                            'export_time': time.strftime('%Y-%m-%d %H:%M:%S'),
+                            'export_path': save_path,
+                            'export_type': 'stats'
+                        },
+                        reviewer_account=getattr(self, 'current_user', None) or 'unknown',
+                        reviewer_name=getattr(self, 'current_user', None) or 'unknown',
+                        batch_id=batch_id
+                    )
+                except Exception as e:
+                    logging.getLogger(__name__).error(
+                        "记录统计结果到数据库失败: %s\n%s",
+                        e,
+                        traceback.format_exc(limit=8)
+                    )
 
         else:
             messagebox.showerror("错误", "没有可导出的数据！")
@@ -1353,6 +1498,47 @@ class ScholarshipReviewer:
                 # 保存文件
                 df_export.to_excel(save_path, index=False)
                 success_count += 1
+
+                # 【新增】批量导出时也记录到数据库（包含统计结果），旁路不影响原逻辑
+                if DB_INTEGRATION_AVAILABLE:
+                    try:
+                        stat_project_types, statistics, caps, capped_total = self._compute_statistics_from_df(df)
+                        total_points = 0.0
+                        for _, r in df.iterrows():
+                            try:
+                                total_points += float(r.get('加分', 0) or 0)
+                            except Exception:
+                                pass
+
+                        safe_record_review_result(
+                            student_info={
+                                '学院': info.get('学院', ''),
+                                '姓名': info.get('姓名', ''),
+                                '年级': info.get('年级', ''),
+                                '班级': info.get('班级', ''),
+                                '学号': info.get('学号', '')
+                            },
+                            total_points=total_points,
+                            review_details={
+                                'awards': [[str(x) for x in row] for row in export_data],
+                                'statistics': statistics,
+                                'statistics_project_types': stat_project_types,
+                                'statistics_caps': caps,
+                                'statistics_total_capped': capped_total,
+                                'export_time': time.strftime('%Y-%m-%d %H:%M:%S'),
+                                'export_path': save_path,
+                                'export_type': 'review_batch'
+                            },
+                            reviewer_account=getattr(self, 'current_user', None) or 'unknown',
+                            reviewer_name=getattr(self, 'current_user', None) or 'unknown',
+                            batch_id=data.get('db_batch_id')
+                        )
+                    except Exception as e:
+                        logging.getLogger(__name__).error(
+                            "批量导出记录到数据库失败: %s\n%s",
+                            e,
+                            traceback.format_exc(limit=8)
+                        )
                 
             except Exception as e:
                 error_files.append(f"{student_id}: {str(e)}")
@@ -1474,6 +1660,52 @@ class ScholarshipReviewer:
                     info['学院'], info['姓名'], info['年级'], info['班级'], info['学号']
                 ] + [statistics[ptype] for ptype in project_types]
                 all_stats_data.append(stats_row)
+
+                # 【新增】把每个学生的统计结果写入数据库（旁路）
+                if DB_INTEGRATION_AVAILABLE:
+                    try:
+                        caps = {}
+                        if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
+                            caps = self.custom_scoring_rules['max_dict']
+                        else:
+                            caps = {ptype: 6 for ptype in project_types}
+
+                        capped_total = sum([float(statistics.get(ptype, 0) or 0) for ptype in project_types])
+                        uncapped_total = 0.0
+                        for _, r in df.iterrows():
+                            try:
+                                uncapped_total += float(r.get('加分', 0) or 0)
+                            except Exception:
+                                pass
+
+                        safe_record_review_result(
+                            student_info={
+                                '学院': info.get('学院', ''),
+                                '姓名': info.get('姓名', ''),
+                                '年级': info.get('年级', ''),
+                                '班级': info.get('班级', ''),
+                                '学号': info.get('学号', '')
+                            },
+                            total_points=uncapped_total,
+                            review_details={
+                                'statistics': statistics,
+                                'statistics_project_types': project_types,
+                                'statistics_caps': caps,
+                                'statistics_total_capped': capped_total,
+                                'export_time': time.strftime('%Y-%m-%d %H:%M:%S'),
+                                'export_path': save_path,
+                                'export_type': 'stats_batch'
+                            },
+                            reviewer_account=getattr(self, 'current_user', None) or 'unknown',
+                            reviewer_name=getattr(self, 'current_user', None) or 'unknown',
+                            batch_id=data.get('db_batch_id')
+                        )
+                    except Exception as e:
+                        logging.getLogger(__name__).error(
+                            "批量统计记录到数据库失败: %s\n%s",
+                            e,
+                            traceback.format_exc(limit=8)
+                        )
             except Exception as e:
                 print(f"处理学生 {student_id} 时出错: {e}")
         # 创建统计DataFrame

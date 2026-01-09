@@ -17,6 +17,60 @@ from .models import ReviewBatch, Student, Application, Review, AuditLog
 logger = logging.getLogger(__name__)
 
 
+def _normalize_for_json(value):
+    """将常见的 numpy/pandas/datetime 类型递归转换为可 JSON 序列化的 Python 基础类型。"""
+    if value is None:
+        return None
+
+    # datetime
+    if isinstance(value, datetime):
+        return value.isoformat(sep=' ', timespec='seconds')
+
+    # pandas Timestamp
+    try:
+        import pandas as pd  # type: ignore
+
+        if isinstance(value, pd.Timestamp):
+            if pd.isna(value):
+                return None
+            return value.to_pydatetime().isoformat(sep=' ', timespec='seconds')
+    except Exception:
+        pass
+
+    # numpy scalar
+    try:
+        import numpy as np  # type: ignore
+
+        if isinstance(value, (np.integer,)):
+            return int(value)
+        if isinstance(value, (np.floating,)):
+            return float(value)
+        if isinstance(value, (np.bool_,)):
+            return bool(value)
+    except Exception:
+        pass
+
+    # dict
+    if isinstance(value, dict):
+        return {str(k): _normalize_for_json(v) for k, v in value.items()}
+
+    # list/tuple/set
+    if isinstance(value, (list, tuple, set)):
+        return [_normalize_for_json(v) for v in value]
+
+    # 兜底：尽量保持原值；若是不可序列化对象，转字符串
+    try:
+        json.dumps(value, ensure_ascii=False)
+        return value
+    except TypeError:
+        return str(value)
+
+
+def _safe_json_dumps(value):
+    """安全 JSON 序列化（保证不会因类型问题抛 TypeError）。"""
+    return json.dumps(_normalize_for_json(value), ensure_ascii=False)
+
+
 class ReviewBatchDAO:
     """评审批次数据访问对象"""
     
@@ -243,7 +297,7 @@ class ReviewDAO:
                     existing.reviewer_account = reviewer_account
                     existing.total_points = total_points
                     if review_details:
-                        existing.review_details = json.dumps(review_details, ensure_ascii=False)
+                        existing.review_details = _safe_json_dumps(review_details)
                     existing.final_result = final_result
                     existing.rank = rank
                     existing.comments = comments
@@ -261,7 +315,7 @@ class ReviewDAO:
                     reviewer_name=reviewer_name,
                     reviewer_account=reviewer_account,
                     total_points=total_points,
-                    review_details=json.dumps(review_details, ensure_ascii=False) if review_details else None,
+                    review_details=_safe_json_dumps(review_details) if review_details else None,
                     final_result=final_result,
                     rank=rank,
                     comments=comments,
@@ -317,8 +371,8 @@ class AuditLogDAO:
                     operator_name=operator_name,
                     batch_id=batch_id,
                     student_id=student_id,
-                    old_value=json.dumps(old_value, ensure_ascii=False) if old_value else None,
-                    new_value=json.dumps(new_value, ensure_ascii=False) if new_value else None,
+                    old_value=_safe_json_dumps(old_value) if old_value else None,
+                    new_value=_safe_json_dumps(new_value) if new_value else None,
                     status=status,
                     error_message=error_message,
                     operation_time=datetime.now()

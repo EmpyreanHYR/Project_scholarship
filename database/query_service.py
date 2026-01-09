@@ -238,10 +238,6 @@ class QueryService:
                     query = query.filter(Review.student_id == student_db_id)
                 if reviewer_account:
                     query = query.filter(Review.reviewer_account.like(f'%{reviewer_account}%'))
-                if min_points is not None:
-                    query = query.filter(Review.total_points >= min_points)
-                if max_points is not None:
-                    query = query.filter(Review.total_points <= max_points)
                 if review_status:
                     query = query.filter(Review.review_status == review_status)
                 if start_date:
@@ -261,6 +257,24 @@ class QueryService:
                 # 转换为字典
                 result = []
                 for review in reviews:
+                    # 解析 review_details（可能包含统计信息）
+                    details_obj = None
+                    capped_total = None
+                    stat_competition = None
+                    stat_research = None
+                    stat_language = None
+                    try:
+                        if review.review_details:
+                            details_obj = json.loads(review.review_details)
+                            capped_total = details_obj.get('statistics_total_capped')
+                            stats = details_obj.get('statistics') or {}
+                            if isinstance(stats, dict):
+                                stat_competition = stats.get('竞赛类加分')
+                                stat_research = stats.get('科研创新类加分')
+                                stat_language = stats.get('外语类加分')
+                    except Exception:
+                        details_obj = None
+
                     result.append({
                         'id': review.id,
                         'batch_id': review.batch_id,
@@ -270,13 +284,42 @@ class QueryService:
                         'reviewer_name': review.reviewer_name,
                         'reviewer_account': review.reviewer_account,
                         'total_points': review.total_points,
+                        # 统计展示字段（从 review_details 解析而来）
+                        'capped_total': capped_total,
+                        'stat_competition': stat_competition,
+                        'stat_research': stat_research,
+                        'stat_language': stat_language,
+                        # 原始明细（用于导出/查看详情）
+                        'review_details': details_obj,
                         'final_result': review.final_result,
                         'rank': review.rank,
                         'review_status': review.review_status,
                         'review_time': review.review_time.strftime('%Y-%m-%d %H:%M:%S') if review.review_time else '',
                         'comments': review.comments
                     })
-                
+
+                # 分数范围筛选：优先使用截断后总分（capped_total），否则回退到 total_points
+                if min_points is not None or max_points is not None:
+                    filtered = []
+                    for r in result:
+                        score = r.get('capped_total')
+                        if score is None:
+                            score = r.get('total_points')
+                        try:
+                            score = float(score) if score is not None else None
+                        except Exception:
+                            score = None
+
+                        if score is None:
+                            # 没有可用分数，按“不通过筛选”处理
+                            continue
+                        if min_points is not None and score < float(min_points):
+                            continue
+                        if max_points is not None and score > float(max_points):
+                            continue
+                        filtered.append(r)
+                    result = filtered
+
                 return result
                 
         except Exception as e:

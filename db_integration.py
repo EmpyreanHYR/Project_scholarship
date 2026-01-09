@@ -41,7 +41,7 @@ def safe_record_single_excel_import(file_path, df, reviewer_account=None, review
     """
     if not DB_AVAILABLE or not check_database_available():
         logger.debug("数据库不可用，跳过记录Excel导入")
-        return
+        return None
     
     try:
         # 提取学生信息（从第一行）
@@ -83,10 +83,13 @@ def safe_record_single_excel_import(file_path, df, reviewer_account=None, review
             logger.info(f"Excel导入已记录到数据库: {student_info['姓名']}")
         else:
             logger.debug(f"Excel导入记录失败: {result['message']}")
+
+        return result
             
     except Exception as e:
         # 捕获所有异常，确保不影响主程序
         logger.error(f"记录Excel导入时发生错误: {e}", exc_info=True)
+        return None
 
 
 def safe_record_batch_excel_import(students_data, reviewer_account=None, reviewer_name=None):
@@ -100,7 +103,7 @@ def safe_record_batch_excel_import(students_data, reviewer_account=None, reviewe
     """
     if not DB_AVAILABLE or not check_database_available():
         logger.debug("数据库不可用，跳过记录批量Excel导入")
-        return
+        return None
     
     try:
         if not students_data or len(students_data) == 0:
@@ -118,9 +121,12 @@ def safe_record_batch_excel_import(students_data, reviewer_account=None, reviewe
             logger.info(f"批量Excel导入已记录到数据库: {result['students_count']}个学生")
         else:
             logger.debug(f"批量Excel导入记录失败: {result['message']}")
+
+        return result
             
     except Exception as e:
         logger.error(f"记录批量Excel导入时发生错误: {e}", exc_info=True)
+        return None
 
 
 def safe_record_review_result(student_info, total_points, review_details,
@@ -142,7 +148,7 @@ def safe_record_review_result(student_info, total_points, review_details,
     """
     if not DB_AVAILABLE or not check_database_available():
         logger.debug("数据库不可用，跳过记录评审结果")
-        return
+        return None
     
     try:
         # 调用服务层记录
@@ -162,9 +168,12 @@ def safe_record_review_result(student_info, total_points, review_details,
             logger.info(f"评审结果已记录到数据库: {student_info.get('姓名')}")
         else:
             logger.debug(f"评审结果记录失败: {result['message']}")
+
+        return result
             
     except Exception as e:
         logger.error(f"记录评审结果时发生错误: {e}", exc_info=True)
+        return None
 
 
 def is_database_enabled():

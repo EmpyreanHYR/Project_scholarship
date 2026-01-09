@@ -65,7 +65,7 @@ class HistoryQueryWindow:
             frame,
             text="历史记录查询功能需要启用数据库。\n\n"
                  "请按照以下步骤启用：\n"
-                 "1. 创建 database_config.json 配置文件\n"
+                 "1. 创建 db_config.json（或 database_config.json）配置文件\n"
                  "2. 设置 enabled=true\n"
                  "3. 配置数据库连接信息\n"
                  "4. 安装数据库驱动（psycopg2或pymysql）",
@@ -146,7 +146,8 @@ class HistoryQueryWindow:
         self.project_type_var = tk.StringVar()
         ttk.Entry(row3, textvariable=self.project_type_var, width=15).pack(side=tk.LEFT, padx=5)
         
-        ttk.Label(row3, text="分数范围:").pack(side=tk.LEFT, padx=5)
+        self.points_range_label = ttk.Label(row3, text="分数范围:")
+        self.points_range_label.pack(side=tk.LEFT, padx=5)
         self.min_points_var = tk.StringVar()
         ttk.Entry(row3, textvariable=self.min_points_var, width=8).pack(side=tk.LEFT, padx=2)
         ttk.Label(row3, text="-").pack(side=tk.LEFT)
@@ -167,7 +168,7 @@ class HistoryQueryWindow:
         
         # 操作按钮
         btn_frame = ttk.Frame(results_frame)
-        btn_frame.pack(pady=5, fill='x')
+        btn_frame.grid(row=2, column=0, columnspan=2, sticky='w', pady=5)
         
         ttk.Button(btn_frame, text="导出查询结果", command=self.export_to_excel).pack(side='left', padx=5)
         ttk.Button(btn_frame, text="导出完整批次", command=self.export_batch).pack(side='left', padx=5)
@@ -196,6 +197,8 @@ class HistoryQueryWindow:
         scrollbar_x.grid(row=1, column=0, sticky='ew')
         
         parent.grid_rowconfigure(0, weight=1)
+        parent.grid_rowconfigure(1, weight=0)
+        parent.grid_rowconfigure(2, weight=0)
         parent.grid_columnconfigure(0, weight=1)
         
         # 初始化列（默认为批次查询）
@@ -240,8 +243,9 @@ class HistoryQueryWindow:
     def setup_review_columns(self):
         """设置评审记录查询的列"""
         self.results_tree['columns'] = (
-            'ID', '学号', '姓名', '总分', '排名',
-            '评审状态', '评审人', '评审时间'
+            'ID', '学号', '姓名', '总分', '截断总分',
+            '竞赛类', '科研创新', '外语类',
+            '排名', '评审状态', '评审人', '评审时间'
         )
         self.results_tree.column('#0', width=0, stretch=tk.NO)
         
@@ -281,12 +285,20 @@ class HistoryQueryWindow:
         # 根据类型设置列
         if query_type == "批次":
             self.setup_batch_columns()
+            if hasattr(self, 'points_range_label'):
+                self.points_range_label.config(text="分数范围:")
         elif query_type == "学生":
             self.setup_student_columns()
+            if hasattr(self, 'points_range_label'):
+                self.points_range_label.config(text="分数范围:")
         elif query_type == "申请":
             self.setup_application_columns()
+            if hasattr(self, 'points_range_label'):
+                self.points_range_label.config(text="分数范围:")
         elif query_type == "评审记录":
             self.setup_review_columns()
+            if hasattr(self, 'points_range_label'):
+                self.points_range_label.config(text="分数范围(截断后总分):")
     
     def execute_query(self):
         """执行查询"""
@@ -342,7 +354,8 @@ class HistoryQueryWindow:
                 self.display_review_results(results)
             
             # 更新记录数
-            self.record_count_label.config(text=f"记录数: {len(self.current_results)}")
+            if hasattr(self, 'record_count_label') and self.record_count_label:
+                self.record_count_label.config(text=f"记录数: {len(self.current_results)}")
             
         except Exception as e:
             logger.error(f"查询失败: {e}", exc_info=True)
@@ -406,10 +419,14 @@ class HistoryQueryWindow:
                 review['student_number'],
                 review['student_name'],
                 review['total_points'],
-                review['rank'] or '',
-                review['review_status'],
-                review['reviewer_name'] or '',
-                review['review_time']
+                review.get('capped_total') if review.get('capped_total') is not None else '',
+                review.get('stat_competition') if review.get('stat_competition') is not None else '',
+                review.get('stat_research') if review.get('stat_research') is not None else '',
+                review.get('stat_language') if review.get('stat_language') is not None else '',
+                review.get('rank') or '',
+                review.get('review_status'),
+                review.get('reviewer_name') or '',
+                review.get('review_time')
             ))
     
     def reset_query(self):

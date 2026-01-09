@@ -15,7 +15,10 @@ class DatabaseConfig:
     """数据库配置类"""
     
     def __init__(self):
-        self.config_file = "database_config.json"
+        # 兼容两种配置文件命名：db_config.json（根目录模板）与 database_config.json（历史遗留）
+        # 优先使用 db_config.json
+        self.config_files = ["db_config.json", "database_config.json"]
+        self.config_file = self.config_files[0]
         self._config = self._load_config()
     
     def _load_config(self):
@@ -38,15 +41,19 @@ class DatabaseConfig:
             'echo': False  # 是否打印SQL语句
         }
         
-        # 尝试从配置文件读取
-        if os.path.exists(self.config_file):
-            try:
-                with open(self.config_file, 'r', encoding='utf-8') as f:
-                    file_config = json.load(f)
-                    config.update(file_config)
-                    logger.info(f"从配置文件加载数据库配置: {self.config_file}")
-            except Exception as e:
-                logger.warning(f"读取数据库配置文件失败: {e}，使用默认配置")
+        # 尝试从配置文件读取（兼容两种命名）
+        for candidate in self.config_files:
+            if os.path.exists(candidate):
+                try:
+                    with open(candidate, 'r', encoding='utf-8') as f:
+                        file_config = json.load(f)
+                        config.update(file_config)
+                        self.config_file = candidate
+                        logger.info(f"从配置文件加载数据库配置: {candidate}")
+                    break
+                except Exception as e:
+                    logger.warning(f"读取数据库配置文件失败: {candidate} -> {e}，使用默认配置")
+                    break
         
         # 从环境变量读取（优先级最高）
         env_mapping = {
