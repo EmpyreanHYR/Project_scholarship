@@ -1,4 +1,4 @@
-	\chapter{软件操作教程}
+\chapter{软件操作教程}
 \section{评审基本流程概述}
 
 如图\ref{fig:基本流程图}所示，为本软件的基本使用流程图，其中绿框内容为前期准备工作，由申请加分项目人员完成；蓝框内容为评审工作，由评审人员（即本软件用户）完成。
@@ -487,6 +487,43 @@
 		\caption{版本V2.0未完成批量评审而导出的弹窗提醒}
 		\label{fig:版本V3.0未完成批量评审而导出的弹窗提醒}
 	\end{figure}
+}
+
+	extcolor{myred}{
+	\section{（可选）数据库功能启用与历史记录查询（V3.0）}
+	版本V3.0新增数据库能力，用于对导入批次、学生信息、申请记录、评审结果与操作日志进行留存与追溯。该功能为可选功能：默认不启用，不影响原有文件导入、评审与导出流程。
+	
+	\subsection{启用数据库功能}
+	（1）在软件根目录复制配置模板文件，生成数据库配置文件：
+	\begin{quote}
+			exttt{cp db\_config.example.json db\_config.json}
+	\end{quote}
+	（2）编辑\texttt{db\_config.json}，将\texttt{enabled}设置为\texttt{true}，并填写数据库连接信息（数据库类型、主机、端口、库名、用户名、密码等）。
+	（3）初始化数据库表结构（首次启用时执行一次）：
+	\begin{quote}
+			exttt{python3 -c "from database.migrate import init_database_schema; init_database_schema()"}
+	\end{quote}
+	（4）验证配置与系统完整性：
+	\begin{quote}
+			exttt{python3 verify\_system.py}
+	\end{quote}
+	如验证通过，则数据库功能已就绪；如未通过，请根据提示检查数据库服务是否启动、连接信息是否正确。
+	
+	\subsection{历史记录查询窗口}
+	当数据库启用且可用时，评审界面将新增“历史记录”入口。点击后打开历史记录查询窗口，支持如下查询类型：
+	\begin{enumerate}
+		\item 批次查询：按学年、学期、状态筛选评审批次；
+		\item 学生查询：按学号、姓名、专业、年级等条件筛选学生；
+		\item 申请查询：按项目类型、分数范围等条件筛选申请记录；
+		\item 评审查询：按评审人、评审状态、时间等条件筛选评审记录。
+	\end{enumerate}
+	
+	\subsection{导出查询结果与导出完整批次}
+	历史记录查询窗口支持两类导出：
+	\begin{enumerate}
+		\item 导出查询结果：将当前查询结果导出为单个Excel文件；
+		\item 导出完整批次：在“批次查询”界面选择一个批次后导出，将生成包含“批次汇总、学生列表、评审结果、申请详情”等多个Sheet的Excel文件，便于统一归档与查阅。
+	\end{enumerate}
 }
 
 
