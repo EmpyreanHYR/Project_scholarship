@@ -1,4 +1,4 @@
-\documentclass[12pt]{report}
+\documentclass[12pt,openany]{report}
 \usepackage{graphicx}    % 用于插入图片
 \usepackage{subfigure}   % 用于左右排列子图
 \usepackage{amsmath}     % 数学公式支持
@@ -39,7 +39,9 @@
 
 \definecolor{myred}{RGB}{200,50,50}
 %	 使用方法  \textcolor{myred}{	}
-\definecolor{mygreen}{RGB}{0,150,0}	
+\definecolor{mygreen}{RGB}{0,150,0}
+\definecolor{myblue}{RGB}{0,80,180}
+%	 使用方法  \textcolor{myblue}{	} —— V3.0 新增/补充内容
 
 \sloppy % 放宽换行限制
 
@@ -87,6 +89,7 @@
 \geometry{a4paper, scale=0.8}
 
 % 页眉设置
+\setlength{\headheight}{14.5pt}
 \pagestyle{fancy}
 \fancyhead[L]{优秀学生奖学金加分项目评审软件}
 \fancyhead[C]{}
@@ -94,12 +97,21 @@
 
 
 
+% 设置文件搜索路径，使得从任意目录编译均能找到子文件和图片
+\makeatletter
+\def\input@path{{软件使用说明书撰写/}}
+\makeatother
+\graphicspath{{软件使用说明书撰写/fig/}{软件使用说明书撰写/}}
+
+% 修复章节之间的空白页问题：禁止 cleardoublepage 产生多余的空白页
+\let\cleardoublepage\clearpage
+
 \begin{document}
 	
 	% 首页的标题页
 	\title{\textbf{优秀学生奖学金加分项目评审软件}\\\textbf{版本号：V3.0}\\\textbf{使用说明书}}
 	\author{作者：\\黄耀荣\\马荣斌\\陈彩蝶\\高新雅\\王俞欢\\张舒一} 
-	\date{2026年1月9日}    % 可以设置为当前日期 \today  ，或者自定义日期
+	\date{2026年6月9日}    % 可以设置为当前日期 \today  ，或者自定义日期
 	\pdfbookmark[0]{首页}{title}  % 添加书签
 	\maketitle       % 自动生成标题页
 
@@ -122,19 +134,15 @@
 	\hline
 	V1.0 & 2025年2月19日 & 黄耀荣 ，马荣斌 ，陈彩蝶 ， 高新雅 ，王俞欢 ，张舒一 & 初始版本 \\ % 第一行
 	\hline
-	V2.0 & 2025年9月19日 & 黄耀荣 ，马荣斌 ，陈彩蝶 ， 高新雅 ，王俞欢 ，张舒一 & 增加“导入加分详情”，“批量处理”功能 \\ % 空行
+	V2.0 & 2025年9月19日 & 黄耀荣 ，马荣斌 ，陈彩蝶 ， 高新雅 ，王俞欢 ，张舒一 & 增加"导入加分详情"，"批量处理"功能 \\ % 空行
 	\hline
-	V3.0 & 2026年1月9日 & 黄耀荣 ，马荣斌 ，陈彩蝶 ， 高新雅 ，王俞欢 ，张舒一 & 增加“数据库（可选）”“历史记录查询”“批次导出”功能 \\ % 空行
-	\hline
-	&  &  &  \\ % 空行
+	V3.0 & 2026年6月9日 & 黄耀荣 ，高新雅 ，马荣斌 ，陈彩蝶 ， 王俞欢 ，张舒一 & 增加"数据库（可选）"，"历史记录查询"，"批次导出"，"智能数据校验"，"撤销重做"，"角色权限"，"数据可视化"，"PDF报告"功能 \\ % 空行
 	\hline
 	&  &  &  \\ % 空行
 	\hline
 	&  &  &  \\ % 空行
 	\hline
-		&  &  &  \\ % 空行
-	\hline
-		&  &  &  \\ % 空行
+	&  &  &  \\ % 空行
 	\hline
 		&  &  &  \\ % 空行
 	\hline

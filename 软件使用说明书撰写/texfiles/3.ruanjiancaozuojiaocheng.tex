@@ -2,7 +2,7 @@
 \section{评审基本流程概述}
 
 如图\ref{fig:基本流程图}所示，为本软件的基本使用流程图，其中绿框内容为前期准备工作，由申请加分项目人员完成；蓝框内容为评审工作，由评审人员（即本软件用户）完成。
-\begin{figure}[H]
+\begin{figure}[!ht]
 	\centering
 	\includegraphics[width=0.6\linewidth]{fig/基本流程图}
 	\caption{基本流程图}
@@ -15,13 +15,13 @@
 在进行优秀学生奖学金加分项目审核前，需收集申请加分项目人员的基本信息以及加分项目的信息，包括学院，姓名，年级，班级，学号，所获奖项名称，获奖时间，奖项等级，项目类型。
 
 为了提供用户更好的使用体验，在本软件的导航栏中设置有收集模板文件，如图\ref{fig:模板文件的下载}所示，点击后会弹窗显示模板文件的存储位置，如图\ref{fig:选择模板文件的存储位置}所示，默认模板文件保存格式为“template.xlsx”，默认模板文件保存位置为软件所在目录。
-\begin{figure}[H]
+\begin{figure}[!ht]
 	\centering
 	\includegraphics[width=0.7 \linewidth]{fig/模板下载}
 	\caption{模板文件的下载}
 	\label{fig:模板文件的下载}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[!ht]
 	\centering
 	\includegraphics[width=0.7\linewidth]{fig/模板保存}
 	\caption{选择模板文件的存储位置}
@@ -29,25 +29,25 @@
 \end{figure}
 \subsection{加分项目的信息填写}
 如图所示\ref{fig:加分项目的信息填写示例}，为加分项目的信息填写示例。
-\begin{figure}[H]
+\begin{figure}[!ht]
 	\centering
 	\includegraphics[width=0.7\linewidth]{fig/加分项信息填写示例}
 	\caption{加分项目的信息填写示例}
 	\label{fig:加分项目的信息填写示例}
 \end{figure}	
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	\subsection{自定义加分规则的数据收集}
 	如图\ref{fig:版本V3.0评审界面新功能按钮展示}所示，版本V2.0新增加了“导入加分详情”的功能，支持从Excel文件导入自定义的项目类型、奖项级别和加分规则。}
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	【导入加分详情】至少要求Excel文件包含三列内容：项目类型、奖项级别和加分规则。针对项目类型可能存在的加分上限，可在Excel第四列为每类项目设置统计分数上限，无则默认6分。如果存在同一项目类型的加分上限不同，则采用第一次该项目类型出现时对应的分数上限。
 }
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	加分详情Excel参考示例如图\ref{fig:版本3.0的加分详情参考示例}所示，要求列顺序和抬头文字如图一致，分别为“项目类型”，“奖项级别”，“加分”，“加分上限”。如若不提供加分上限，则默认每个项目类型的加分上限为6分。
 }
-\begin{figure}[h]
+\begin{figure}[!ht]
 	\centering
 	\includegraphics[width=0.7\linewidth]{fig/3.0加分详情参考示例}
 	\caption{版本V2.0的加分详情参考示例}
@@ -163,7 +163,7 @@
 \section{关于}
 “关于”功能为导航栏第三个功能按钮，点击后如图\ref{fig:关于界面}所示，将展示本软件的版权所有信息，后续会根据实际需求继续增设内容，以便更好地宣传本软件。
 
-\textbf{\textcolor{mygreen}{考虑到版本更新问题，即版本号会进行更新，但如若版权所有人未出现修改，使用说明书的关于界面不进行更新，而实际代码和程序会进行更新。}}
+\textbf{{\color{mygreen}考虑到版本更新问题，即版本号会进行更新，但如若版权所有人未出现修改，使用说明书的关于界面不进行更新，而实际代码和程序会进行更新。}}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.5\linewidth]{fig/关于界面}
@@ -237,13 +237,13 @@
 \end{figure}
 
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	版本V2.0更新的内容有：【批量导入Excel文件】支持一次导入多个学生，支持大规模评审。导入过程支持文件格式验证（自动验证每个文件是否包含必要的列（学院、姓名、年级、班级、学号等）），重复检查（防止导入相同学生的数据）和错误处理（详细显示导入成功和失败的文件信息）。完成导入后可通过“学生选择下拉菜单”便捷切换不同学生的评审数据，如图\ref{fig:版本V3.0学生选择下拉菜单展示}所示。
 }
 
 
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	【补充导入Excel文件】支持在已有数据基础上追加导入新的学生Excel文件，无需重新选择所有文件。为了方便评审工作的开展，在单个文件导入评审的情况下，选择补充导入会自动转化为批量处理状态，届时同样可通过“学生选择下拉菜单”便捷切换不同学生的评审数据。
 }
 
@@ -275,7 +275,7 @@
 
 对于加分项目的评定等级的认定需要根据申请人递交的支撑材料的文件内容、盖章单位进行确认，并非依据申请人填写的奖项等级进行认定。
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	对于希望采用新的加分项目分值表，可以通过【导入加分详请】实现在默认规则和自定义规则之间切换，具体要求可参见前文中“自定义加分规则的数据收集”部分的内容。同时亦可通过【重置为默认】一键恢复到系统默认的加分规则。
 }
 
@@ -329,12 +329,12 @@
 
 
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	\section{学生选择下拉菜单}
 	如图\ref{fig:版本V3.0学生选择下拉菜单展示}所示，为版本V2.0支持批量导入Excel文件后新增的学生选择下拉菜单，图示为导入了三名学生的材料内容，通过下拉菜单便捷切换不同学生的评审数据，同时智能保存每个学生的评审进度，切换学生时自动保存当前进度，学生信息展示也会进行更新。
 }	
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	请注意，在单个文件导入的情况下，学生选择下拉菜单并不可用，但在补充导入文件后，将从单文件处理状态专户为批量处理状态，此时，学生选择下拉菜单即可正常工作。
 }
 
@@ -382,7 +382,7 @@
 \end{figure}
 
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	\section{批量评审结果导出}
 	版本V2.0更新中，新支持了批量处理操作，为了适配新功能，对于评审结果的导出，本软件也对应新增了“批量评审结果导出”功能按钮，支持对批量评审的结果进行输出。在点击【批量评审结果导出】后，选择文件导出地址后，输出结果如图\ref{fig:版本V3.0批量评审结果导出}所示，将在选定地址中输出每位学生递交的材料的结果文件和全部学生评审结果总表，其中单个结果内容与单文件评审结果一致，即如图\ref{fig:评审结果导出文件的示例}，全部学生评审结果总表内容如图\ref{fig:版本V3.0批量评审结果导出总表示例}所示。}	
 \begin{figure}
@@ -400,7 +400,7 @@
 \end{figure}
 
 
-\textcolor{mygreen}{	
+{\color{mygreen}	
 	若采用自定义加分规则，则对应的项目类型和奖项级别均按照新的导入加分详情进行输出，如图\ref{fig:版本V3.0自定义加分批量评审结果导出总表示例}所示。
 	\begin{figure}[h]
 		\centering
@@ -449,7 +449,7 @@
 	\label{fig:统计结果导出文件的示例}
 \end{figure}
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	\section{批量统计结果导出}
 	版本V2.0更新中，新支持了批量处理操作，为了适配新功能，对于统计结果的导出，本软件也对应新增了“批量统计结果导出”功能按钮，支持对批量评审的统计结果进行输出。在点击【批量统计结果导出】后，选择文件导出地址后，输出结果内容如图\ref{fig:版本V3.0统计结果导出示例（默认加分规则）} 所示。}	
 
@@ -460,7 +460,7 @@
 	\label{fig:版本V3.0统计结果导出示例（默认加分规则）}
 \end{figure}
 
-\textcolor{mygreen}{	
+{\color{mygreen}	
 	若采用自定义加分规则，则对应的项目类型和奖项级别均按照新的导入加分详情进行输出，如图\ref{fig:版本V3.0自定义加分批量统计结果导出示例}所示。
 	\begin{figure}[h]
 		\centering
@@ -479,7 +479,7 @@
 	\label{fig:评审未完成时结果导出提醒}
 \end{figure}
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	如图\ref{fig:版本V3.0未完成批量评审而导出的弹窗提醒}所示，在批量处理状态，如果没有完成所有学生的评审工作而进行结果导出，则会进行提醒，避免评审人员出现工作疏漏的情况。
 	\begin{figure}[h]
 		\centering
@@ -489,32 +489,32 @@
 	\end{figure}
 }
 
-\textcolor{myred}{
+{\color{myred}
 	\section{（可选）数据库功能启用与历史记录查询}
 	版本V3.0新增数据库能力，用于对导入批次、学生信息、申请记录、评审结果与操作日志进行留存与追溯。该功能为可选功能：默认不启用，不影响原有文件导入、评审与导出流程。
 }
 	
-\textcolor{myred}{
+{\color{myred}
 	\subsection{启用数据库功能}
 	\begin{enumerate}
 	\item 在软件根目录复制配置模板文件，生成数据库配置文件：
-	\begin{quote}
-			cp db\_config.example.json db\_config.json
-	\end{quote}
+	\begin{tcolorbox}[codeblock]
+		\texttt{cp db\_config.example.json db\_config.json}
+	\end{tcolorbox}
 	\item 编辑\texttt{db\_config.json}，将\texttt{enabled}设置为\texttt{true}，并填写数据库连接信息（数据库类型、主机、端口、库名、用户名、密码等）。
 	\item 初始化数据库表结构（首次启用时执行一次）：
-	\begin{quote}
-			python3 -c "from database.migrate import init\_database\_schema; init\_database\_schema()"
-	\end{quote}
+	\begin{tcolorbox}[codeblock]
+		\texttt{python3 -c "from database.migrate import init\_database\_schema; init\_database\_schema()"}
+	\end{tcolorbox}
 	\item 验证配置与系统完整性：
-	\begin{quote}
-			python3 verify\_system.py
-	\end{quote}
+	\begin{tcolorbox}[codeblock]
+		\texttt{python3 verify\_system.py}
+	\end{tcolorbox}
 	如验证通过，则数据库功能已就绪；如未通过，请根据提示检查数据库服务是否启动、连接信息是否正确。
 	\end{enumerate}
 }	
 
-\textcolor{myred}{
+{\color{myred}
 	\subsection{历史记录查询窗口}
 	当数据库启用且可用时，评审界面将新增“历史记录”入口。点击后打开历史记录查询窗口，支持如下查询类型：
 	\begin{enumerate}
@@ -525,7 +525,7 @@
 	\end{enumerate}
 }
 
-\textcolor{myred}{
+{\color{myred}
 	\subsection{导出查询结果与导出完整批次}
 	历史记录查询窗口支持两类导出：
 	\begin{enumerate}
@@ -549,11 +549,96 @@
 	此操作将打开读取的EXCEL文件所在的目录，可以帮助评审人员快速查看文件所在目录和递交的材料，减轻负担。
 
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	\section{导入加分详情及重置为默认}
 	【导入加分详情】将采用自定义加分规则更新评审内容选项（项目类型、奖项级别、加分和加分上限）。
 }
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	【重置为默认】将更新评审内容选项为默认规则，如表\ref{分值表}所示。
+}
+
+% ===================== V3.0 新增/补充内容 =====================
+
+{\color{myred}
+	\section{导入数据智能校验}
+	版本V3.0对文件导入功能进行了全面增强。无论是单文件导入、批量导入还是补充导入，系统均会在导入时自动执行以下校验：
+	\begin{enumerate}
+		\item \textbf{必需列校验}：检查Excel文件是否包含学院、姓名、年级、班级、学号、所获奖项名称、获奖时间、奖项等级共8个必需列，缺少任一列将拒绝导入并提示缺失列名。
+		\item \textbf{空行跳过}：自动跳过所获奖项名称和姓名均为空的数据行，避免空白行干扰评审。
+		\item \textbf{日期格式规范化}：支持“2023-01-01”“2023/01/01”“2023.01.01”“2023年1月1日”四种常见日期格式，自动统一为“YYYY-MM-DD”标准格式。
+		\item \textbf{无效加分值清除}：若导入的数据已包含加分列，系统会自动检测并清除无法解析为数字的无效加分值。
+	\end{enumerate}
+	导入完成后，系统会弹出校验摘要弹窗，展示成功导入的记录数以及所有警告项（如规范化日期数量、跳过的空行数、清除的无效加分值等），帮助用户快速了解数据质量。
+	% 【需补充截图：单文件导入校验摘要弹窗（含警告项），命名为 fig/V3.0_import_validation.png】
+	% 【需补充截图：批量导入校验摘要弹窗，命名为 fig/V3.0_batch_validation.png】
+}
+
+{\color{myred}
+	\section{管理员面板与角色权限}
+	版本V3.0引入了角色权限系统，用户分为两种角色：
+	\begin{enumerate}
+		\item \textbf{管理员（admin）}： 拥有全部权限，可管理所有用户（解锁账户、切换角色、删除用户），查看全部评审进度。
+		\item \textbf{评审员（reviewer）}： 默认角色，可进行正常的导入、评审、导出操作。旧版本用户数据会自动迁移，所有已有用户默认赋予评审员角色。
+	\end{enumerate}
+
+	管理员登录后，导航栏“登录”按钮左侧会显示“管理”按钮。点击后打开管理员面板（示意图，待补充实际截图）。面板中以表格列出所有用户的用户名、角色和锁定状态，并提供三个操作按钮：
+	\begin{enumerate}
+		\item \textbf{解锁账户}：解除被锁定用户的锁定状态。
+		\item \textbf{切换角色}：在管理员和评审员之间切换指定用户的角色。
+		\item \textbf{删除用户}：从系统中移除指定用户（不可删除当前登录用户）。
+	\end{enumerate}
+	% 【需补充截图：管理员面板界面，命名为 fig/V3.0_admin_panel.png】
+}
+
+{\color{myred}
+	\section{评审撤销与重做}
+	评审过程中可能出现误操作（如选错项目类型、评错等级等），版本V3.0新增了撤销与重做功能。
+
+	评审界面“确定”按钮下方新增了“撤销”和“重做”两个按钮。每次点击“确定”完成一项评审后，系统会自动保存评审前的状态。如需回退，可点击“撤销”按钮或使用快捷键 \textbf{Ctrl+Z} 恢复到评审前的数据；撤销后如需恢复，可点击“重做”按钮或使用快捷键 \textbf{Ctrl+Y}。
+
+	注意事项：
+	\begin{itemize}
+		\item 撤销栈仅在当前学生的评审会话内有效，切换学生后撤销栈会自动清空。
+		\item 进行新的评审操作会使之前可重做的操作失效（重做栈被清空）。
+		\item 撤销/重做会同步更新表格显示和批量模式下的后台数据。
+	\end{itemize}
+	% 【需补充截图：评审界面中撤销/重做按钮的特写，命名为 fig/V3.0_undo_redo.png】
+}
+
+{\color{myred}
+	\section{数据统计可视化面板}
+	评审界面新增“统计面板”按钮。导入数据并完成评审后，点击该按钮将打开数据可视化窗口（需安装 matplotlib 库：\texttt{pip install matplotlib}）。窗口中以 2x2 网格展示四张统计图表：
+	\begin{enumerate}
+		\item \textbf{总分分布直方图}：展示所有（或当前）学生加分总分的频次分布。
+		\item \textbf{类别加分饼图}：展示各项目类型（竞赛类/科研创新类/外语类等）的加分占比。
+		\item \textbf{评审进度环形图}：以环形图展示已完成评审与未完成评审的项目数量对比。
+		\item \textbf{学生排名/分类柱状图}：批量模式下按总分排名展示各学生，单学生模式下展示各类型的加分分解。
+	\end{enumerate}
+	图表窗口底部配有工具栏，支持缩放、平移以及将图表保存为图片文件。
+
+	若系统未安装 matplotlib，点击“统计面板”会弹出提示，引导用户通过 \texttt{pip install matplotlib} 安装。
+	% 【需补充截图：统计可视化面板全貌（四张图表），命名为 fig/V3.0_visualization.png】
+}
+
+{\color{myred}
+	\section{PDF 报告导出}
+	版本V3.0在原有Excel导出功能的基础上，新增了PDF格式的评审报告导出（需安装 reportlab 库：\texttt{pip install reportlab}）。评审界面新增了两个PDF导出按钮：
+
+	\subsection{导出PDF报告（个人）}
+	点击“导出PDF报告”按钮，将当前学生的评审结果导出为A4格式的PDF文件。报告内容包括：
+	\begin{itemize}
+		\item 学生基本信息表（学院、姓名、年级、班级、学号、评审日期）
+		\item 奖项评审明细表（序号、奖项名称、获奖时间、奖项等级、项目类型、评定等级、认定情况、加分、备注）
+		\item 分类统计汇总表（各项目类型得分及截断后合计）
+		\item 页脚信息（评审人、导出时间）
+	\end{itemize}
+	系统会自动查找系统中文字体以确保中文正常显示。导出前会校验当前学生是否已完成全部评审，未完成时提示用户先完成评审。
+
+	\subsection{批量PDF汇总}
+	点击“批量PDF汇总”按钮，将所有学生的评审数据汇总为一份PDF排名表。表格按总分降序排列，包含排名、姓名、学院、班级、学号、各类型得分和总分。第一名以黄色高亮标识。适合打印存档或提交评审委员会审阅。
+
+	若系统未安装 reportlab，点击PDF导出按钮会弹出提示，引导用户通过 \texttt{pip install reportlab} 安装。
+	% 【需补充截图：个人PDF报告示例（第一页），命名为 fig/V3.0_pdf_report.png】
+	% 【需补充截图：批量PDF汇总报告示例（排名表），命名为 fig/V3.0_pdf_batch.png】
 } 

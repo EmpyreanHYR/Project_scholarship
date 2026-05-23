@@ -79,8 +79,16 @@ def check_main_program():
         
         checks = [
             ("Excel导入", "def load_excel_data"),
+            ("数据校验 (_parse_date)", "def _parse_date"),
             ("评审功能", "class ScholarshipReviewer"),
+            ("撤销功能", "def undo_review"),
+            ("重做功能", "def redo_review"),
             ("导出功能", "def export_excel"),
+            ("PDF导出", "def export_pdf_report"),
+            ("PDF批量", "def export_pdf_batch"),
+            ("可视化面板", "class VisualizationPanel"),
+            ("角色权限 (is_admin)", "def is_admin"),
+            ("管理员面板", "def open_admin_panel"),
         ]
         
         all_ok = True
@@ -124,7 +132,7 @@ def check_integration():
     """检查集成文件"""
     print_header("5. 集成检查")
     
-    files = ['db_integration.py', 'history_window.py']
+    files = ['db_integration.py', 'history_window.py', 'report_generator.py']
     
     for f in files:
         if os.path.exists(f):

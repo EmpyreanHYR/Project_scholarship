@@ -1,10 +1,12 @@
 # 导入库
+from __future__ import annotations
+
 import os
+import tempfile
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 import pandas as pd
-import re
-import openpyxl
+import openpyxl  # noqa: F401 — pd.read_excel / df.to_excel 底层 .xlsx 引擎
 import json
 from tkinter import Toplevel
 import pkg_resources  # 用于打包时访问资源
@@ -12,8 +14,10 @@ import sys
 import shutil
 from PIL import Image, ImageTk
 import time
+from datetime import datetime
 import logging
 import traceback
+import re
 
 # 导入数据库集成模块（可选，不影响主程序）
 try:
@@ -42,25 +46,54 @@ class LoginManager:
 
     def load_user_data(self):
         if not os.path.exists(self.user_data_file):
-            with open(self.user_data_file, "w") as f:
-                json.dump({}, f)
+            return {}
         with open(self.user_data_file, "r") as f:
             users = json.load(f)
 
-        # 修正旧的用户数据格式（如果值是字符串，将其转换为嵌套字典）
+        # 自动迁移旧格式
+        changed = False
         for username, data in users.items():
-            if isinstance(data, str):  # 如果是旧格式，值是字符串（密码）
-                users[username] = {"password": data, "locked": False}
+            # 旧格式：值是字符串（密码）
+            if isinstance(data, str):
+                users[username] = {"password": data, "locked": False, "role": "reviewer"}
+                changed = True
+            # 中间格式：缺少 role 字段
+            elif isinstance(data, dict) and "role" not in data:
+                data["role"] = "reviewer"
+                changed = True
+            # 中间格式：缺少 locked 字段
+            if isinstance(data, dict) and "locked" not in data:
+                data["locked"] = False
+                changed = True
 
-        # 保存修正后的数据（如果有修正）
-        with open(self.user_data_file, "w") as f:
-            json.dump(users, f)
+        # 保存修正后的数据（仅在有修正时写入）
+        if changed:
+            self.users = users  # 临时设置以便 save_user_data 能访问
+            self.save_user_data()
 
         return users
 
+    def is_admin(self, username=None):
+        """检查指定用户（默认当前登录用户）是否为管理员。"""
+        if username is None:
+            username = getattr(self.scholarship_reviewer, 'current_user', None)
+        if not username or username not in self.users:
+            return False
+        return self.users[username].get("role") == "admin"
+
     def save_user_data(self):
-        with open(self.user_data_file, "w") as f:
-            json.dump(self.users, f)
+        """原子写入用户数据，防止写入中断导致文件损坏。"""
+        dir_name = os.path.dirname(self.user_data_file) or '.'
+        fd, tmp_path = tempfile.mkstemp(suffix='.json', dir=dir_name)
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                json.dump(self.users, f, ensure_ascii=False)
+            os.replace(tmp_path, self.user_data_file)
+        except Exception:
+            # 清理临时文件
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
+            raise
 
     def register(self):
         """显示注册窗口"""
@@ -156,6 +189,88 @@ class LoginManager:
 
         tk.Button(login_window, text="登录", command=attempt_login).grid(row=2, column=0, columnspan=2, pady=10)
 
+    def open_admin_panel(self):
+        """打开管理员面板——管理用户、解锁账户、查看全部评审进度。"""
+        if hasattr(self, '_admin_window') and self._admin_window.winfo_exists():
+            self._admin_window.lift()
+            return
+        admin_window = Toplevel(self.root)
+        self._admin_window = admin_window
+        admin_window.title("管理员面板")
+        admin_window.geometry("700x500")
+
+        # ---- 标题 ----
+        tk.Label(admin_window, text="用户管理", font=("Arial", 14, "bold")).pack(pady=10)
+
+        # ---- 用户列表（Treeview） ----
+        columns = ("用户名", "角色", "锁定状态")
+        tree = ttk.Treeview(admin_window, columns=columns, show="headings", height=12)
+        for col in columns:
+            tree.heading(col, text=col)
+        tree.column("用户名", width=150)
+        tree.column("角色", width=100)
+        tree.column("锁定状态", width=100)
+        tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        def refresh_user_list():
+            tree.delete(*tree.get_children())
+            for uname, data in self.users.items():
+                role = data.get("role", "reviewer") if isinstance(data, dict) else "?"
+                locked = "🔒 已锁定" if (isinstance(data, dict) and data.get("locked")) else "正常"
+                tree.insert("", "end", values=(uname, role, locked))
+
+        refresh_user_list()
+
+        # ---- 操作按钮 ----
+        btn_frame = tk.Frame(admin_window)
+        btn_frame.pack(pady=10)
+
+        def unlock_selected():
+            sel = tree.selection()
+            if not sel:
+                messagebox.showwarning("提示", "请先选择一个用户")
+                return
+            uname = tree.item(sel[0])['values'][0]
+            if uname in self.users and isinstance(self.users[uname], dict):
+                self.users[uname]["locked"] = False
+                self.save_user_data()
+                refresh_user_list()
+                messagebox.showinfo("成功", f"用户 {uname} 已解锁")
+
+        def toggle_admin():
+            sel = tree.selection()
+            if not sel:
+                messagebox.showwarning("提示", "请先选择一个用户")
+                return
+            uname = tree.item(sel[0])['values'][0]
+            if uname in self.users and isinstance(self.users[uname], dict):
+                current_role = self.users[uname].get("role", "reviewer")
+                new_role = "admin" if current_role != "admin" else "reviewer"
+                self.users[uname]["role"] = new_role
+                self.save_user_data()
+                refresh_user_list()
+                messagebox.showinfo("成功", f"用户 {uname} 角色已切换为 {new_role}")
+
+        def delete_user():
+            sel = tree.selection()
+            if not sel:
+                messagebox.showwarning("提示", "请先选择一个用户")
+                return
+            uname = tree.item(sel[0])['values'][0]
+            if uname == getattr(self.scholarship_reviewer, 'current_user', None):
+                messagebox.showerror("错误", "不能删除当前登录用户")
+                return
+            if messagebox.askyesno("确认", f"确定要删除用户 {uname} 吗？此操作不可撤销。"):
+                del self.users[uname]
+                self.save_user_data()
+                refresh_user_list()
+                messagebox.showinfo("成功", f"用户 {uname} 已删除")
+
+        ttk.Button(btn_frame, text="🔓 解锁账户", command=unlock_selected).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="🔄 切换角色", command=toggle_admin).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="🗑 删除用户", command=delete_user).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="关闭", command=admin_window.destroy).pack(side=tk.LEFT, padx=5)
+
 class AboutHelp:
     @staticmethod
     def show_about(root):
@@ -182,6 +297,14 @@ class AboutHelp:
         help_window.protocol("WM_DELETE_WINDOW", help_window.destroy)
 
 class ScholarshipReviewer:
+
+    @staticmethod
+    def adjust_combobox_width(combobox, max_width=60):
+        """动态调整 Combobox 宽度。"""
+        def on_postcommand(event):
+            width = max(max_width, combobox.winfo_reqwidth())
+            combobox.config(width=width)
+        combobox.bind('<Configure>', on_postcommand)
 
     def __init__(self, root):
         self.root = root
@@ -223,6 +346,14 @@ class ScholarshipReviewer:
         # 加分规则管理：保存默认和自定义的加分规则
         self.init_default_scoring_rules()
         self.custom_scoring_rules = None  # 自定义加分规则，为None时使用默认规则
+
+        # 撤销/重做栈
+        self.undo_stack = []   # 每项: (selected_idx, old_values_tuple)
+        self.redo_stack = []   # 每项: (selected_idx, old_values_tuple)
+
+        # 绑定 Ctrl+Z / Ctrl+Y 快捷键
+        self.root.bind('<Control-z>', lambda e: self.undo_review())
+        self.root.bind('<Control-y>', lambda e: self.redo_review())
 
         # 绑定窗口关闭事件
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -308,13 +439,6 @@ class ScholarshipReviewer:
         self.recognition_var = tk.StringVar()
         self.remarks_var = tk.StringVar()
 
-        def adjust_combobox_width(combobox, max_width=60):
-            def on_postcommand(event):
-                width = max(max_width, combobox.winfo_reqwidth())
-                combobox.config(width=width)
-
-            combobox.bind('<Configure>', on_postcommand)
-
         # 导入加分详情和重置按钮
         self.import_frame = tk.Frame(self.review_frame)
         self.import_frame.pack(side=tk.TOP, padx=5, pady=5)
@@ -332,14 +456,14 @@ class ScholarshipReviewer:
         # 初始化时使用默认的项目类型
         self.project_type_dropdown['values'] = self.default_project_types
         self.project_type_dropdown.pack(side=tk.TOP, padx=5)
-        adjust_combobox_width(self.project_type_dropdown)
+        ScholarshipReviewer.adjust_combobox_width(self.project_type_dropdown)
 
         # 奖项级别下拉菜单
         self.level_label = tk.Label(self.review_frame, text="奖项级别: ")
         self.level_label.pack(side=tk.TOP, padx=5)
         self.level_dropdown = ttk.Combobox(self.review_frame, textvariable=self.level_var, width=40)
         self.level_dropdown.pack(side=tk.TOP, padx=5)
-        adjust_combobox_width(self.level_dropdown)
+        ScholarshipReviewer.adjust_combobox_width(self.level_dropdown)
 
         # 认定情况下拉菜单
         self.recognition_label = tk.Label(self.review_frame, text="认定情况: ")
@@ -348,7 +472,7 @@ class ScholarshipReviewer:
         self.recognition_dropdown['values'] = ["认定", "不予认定"]
         self.recognition_dropdown.pack(side=tk.TOP, padx=5)
         self.recognition_dropdown.bind("<<ComboboxSelected>>", self.on_recognition_select)
-        adjust_combobox_width(self.recognition_dropdown)
+        ScholarshipReviewer.adjust_combobox_width(self.recognition_dropdown)
 
         # 备注下拉菜单，默认禁用，只有在选择“不予认定”时启用
         self.remarks_label = tk.Label(self.review_frame, text="备注: ")
@@ -365,7 +489,7 @@ class ScholarshipReviewer:
             "其他（需补充文本内容）"
         ]
         self.remarks_dropdown.pack(side=tk.TOP, padx=5)
-        adjust_combobox_width(self.remarks_dropdown)
+        ScholarshipReviewer.adjust_combobox_width(self.remarks_dropdown)
 
         # 加分显示标签，初始值为0
         self.points_label = tk.Label(self.review_frame, text="加分: 0")
@@ -374,6 +498,14 @@ class ScholarshipReviewer:
         # 确定按钮，点击后将评审内容写入表格的相应行
         self.confirm_btn = ttk.Button(self.review_frame, text="确定", command=self.confirm_review)
         self.confirm_btn.pack(side=tk.TOP, padx=5, pady=10)
+
+        # 撤销/重做按钮
+        undo_redo_frame = tk.Frame(self.review_frame)
+        undo_redo_frame.pack(side=tk.TOP, padx=5, pady=2)
+        self.undo_btn = ttk.Button(undo_redo_frame, text="↩ 撤销", command=self.undo_review)
+        self.undo_btn.pack(side=tk.LEFT, padx=3)
+        self.redo_btn = ttk.Button(undo_redo_frame, text="↪ 重做", command=self.redo_review)
+        self.redo_btn.pack(side=tk.LEFT, padx=3)
 
         # Excel 导出按钮，点击后保存评审结果到新的 Excel 文件
         self.export_btn = ttk.Button(self.review_frame, text="评审结果导出Excel", command=self.export_excel)
@@ -391,6 +523,16 @@ class ScholarshipReviewer:
         self.batch_stats_export_btn = ttk.Button(self.review_frame, text="批量统计结果导出", command=self.batch_stats_export_excel)
         self.batch_stats_export_btn.pack(side=tk.TOP, padx=5, pady=10)
         
+        # 统计可视化面板按钮
+        self.viz_btn = ttk.Button(self.review_frame, text="📊 统计面板", command=self.open_visualization)
+        self.viz_btn.pack(side=tk.TOP, padx=5, pady=5)
+
+        # PDF 导出按钮
+        self.pdf_export_btn = ttk.Button(self.review_frame, text="📄 导出PDF报告", command=self.export_pdf_report)
+        self.pdf_export_btn.pack(side=tk.TOP, padx=5, pady=5)
+        self.pdf_batch_btn = ttk.Button(self.review_frame, text="📄 批量PDF汇总", command=self.export_pdf_batch)
+        self.pdf_batch_btn.pack(side=tk.TOP, padx=5, pady=5)
+
         # 【新增Step5】历史记录查询按钮
         if DB_INTEGRATION_AVAILABLE and is_database_enabled():
             self.history_btn = ttk.Button(self.review_frame, text="历史记录查询", command=self.open_history_window)
@@ -406,8 +548,11 @@ class ScholarshipReviewer:
 
         register_btn = ttk.Button(top_frame, text="注册", command=self.login_manager.register)
         register_btn.pack(side=tk.LEFT, padx=5, pady=5)
-        login_btn = ttk.Button(top_frame, text="登录", command=self.login_manager.login)
-        login_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        self.login_btn = ttk.Button(top_frame, text="登录", command=self.login_manager.login)
+        self.login_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        self.admin_btn = ttk.Button(top_frame, text="⚙ 管理", command=self.login_manager.open_admin_panel)
+        self.admin_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        self.admin_btn.pack_forget()  # 默认隐藏，admin 登录后显示
         about_btn = ttk.Button(top_frame, text="关于", command=lambda: AboutHelp.show_about(self.root))
         about_btn.pack(side=tk.LEFT, padx=5, pady=5)
         help_btn = ttk.Button(top_frame, text="帮助", command=lambda: AboutHelp.show_help(self.root))
@@ -455,9 +600,8 @@ class ScholarshipReviewer:
             return
         award_name = self.tree.item(selected_item)['values'][0]
         base_dir = os.path.dirname(self.current_file)
-        safe_award_name = ''.join([c for c in str(award_name) if '\u4e00' <= c <= '\u9fff' or c.isalnum()])
-        pdf_path = os.path.join(base_dir, safe_award_name + ".pdf")
-        if os.path.exists(pdf_path):
+        pdf_path = self._safe_join_material(base_dir, award_name, ".pdf")
+        if pdf_path and os.path.exists(pdf_path):
             import webbrowser
             webbrowser.open(pdf_path)
         else:
@@ -469,9 +613,15 @@ class ScholarshipReviewer:
             messagebox.showerror("错误", "请先导入Excel文件！")
             return
         import subprocess
+        import sys as _sys
         folder = os.path.dirname(os.path.abspath(self.current_file))
         try:
-            os.startfile(folder)
+            if _sys.platform == 'win32':
+                os.startfile(folder)
+            elif _sys.platform == 'darwin':
+                subprocess.run(['open', folder])
+            else:
+                subprocess.run(['xdg-open', folder])
         except Exception as e:
             messagebox.showerror("错误", f"无法打开目录: {e}")
 
@@ -504,9 +654,13 @@ class ScholarshipReviewer:
                 messagebox.showerror("错误", f"文件保存失败: {str(e)}")
 
     def apply_theme(self, theme):
-        """应用主题"""
+        """应用主题
+
+        TODO: 使用 ttk.Style 主题切换代替 tk_setPalette，
+              以完美恢复所有 widget 的原始颜色。
+        """
         if theme == "dark":
-            self.root.tk_setPalette(background="black" , foreground="white")
+            self.root.tk_setPalette(background="black", foreground="white")
         else:
             self.root.tk_setPalette(background=self.default_bg, foreground="black")
 
@@ -516,6 +670,12 @@ class ScholarshipReviewer:
         self.file_btn.config(state=tk.NORMAL)
         self.batch_file_btn.config(state=tk.NORMAL)
         self.supplement_file_btn.config(state=tk.NORMAL)
+
+        # 管理员显示管理按钮
+        if self.login_manager.is_admin():
+            self.admin_btn.pack(side=tk.LEFT, padx=5, pady=5, before=self.login_btn)
+        else:
+            self.admin_btn.pack_forget()
     
     def open_history_window(self):
         """【新增Step5】打开历史记录查询窗口"""
@@ -536,6 +696,51 @@ class ScholarshipReviewer:
                 traceback.format_exc(limit=8)
             )
             messagebox.showerror("错误", f"打开历史记录窗口失败: {str(e)}")
+
+    def open_visualization(self):
+        """打开数据可视化面板"""
+        if self.df is None and not self.students_data:
+            messagebox.showerror("错误", "请先导入学生数据")
+            return
+
+        # 收集统计数据
+        all_stats = {}  # {student_name: {type: score, ...}}
+        reviewed_counts = {}  # {student_name: (reviewed, total)}
+        project_types = set()
+
+        if self.students_data:
+            for sid, data in self.students_data.items():
+                info = data['student_info']
+                name = info.get('姓名', sid)
+                df = data['df']
+                _, stats, _, _ = self._compute_statistics_from_df(df)
+                all_stats[name] = stats
+                project_types.update(stats.keys())
+                # 计算已评审/总数
+                total = len(df)
+                reviewed = sum(1 for _, row in df.iterrows() if row.get('认定情况', ''))
+                reviewed_counts[name] = (reviewed, total)
+        elif self.df is not None:
+            name = "当前学生"
+            _, stats, _, _ = self._compute_statistics_from_df(self.df)
+            all_stats[name] = stats
+            project_types.update(stats.keys())
+            total = len(self.df)
+            reviewed = sum(1 for _, row in self.df.iterrows() if row.get('认定情况', ''))
+            reviewed_counts[name] = (reviewed, total)
+
+        if not all_stats:
+            messagebox.showerror("错误", "没有可展示的统计数据")
+            return
+
+        try:
+            VisualizationPanel(self.root, all_stats, list(project_types), reviewed_counts)
+        except ImportError:
+            messagebox.showerror("错误",
+                "matplotlib 未安装，无法显示统计图表。\n"
+                "请运行: pip install matplotlib")
+        except Exception as e:
+            messagebox.showerror("错误", f"打开统计面板失败: {str(e)}")
 
     def validate_review_completion(self):
         """校验所有奖项是否审核完毕及备注填写完整，返回(未审核列表, 未备注列表)"""
@@ -598,27 +803,140 @@ class ScholarshipReviewer:
         # 情况2：已经是批量模式或刚转换为批量模式，补充新文件
         self.supplement_batch_load_excel_data(file_paths)
 
+    @staticmethod
+    def _parse_date(value):
+        """将各种日期格式解析为统一字符串 'YYYY-MM-DD'，无法解析时返回原始值。
+        支持: '2023-01-01', '2023/01/01', '2023年1月1日', '2023.01.01',
+               datetime 对象, pandas Timestamp, 纯数字年份等。
+        """
+        if value is None:
+            return ''
+        # 已经是 datetime / Timestamp
+        if isinstance(value, (pd.Timestamp,)):
+            return value.strftime('%Y-%m-%d')
+        # 尝试常见字符串格式
+        s = str(value).strip()
+        if not s:
+            return ''
+        formats = [
+            (r'^(\d{4})-(\d{1,2})-(\d{1,2})$', '%Y-%m-%d'),
+            (r'^(\d{4})/(\d{1,2})/(\d{1,2})$', '%Y/%m/%d'),
+            (r'^(\d{4})\.(\d{1,2})\.(\d{1,2})$', '%Y.%m.%d'),
+            (r'^(\d{4})年(\d{1,2})月(\d{1,2})日?$', '%Y年%m月%d'),
+        ]
+        for pattern, fmt in formats:
+            if re.match(pattern, s):
+                try:
+                    dt = datetime.strptime(s, fmt)
+                    return dt.strftime('%Y-%m-%d')
+                except ValueError:
+                    pass
+        # 纯数字年份（如 "2023"）
+        if re.match(r'^\d{4}$', s):
+            return s
+        return s
+
     def load_excel_data(self, excel_path):
         """加载Excel文件并将数据添加到表格中"""
         # 清空之前的数据
         self.tree.delete(*self.tree.get_children())  # 清空表格中的内容
         self.df = None  # 清空之前的df数据
 
-        # 加载新的Excel文件
-        self.df = pd.read_excel(excel_path)
-        
-        # 添加评审相关的列（如果不存在的话）
+        # 检查文件大小（上限 50MB）
+        MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+        try:
+            file_size = os.path.getsize(excel_path)
+            if file_size > MAX_FILE_SIZE:
+                messagebox.showerror("错误", f"文件过大（{file_size / 1024 / 1024:.1f}MB），请使用小于50MB的文件。")
+                return
+        except OSError:
+            pass
+
+        # 加载新的Excel文件（限制最大行数 5000）
+        self.df = pd.read_excel(excel_path, nrows=5000)
+        basename = os.path.basename(excel_path)
+
+        # ---- 校验：必需列 ----
+        required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
+        missing_columns = [col for col in required_columns if col not in self.df.columns]
+        if missing_columns:
+            messagebox.showerror("导入失败",
+                f"文件缺少必需的列：\n{', '.join(missing_columns)}\n\n"
+                f"必需列：{', '.join(required_columns)}")
+            self.df = None
+            return
+
+        # ---- 校验：跳过完全空行 ----
+        before_rows = len(self.df)
+        self.df = self.df.dropna(subset=['所获奖项名称', '姓名'], how='all').reset_index(drop=True)
+        skipped_empty = before_rows - len(self.df)
+        if len(self.df) == 0:
+            messagebox.showerror("导入失败", "文件中没有有效数据行（所有行的奖项名称和姓名均为空）。")
+            self.df = None
+            return
+
+        # ---- 校验：日期格式规范化 ----
+        date_warnings = 0
+        if '获奖时间' in self.df.columns:
+            for idx in self.df.index:
+                raw = self.df.at[idx, '获奖时间']
+                parsed = self._parse_date(raw)
+                if parsed != raw:
+                    self.df.at[idx, '获奖时间'] = parsed
+                    if raw and str(raw).strip():
+                        date_warnings += 1
+
+        # ---- 校验：学号格式 ----
+        student_id_warnings = 0
+        for idx in self.df.index:
+            sid = str(self.df.at[idx, '学号']).strip()
+            # 纯空白学号
+            if not sid:
+                student_id_warnings += 1
+
+        # ---- 添加评审相关列 ----
         review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
         for col in review_columns:
             if col not in self.df.columns:
                 self.df[col] = ''
-                
+
+        # ---- 校验：已存在的加分列是否为合法数值 ----
+        points_bad = 0
+        for idx in self.df.index:
+            val = self.df.at[idx, '加分']
+            if val != '' and val is not None:
+                try:
+                    float(val)
+                except (ValueError, TypeError):
+                    self.df.at[idx, '加分'] = ''
+                    points_bad += 1
+
         self.current_file = excel_path  # 关键：记录当前excel文件路径，供支撑材料查找
 
         # 在成功加载数据时更新状态
         self.exported = False  # 数据未导出
-        messagebox.showinfo("成功", f"文件已加载: {excel_path}")
-        
+
+        # ---- 构建校验摘要 ----
+        summary_parts = [f"文件已加载: {basename}"]
+        summary_parts.append(f"共 {len(self.df)} 条奖项记录")
+        warns = []
+        if skipped_empty:
+            warns.append(f"跳过 {skipped_empty} 个空行")
+        if date_warnings:
+            warns.append(f"规范化 {date_warnings} 个日期格式")
+        if student_id_warnings:
+            warns.append(f"{student_id_warnings} 行学号为空，请检查")
+        if points_bad:
+            warns.append(f"清除 {points_bad} 个无效加分值")
+        if missing_columns:
+            warns.append(f"缺少列: {', '.join(missing_columns)}")
+
+        if warns:
+            summary_parts.append("⚠ " + "；".join(warns))
+            messagebox.showwarning("导入结果（含警告）", "\n".join(summary_parts))
+        else:
+            messagebox.showinfo("导入成功", "\n".join(summary_parts))
+
         # 【新增】将导入数据记录到数据库（旁路功能，不影响原逻辑）
         if DB_INTEGRATION_AVAILABLE:
             try:
@@ -638,22 +956,24 @@ class ScholarshipReviewer:
                     traceback.format_exc(limit=8)
                 )
 
-        #加载学生基本信息
-        for idx, row in self.df.iterrows():
-            # 显示学生基本信息
-            self.info_labels["学院"].config(text=f"学院: {row['学院']}")
-            self.info_labels["姓名"].config(text=f"姓名: {row['姓名']}")
-            self.info_labels["年级"].config(text=f"年级: {row['年级']}")
-            self.info_labels["班级"].config(text=f"班级: {row['班级']}")
-            self.info_labels["学号"].config(text=f"学号: {row['学号']}")
+        # 加载学生基本信息（仅取第一行设置一次）
+        if not self.df.empty:
+            first_row = self.df.iloc[0]
+            self.info_labels["学院"].config(text=f"学院: {first_row['学院']}")
+            self.info_labels["姓名"].config(text=f"姓名: {first_row['姓名']}")
+            self.info_labels["年级"].config(text=f"年级: {first_row['年级']}")
+            self.info_labels["班级"].config(text=f"班级: {first_row['班级']}")
+            self.info_labels["学号"].config(text=f"学号: {first_row['学号']}")
 
-            # 添加每行奖项信息到表格中
+        # 添加每行奖项信息到表格中
+        for idx, row in self.df.iterrows():
             self.tree.insert("", "end", values=(row['所获奖项名称'], row['获奖时间'], row['奖项等级'], "", "", "", ""))
 
     def batch_load_excel_data(self, file_paths):
         """批量加载多个Excel文件并将数据添加到学生数据字典中"""
         success_count = 0
         error_files = []
+        warning_summary = []  # (filename, message)
         
         # 清空之前的数据
         self.students_data = {}
@@ -662,16 +982,64 @@ class ScholarshipReviewer:
         
         for file_path in file_paths:
             try:
-                # 加载Excel文件
-                df = pd.read_excel(file_path)
+                basename = os.path.basename(file_path)
+                # 检查文件大小（上限 50MB）
+                MAX_FILE_SIZE = 50 * 1024 * 1024
+                try:
+                    file_size = os.path.getsize(file_path)
+                    if file_size > MAX_FILE_SIZE:
+                        error_files.append(f"{basename}: 文件过大（{file_size / 1024 / 1024:.1f}MB）")
+                        continue
+                except OSError:
+                    pass
+                # 加载Excel文件（限制最大行数 5000）
+                df = pd.read_excel(file_path, nrows=5000)
                 
                 # 验证必要的列是否存在
                 required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
                 missing_columns = [col for col in required_columns if col not in df.columns]
                 
                 if missing_columns:
-                    error_files.append(f"{os.path.basename(file_path)}: 缺少列 {missing_columns}")
+                    error_files.append(f"{basename}: 缺少列 {missing_columns}")
                     continue
+
+                # 跳过完全空行
+                before_rows = len(df)
+                df = df.dropna(subset=['所获奖项名称', '姓名'], how='all').reset_index(drop=True)
+                skipped_empty = before_rows - len(df)
+                if skipped_empty:
+                    warning_summary.append((basename, f"跳过 {skipped_empty} 个空行"))
+                
+                if df.empty:
+                    error_files.append(f"{basename}: 无有效数据行")
+                    continue
+
+                # 日期格式规范化
+                date_warnings = 0
+                if '获奖时间' in df.columns:
+                    for idx in df.index:
+                        raw = df.at[idx, '获奖时间']
+                        parsed = self._parse_date(raw)
+                        if parsed != raw:
+                            df.at[idx, '获奖时间'] = parsed
+                            if raw and str(raw).strip():
+                                date_warnings += 1
+                if date_warnings:
+                    warning_summary.append((basename, f"规范化 {date_warnings} 个日期格式"))
+
+                # 清除无效加分值
+                points_bad = 0
+                if '加分' in df.columns:
+                    for idx in df.index:
+                        val = df.at[idx, '加分']
+                        if val != '' and val is not None:
+                            try:
+                                float(val)
+                            except (ValueError, TypeError):
+                                df.at[idx, '加分'] = ''
+                                points_bad += 1
+                if points_bad:
+                    warning_summary.append((basename, f"清除 {points_bad} 个无效加分值"))
                 
                 # 添加评审相关的列（如果不存在的话）
                 review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
@@ -685,7 +1053,7 @@ class ScholarshipReviewer:
                 
                 # 检查是否有重复学生
                 if student_id in self.students_data:
-                    error_files.append(f"{os.path.basename(file_path)}: 学生信息重复")
+                    error_files.append(f"{basename}: 学生信息重复")
                     continue
                 
                 # 存储学生数据
@@ -722,6 +1090,13 @@ class ScholarshipReviewer:
         
         # 显示导入结果
         result_message = f"成功导入 {success_count} 个学生文件"
+        total_warns = len(warning_summary)
+        if warning_summary:
+            result_message += f"\n\n⚠ 数据校验警告 ({total_warns} 项)："
+            for fn, msg in warning_summary[:10]:  # 最多显示10条
+                result_message += f"\n  • {fn}: {msg}"
+            if total_warns > 10:
+                result_message += f"\n  … 还有 {total_warns - 10} 项"
         if error_files:
             result_message += f"\n\n导入失败的文件：\n" + "\n".join(error_files)
         
@@ -759,6 +1134,8 @@ class ScholarshipReviewer:
             return
         
         # 获取当前学生的基本信息
+        if self.df.empty:
+            return
         student_info = self.df.iloc[0]
         student_id = f"{student_info['学院']}_{student_info['姓名']}_{student_info['年级']}_{student_info['班级']}_{student_info['学号']}"
         
@@ -796,19 +1173,68 @@ class ScholarshipReviewer:
         success_count = 0
         error_files = []
         skipped_files = []
+        warning_summary = []  # (filename, message)
         
         for file_path in file_paths:
             try:
-                # 加载Excel文件
-                df = pd.read_excel(file_path)
+                basename = os.path.basename(file_path)
+                # 检查文件大小（上限 50MB）
+                MAX_FILE_SIZE = 50 * 1024 * 1024
+                try:
+                    file_size = os.path.getsize(file_path)
+                    if file_size > MAX_FILE_SIZE:
+                        error_files.append(f"{basename}: 文件过大（{file_size / 1024 / 1024:.1f}MB）")
+                        continue
+                except OSError:
+                    pass
+                # 加载Excel文件（限制最大行数 5000）
+                df = pd.read_excel(file_path, nrows=5000)
                 
                 # 验证必要的列是否存在
                 required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
                 missing_columns = [col for col in required_columns if col not in df.columns]
                 
                 if missing_columns:
-                    error_files.append(f"{os.path.basename(file_path)}: 缺少列 {missing_columns}")
+                    error_files.append(f"{basename}: 缺少列 {missing_columns}")
                     continue
+
+                # 跳过完全空行
+                before_rows = len(df)
+                df = df.dropna(subset=['所获奖项名称', '姓名'], how='all').reset_index(drop=True)
+                skipped_empty = before_rows - len(df)
+                if skipped_empty:
+                    warning_summary.append((basename, f"跳过 {skipped_empty} 个空行"))
+                
+                if df.empty:
+                    skipped_files.append(f"{basename}: 无有效数据行")
+                    continue
+
+                # 日期格式规范化
+                date_warnings = 0
+                if '获奖时间' in df.columns:
+                    for idx in df.index:
+                        raw = df.at[idx, '获奖时间']
+                        parsed = self._parse_date(raw)
+                        if parsed != raw:
+                            df.at[idx, '获奖时间'] = parsed
+                            if raw and str(raw).strip():
+                                date_warnings += 1
+                if date_warnings:
+                    warning_summary.append((basename, f"规范化 {date_warnings} 个日期格式"))
+
+                # 清除无效加分值
+                points_bad = 0
+                if '加分' in df.columns:
+                    for idx in df.index:
+                        val = df.at[idx, '加分']
+                        if val != '' and val is not None:
+                            try:
+                                float(val)
+                            except (ValueError, TypeError):
+                                df.at[idx, '加分'] = ''
+                                points_bad += 1
+                if points_bad:
+                    warning_summary.append((basename, f"清除 {points_bad} 个无效加分值"))
                 
                 # 添加评审相关的列（如果不存在的话）
                 review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
@@ -822,7 +1248,7 @@ class ScholarshipReviewer:
                 
                 # 检查是否有重复学生
                 if student_id in self.students_data:
-                    skipped_files.append(f"{os.path.basename(file_path)}: 学生信息已存在，跳过")
+                    skipped_files.append(f"{basename}: 学生信息已存在，跳过")
                     continue
                 
                 # 存储学生数据
@@ -854,6 +1280,13 @@ class ScholarshipReviewer:
         
         # 显示补充导入结果
         result_message = f"成功补充导入 {success_count} 个学生文件"
+        total_warns = len(warning_summary)
+        if warning_summary:
+            result_message += f"\n\n⚠ 数据校验警告 ({total_warns} 项)："
+            for fn, msg in warning_summary[:10]:
+                result_message += f"\n  • {fn}: {msg}"
+            if total_warns > 10:
+                result_message += f"\n  … 还有 {total_warns - 10} 项"
         if skipped_files:
             result_message += f"\n\n跳过的重复文件：\n" + "\n".join(skipped_files)
         if error_files:
@@ -877,6 +1310,10 @@ class ScholarshipReviewer:
         # 如果有当前学生数据，先保存当前的评审进度
         if self.current_student_id and self.df is not None:
             self.students_data[self.current_student_id]['df'] = self.df.copy()
+
+        # 切换学生时清空撤销/重做栈（不同学生之间不共享评审历史）
+        self.undo_stack.clear()
+        self.redo_stack.clear()
         
         # 根据显示名称找到对应的学生ID
         for student_id, data in self.students_data.items():
@@ -937,6 +1374,41 @@ class ScholarshipReviewer:
             # 新增：查找并显示奖项支撑材料
             self.show_award_material(award_name)
 
+    @staticmethod
+    def _sanitize_filename(name: str) -> str:
+        """清洗文件名，移除路径分隔符和非法字符。"""
+        # 移除 Windows/Linux 非法文件名字符
+        illegal_chars = r'\\/:*?"<>|'
+        cleaned = ''.join(c for c in str(name) if c not in illegal_chars)
+        # 去除首尾空格和点号
+        cleaned = cleaned.strip(' .')
+        return cleaned if cleaned else 'unnamed'
+
+    @staticmethod
+    def _safe_join_material(base_dir: str, award_name: str, ext: str):  # -> str | None
+        """安全拼接支撑材料路径。
+
+        对奖项名称做字符白名单过滤后拼接待查路径，
+        再通过 realpath 规范化并校验路径未逃逸 base_dir。
+        返回规范化绝对路径，若路径不安全则返回 None。
+        """
+        # 保留中文 + 字母数字（与原有逻辑一致）
+        safe_name = ''.join(
+            c for c in str(award_name)
+            if '\u4e00' <= c <= '\u9fff' or c.isalnum()
+        )
+        if not safe_name:
+            return None
+
+        raw = os.path.join(base_dir, safe_name + ext)
+        real_base = os.path.realpath(base_dir)
+        real_full = os.path.realpath(raw)
+
+        # 校验规范化路径在 base_dir 内
+        if not real_full.startswith(real_base + os.sep):
+            return None
+        return real_full
+
     def show_award_material(self, award_name):
         """查找并显示与奖项名称相关的图片或pdf文件"""
         # 清空canvas和pdf按钮
@@ -947,11 +1419,10 @@ class ScholarshipReviewer:
         if not self.current_file:
             return
         base_dir = os.path.dirname(self.current_file)
-        safe_award_name = ''.join([c for c in str(award_name) if '\u4e00' <= c <= '\u9fff' or c.isalnum()])
         # 优先查找图片
         for ext in [".jpg", ".jpeg", ".png"]:
-            file_path = os.path.join(base_dir, safe_award_name + ext)
-            if os.path.exists(file_path):
+            file_path = self._safe_join_material(base_dir, award_name, ext)
+            if file_path and os.path.exists(file_path):
                 try:
                     from PIL import Image, ImageTk
                     img = Image.open(file_path)
@@ -963,8 +1434,8 @@ class ScholarshipReviewer:
                     self.material_canvas.create_text(200, 150, text=f"图片加载失败: {e}")
                     return
         # 查找pdf
-        pdf_path = os.path.join(base_dir, safe_award_name + ".pdf")
-        if os.path.exists(pdf_path):
+        pdf_path = self._safe_join_material(base_dir, award_name, ".pdf")
+        if pdf_path and os.path.exists(pdf_path):
             def open_pdf():
                 import webbrowser
                 webbrowser.open(pdf_path)
@@ -1024,7 +1495,7 @@ class ScholarshipReviewer:
 
         if df is not None:
             for _, row in df.iterrows():
-                ptype = row.get('项目类型', '') if hasattr(row, 'get') else ''
+                ptype = row.get('项目类型', '')
                 pts = 0.0
                 try:
                     pts = float(row.get('加分', 0) or 0)
@@ -1058,9 +1529,13 @@ class ScholarshipReviewer:
             return
 
         # 检查是否有学生数据
-        if not self.df is not None and not self.students_data:
-            messagebox.showerror("错误", "请先导入学生数据")
-            return
+        if self.df is None:
+            if not self.students_data:
+                messagebox.showerror("错误", "请先导入学生数据")
+                return
+            elif not self.current_student_id:
+                messagebox.showerror("错误", "请先选择一名学生")
+                return
 
         if selected_item:
             # 获取当前选中的行号
@@ -1086,17 +1561,17 @@ class ScholarshipReviewer:
             else:
                 points = 0
 
-            # 更新 TreeView 的选中行
-            self.tree.item(selected_item, values=(
-                self.tree.item(selected_item, "values")[0],  # 奖项名称
-                self.tree.item(selected_item, "values")[1],  # 获奖时间
-                self.tree.item(selected_item, "values")[2],  # 奖项等级
-                project_type,  # 项目类型
-                level,  # 评定等级
-                recognition,  # 认定情况
-                points,  # 加分
-                remarks  # 备注
-            ))
+            # ---- 撤销栈：保存旧值快照 ----
+            old_values = (
+                self.df.at[selected_idx, '项目类型'],
+                self.df.at[selected_idx, '评定等级'],
+                self.df.at[selected_idx, '认定情况'],
+                self.df.at[selected_idx, '加分'],
+                self.df.at[selected_idx, '备注'],
+            )
+            self.undo_stack.append((selected_idx, old_values))
+            # 新操作使重做栈失效
+            self.redo_stack.clear()
 
             # 更新 DataFrame 中的数据
             self.df.loc[selected_idx, '项目类型'] = project_type
@@ -1148,9 +1623,14 @@ class ScholarshipReviewer:
             next_index = 0  # 如果到达最后一行，则从头开始
 
         # 从当前索引或头开始，寻找未评审的行
-        for i in range(next_index, len(self.tree.get_children())):
-            item = self.tree.get_children()[i]
-            recognition = self.tree.item(item)['values'][5]  # 认定情况的列索引
+        children = self.tree.get_children()
+        if not children:
+            return
+
+        for i in range(next_index, len(children)):
+            item = children[i]
+            values = self.tree.item(item)['values']
+            recognition = values[5] if len(values) > 5 else ''
             if recognition == "":  # 如果认定情况为空，则选中该行
                 self.tree.selection_set(item)
                 self.tree.focus(item)
@@ -1158,12 +1638,117 @@ class ScholarshipReviewer:
 
         # 如果从当前位置没有找到未评审的，则从头开始查找
         for i in range(0, next_index):
-            item = self.tree.get_children()[i]
-            recognition = self.tree.item(item)['values'][5]  # 认定情况的列索引
+            item = children[i]
+            values = self.tree.item(item)['values']
+            recognition = values[5] if len(values) > 5 else ''
             if recognition == "":  # 如果认定情况为空，则选中该行
                 self.tree.selection_set(item)
                 self.tree.focus(item)
                 return
+
+    def undo_review(self):
+        """撤销最近一次评审操作，恢复到评审前的状态"""
+        if not self.undo_stack:
+            return
+
+        # 弹出最近的操作
+        selected_idx, old_values = self.undo_stack.pop()
+
+        # 保存当前状态到重做栈
+        current_values = (
+            self.df.at[selected_idx, '项目类型'],
+            self.df.at[selected_idx, '评定等级'],
+            self.df.at[selected_idx, '认定情况'],
+            self.df.at[selected_idx, '加分'],
+            self.df.at[selected_idx, '备注'],
+        )
+        self.redo_stack.append((selected_idx, current_values))
+
+        # 恢复旧值
+        self.df.at[selected_idx, '项目类型'] = old_values[0]
+        self.df.at[selected_idx, '评定等级'] = old_values[1]
+        self.df.at[selected_idx, '认定情况'] = old_values[2]
+        self.df.at[selected_idx, '加分'] = old_values[3]
+        self.df.at[selected_idx, '备注'] = old_values[4]
+
+        # 同步批量模式数据
+        if self.students_data and self.current_student_id:
+            self.students_data[self.current_student_id]['df'] = self.df.copy()
+
+        # 刷新 treeview 中对应行
+        tree_children = self.tree.get_children()
+        if selected_idx < len(tree_children):
+            item = tree_children[selected_idx]
+            award_name = self.tree.item(item)['values'][0]
+            award_time = self.tree.item(item)['values'][1]
+            award_level = self.tree.item(item)['values'][2]
+            self.tree.item(item, values=(
+                award_name,
+                award_time,
+                award_level,
+                old_values[0] if old_values[0] is not None else '',
+                old_values[1] if old_values[1] is not None else '',
+                old_values[2] if old_values[2] is not None else '',
+                old_values[3] if old_values[3] is not None else '',
+                old_values[4] if old_values[4] is not None else '',
+            ))
+            # 选中该行
+            self.tree.selection_set(item)
+            self.tree.focus(item)
+
+        self.exported = False  # 数据有变动
+
+    def redo_review(self):
+        """重做最近一次被撤销的评审操作"""
+        if not self.redo_stack:
+            return
+
+        # 弹出最近的重做项
+        selected_idx, redo_values = self.redo_stack.pop()
+
+        # 保存当前状态到撤销栈
+        current_values = (
+            self.df.at[selected_idx, '项目类型'],
+            self.df.at[selected_idx, '评定等级'],
+            self.df.at[selected_idx, '认定情况'],
+            self.df.at[selected_idx, '加分'],
+            self.df.at[selected_idx, '备注'],
+        )
+        self.undo_stack.append((selected_idx, current_values))
+
+        # 恢复重做值
+        self.df.at[selected_idx, '项目类型'] = redo_values[0]
+        self.df.at[selected_idx, '评定等级'] = redo_values[1]
+        self.df.at[selected_idx, '认定情况'] = redo_values[2]
+        self.df.at[selected_idx, '加分'] = redo_values[3]
+        self.df.at[selected_idx, '备注'] = redo_values[4]
+
+        # 同步批量模式数据
+        if self.students_data and self.current_student_id:
+            self.students_data[self.current_student_id]['df'] = self.df.copy()
+
+        # 刷新 treeview 中对应行
+        tree_children = self.tree.get_children()
+        if selected_idx < len(tree_children):
+            item = tree_children[selected_idx]
+            award_name = self.tree.item(item)['values'][0]
+            award_time = self.tree.item(item)['values'][1]
+            award_level = self.tree.item(item)['values'][2]
+            self.tree.item(item, values=(
+                award_name,
+                award_time,
+                award_level,
+                redo_values[0] if redo_values[0] is not None else '',
+                redo_values[1] if redo_values[1] is not None else '',
+                redo_values[2] if redo_values[2] is not None else '',
+                redo_values[3] if redo_values[3] is not None else '',
+                redo_values[4] if redo_values[4] is not None else '',
+            ))
+            # 选中该行
+            self.tree.selection_set(item)
+            self.tree.focus(item)
+
+        self.exported = False  # 数据有变动
 
     def on_closing(self):
         """当用户尝试关闭窗口时，检查是否有未导出的数据"""
@@ -1220,6 +1805,9 @@ class ScholarshipReviewer:
 
             # 导出Excel的逻辑
             # 获取学生信息
+            if current_df.empty:
+                messagebox.showerror("错误", "没有可导出的数据！")
+                return
             student_info = current_df.iloc[0][['学院', '姓名', '年级', '班级', '学号']]
             file_name = "_".join(student_info.astype(str)) + ".xlsx"
 
@@ -1286,6 +1874,160 @@ class ScholarshipReviewer:
         else:
             messagebox.showerror("错误", "没有可导出的数据！")
 
+    def export_pdf_report(self):
+        """导出当前学生的评审报告为 PDF"""
+        # 检查 reportlab
+        try:
+            from report_generator import check_reportlab, generate_student_report
+            if not check_reportlab():
+                messagebox.showerror("错误",
+                    "reportlab 未安装，无法生成 PDF。\n请运行: pip install reportlab")
+                return
+        except ImportError:
+            messagebox.showerror("错误",
+                "report_generator 模块未找到，无法生成 PDF。")
+            return
+
+        if self.df is None and not self.students_data:
+            messagebox.showerror("错误", "没有可导出的数据！")
+            return
+
+        if self.students_data and not self.current_student_id:
+            messagebox.showerror("错误", "请先选择要导出的学生！")
+            return
+
+        current_df = self.df
+        student_info = {}
+        if self.students_data and self.current_student_id:
+            current_df = self.students_data[self.current_student_id]['df']
+            student_info = self.students_data[self.current_student_id]['student_info']
+        elif self.df is not None and not self.df.empty:
+            first_row = self.df.iloc[0]
+            student_info = {
+                '学院': first_row.get('学院', ''),
+                '姓名': first_row.get('姓名', ''),
+                '年级': first_row.get('年级', ''),
+                '班级': first_row.get('班级', ''),
+                '学号': first_row.get('学号', ''),
+            }
+
+        if current_df is None:
+            messagebox.showerror("错误", "没有可导出的数据！")
+            return
+
+        # 检查完成状态
+        unreviewed_awards, incomplete_remarks = self.validate_review_completion()
+        if unreviewed_awards or incomplete_remarks:
+            messagebox.showerror("错误", "请先完成所有奖项的审核再导出 PDF。")
+            return
+
+        # 计算统计
+        if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
+            project_types = self.custom_scoring_rules['project_types']
+        else:
+            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+
+        _, statistics, _, capped_total = self._compute_statistics_from_df(current_df)
+
+        # 选择保存路径
+        name = student_info.get('姓名', 'student')
+        sid = student_info.get('学号', '')
+        default_name = f"{name}_{sid}_评审报告.pdf"
+        save_path = filedialog.asksaveasfilename(
+            defaultextension=".pdf",
+            filetypes=[("PDF files", "*.pdf")],
+            initialfile=default_name,
+        )
+        if not save_path:
+            return
+
+        reviewer = getattr(self, 'current_user', None)
+        result = generate_student_report(
+            save_path, student_info, current_df, statistics, capped_total,
+            project_types=project_types, reviewer_name=reviewer,
+        )
+
+        if result['success']:
+            messagebox.showinfo("成功", result['message'])
+            self.exported = True
+        else:
+            messagebox.showerror("错误", result['message'])
+
+    def export_pdf_batch(self):
+        """导出所有学生的批量汇总 PDF"""
+        try:
+            from report_generator import check_reportlab, generate_batch_summary_report
+            if not check_reportlab():
+                messagebox.showerror("错误",
+                    "reportlab 未安装，无法生成 PDF。\n请运行: pip install reportlab")
+                return
+        except ImportError:
+            messagebox.showerror("错误",
+                "report_generator 模块未找到，无法生成 PDF。")
+            return
+
+        if not self.students_data:
+            messagebox.showerror("错误", "批量模式没有可导出的数据！")
+            return
+
+        # 检查完成状态——保存当前进度后逐学生检查
+        if self.current_student_id and self.df is not None:
+            self.students_data[self.current_student_id]['df'] = self.df.copy()
+
+        incomplete = []
+        for sid, data in self.students_data.items():
+            df = data['df']
+            for _, row in df.iterrows():
+                if not row.get('认定情况', ''):
+                    incomplete.append(data['student_info'].get('姓名', sid))
+                    break
+
+        if incomplete:
+            if not messagebox.askyesno("警告",
+                    f"以下学生的评审尚未完成：\n{', '.join(incomplete[:10])}"
+                    + (f"\n…还有 {len(incomplete) - 10} 人" if len(incomplete) > 10 else "")
+                    + "\n\n是否仍要导出？"):
+                return
+
+        # 收集数据
+        if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
+            project_types = self.custom_scoring_rules['project_types']
+        else:
+            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+
+        all_data = []
+        for sid, data in self.students_data.items():
+            info = data['student_info']
+            df = data['df']
+            _, stats, _, capped = self._compute_statistics_from_df(df)
+            all_data.append((
+                info.get('姓名', sid),
+                info.get('学院', ''),
+                info.get('班级', ''),
+                info.get('学号', ''),
+                stats,
+                capped,
+            ))
+
+        # 选择保存路径
+        save_path = filedialog.asksaveasfilename(
+            defaultextension=".pdf",
+            filetypes=[("PDF files", "*.pdf")],
+            initialfile="批量评审汇总报告.pdf",
+        )
+        if not save_path:
+            return
+
+        reviewer = getattr(self, 'current_user', None)
+        result = generate_batch_summary_report(
+            save_path, all_data, project_types=project_types, reviewer_name=reviewer,
+        )
+
+        if result['success']:
+            messagebox.showinfo("成功", result['message'])
+        else:
+            messagebox.showerror("错误", result['message'])
+
     def stats_export_excel(self):
         """导出当前学生的统计结果到新的Excel文件"""
         # 检查是否有数据
@@ -1326,7 +2068,10 @@ class ScholarshipReviewer:
             # 遍历表格，按项目类型统计总分
             for _, row in current_df.iterrows():
                 project_type = row.get("项目类型", "")
-                points = row.get("加分", 0)
+                try:
+                    points = float(row.get("加分", 0) or 0)
+                except (ValueError, TypeError):
+                    points = 0.0
                 if project_type in statistics:
                     statistics[project_type] += points
 
@@ -1491,8 +2236,15 @@ class ScholarshipReviewer:
                     columns=["学院", "姓名", "年级", "班级", "学号", "所获奖项名称", "获奖时间",
                              "奖项等级", "项目类型", "评定等级", "认定情况", "加分", "备注"])
                 
-                # 生成文件名
-                file_name = f"{info['学院']}_{info['姓名']}_{info['年级']}_{info['班级']}_{info['学号']}.xlsx"
+                # 生成文件名（清洗各字段中的非法字符）
+                parts = [
+                    self._sanitize_filename(str(info.get('学院', ''))),
+                    self._sanitize_filename(str(info.get('姓名', ''))),
+                    self._sanitize_filename(str(info.get('年级', ''))),
+                    self._sanitize_filename(str(info.get('班级', ''))),
+                    self._sanitize_filename(str(info.get('学号', ''))),
+                ]
+                file_name = '_'.join(parts) + '.xlsx'
                 save_path = os.path.join(save_dir, file_name)
                 
                 # 保存文件
@@ -1560,6 +2312,7 @@ class ScholarshipReviewer:
                     project_type, level, recognition, points, remarks
                 ]
                 all_export_data.append(row_data)
+        summary_note = ""
         if all_export_data:
             df_all = pd.DataFrame(all_export_data,
                 columns=["学院", "姓名", "年级", "班级", "学号", "所获奖项名称", "获奖时间",
@@ -1568,14 +2321,15 @@ class ScholarshipReviewer:
             try:
                 df_all.to_excel(all_save_path, index=False)
             except Exception as e:
-                result_message += f"\n\n总表导出失败：{e}"
+                summary_note = f"\n\n总表导出失败：{e}"
             else:
-                result_message += f"\n\n已生成全部学生评审结果总表：{all_save_path}"
+                summary_note = f"\n\n已生成全部学生评审结果总表：{all_save_path}"
         
         # 显示结果
         result_message = f"成功导出 {success_count} 个学生的评审结果到：\n{save_dir}"
         if error_files:
             result_message += f"\n\n导出失败的学生：\n" + "\n".join(error_files)
+        result_message += summary_note
         
         if success_count > 0:
             messagebox.showinfo("批量导出完成", result_message)
@@ -1625,8 +2379,6 @@ class ScholarshipReviewer:
         
         # 准备统计数据
         all_stats_data = []
-        project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
-        
         # 动态获取项目类型
         if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
             project_types = self.custom_scoring_rules['project_types']
@@ -1707,7 +2459,10 @@ class ScholarshipReviewer:
                             traceback.format_exc(limit=8)
                         )
             except Exception as e:
-                print(f"处理学生 {student_id} 时出错: {e}")
+                logging.getLogger(__name__).error(
+                    "批量统计处理学生 %s 时出错: %s\n%s",
+                    student_id, e, traceback.format_exc(limit=8)
+                )
         # 创建统计DataFrame
         columns = ["学院", "姓名", "年级", "班级", "学号"] + project_types
         df_stats = pd.DataFrame(all_stats_data, columns=columns)
@@ -1805,8 +2560,18 @@ class ScholarshipReviewer:
             if not file_path:
                 return
             
-            # 读取Excel文件
-            df = pd.read_excel(file_path)
+            # 检查文件大小（上限 50MB）
+            MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+            try:
+                file_size = os.path.getsize(file_path)
+                if file_size > MAX_FILE_SIZE:
+                    messagebox.showerror("错误", f"文件过大（{file_size / 1024 / 1024:.1f}MB），请使用小于50MB的文件。")
+                    return
+            except OSError:
+                pass
+
+            # 读取Excel文件（限制最大行数 5000）
+            df = pd.read_excel(file_path, nrows=5000)
             
             # 检查文件格式
             if len(df.columns) < 3:
@@ -1917,36 +2682,134 @@ class ScholarshipReviewer:
             return self.default_points_dict
 
 
+class VisualizationPanel:
+    """数据可视化面板——在独立窗口中展示统计图表。"""
+
+    def __init__(self, parent, all_stats, project_types, reviewed_counts=None):
+        """
+        参数:
+            parent: 父窗口
+            all_stats: {学生姓名: {项目类型: 得分, ...}}
+            project_types: 项目类型列表
+            reviewed_counts: {学生姓名: (已评审数, 总数)}，可选
+        """
+        import matplotlib
+        matplotlib.use('TkAgg')
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+        from matplotlib.figure import Figure
+
+        self.window = tk.Toplevel(parent)
+        self.window.title("数据统计面板")
+        self.window.geometry("1000x750")
+
+        # 创建 matplotlib Figure（2x2 子图）
+        self.fig = Figure(figsize=(10, 7), dpi=100)
+        self.fig.subplots_adjust(hspace=0.4, wspace=0.35)
+
+        # ---- 图1：分数分布直方图 ----
+        ax1 = self.fig.add_subplot(2, 2, 1)
+        total_scores = [sum(stats.values()) for stats in all_stats.values()]
+        if total_scores:
+            ax1.hist(total_scores, bins=min(15, max(5, len(total_scores))),
+                     color='steelblue', edgecolor='white', alpha=0.85)
+            ax1.set_title("总分分布")
+            ax1.set_xlabel("总分")
+            ax1.set_ylabel("人数")
+
+        # ---- 图2：类别加分饼图 ----
+        ax2 = self.fig.add_subplot(2, 2, 2)
+        type_totals = {pt: 0.0 for pt in project_types}
+        for stats in all_stats.values():
+            for pt, score in stats.items():
+                type_totals[pt] = type_totals.get(pt, 0.0) + score
+        non_zero = {k: v for k, v in type_totals.items() if v > 0}
+        if non_zero:
+            colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0'][:len(non_zero)]
+            ax2.pie(non_zero.values(), labels=non_zero.keys(), autopct='%1.1f%%',
+                    colors=colors, startangle=90)
+            ax2.set_title("各类加分占比")
+        else:
+            ax2.text(0.5, 0.5, "无数据", ha='center', va='center', transform=ax2.transAxes)
+
+        # ---- 图3：评审进度环形图 ----
+        ax3 = self.fig.add_subplot(2, 2, 3)
+        if reviewed_counts:
+            total_items = sum(t for _, (_, t) in reviewed_counts.items())
+            reviewed_count = sum(r for _, (r, _) in reviewed_counts.items())
+        else:
+            total_items = 0
+            reviewed_count = 0
+        sizes = [reviewed_count, max(0, total_items - reviewed_count)]
+        labels = ['已完成', '未完成'] if total_items > reviewed_count else ['已完成']
+        colors3 = ['#4CAF50', '#E0E0E0']
+        if sum(sizes) > 0 and any(s > 0 for s in sizes):
+            ax3.pie(sizes, labels=labels, colors=colors3[:len(sizes)],
+                    autopct='%1.1f%%' if total_items > reviewed_count else None,
+                    startangle=90, wedgeprops={'width': 0.4})
+            ax3.set_title(f"评审进度 (共{total_items}项)")
+        else:
+            ax3.text(0.5, 0.5, "无数据", ha='center', va='center', transform=ax3.transAxes)
+
+        # ---- 图4：学生排名柱状图 ----
+        ax4 = self.fig.add_subplot(2, 2, 4)
+        if len(all_stats) > 1:
+            ranked = sorted(all_stats.items(), key=lambda x: sum(x[1].values()), reverse=True)
+            names = [r[0] for r in ranked]
+            scores = [sum(r[1].values()) for r in ranked]
+            bar_colors = ['#FF6B6B' if i == 0 else '#4ECDC4' if i == 1 else '#45B7D1'
+                          for i in range(len(names))]
+            ax4.barh(range(len(names)), scores, color=bar_colors, edgecolor='white')
+            ax4.set_yticks(range(len(names)))
+            ax4.set_yticklabels(names, fontsize=9)
+            ax4.set_title("学生总分排名")
+            ax4.set_xlabel("总分")
+            ax4.invert_yaxis()
+        else:
+            # 单学生模式：显示各类型分解
+            if all_stats:
+                name = list(all_stats.keys())[0]
+                stats = all_stats[name]
+                types = list(stats.keys())
+                values = list(stats.values())
+                ax4.bar(types, values, color='steelblue', edgecolor='white')
+                ax4.set_title(f"{name} 各类加分")
+                ax4.set_ylabel("得分")
+                ax4.tick_params(axis='x', rotation=30)
+            else:
+                ax4.text(0.5, 0.5, "无数据", ha='center', va='center', transform=ax4.transAxes)
+
+        # 嵌入 tkinter
+        canvas = FigureCanvasTkAgg(self.fig, master=self.window)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        # 工具栏（缩放/保存等）
+        toolbar = NavigationToolbar2Tk(canvas, self.window)
+        toolbar.update()
+        toolbar.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # 关闭时清理
+        self.window.protocol("WM_DELETE_WINDOW", self._on_close)
+
+    def _on_close(self):
+        import matplotlib.pyplot as plt
+        plt.close(self.fig)
+        self.window.destroy()
+
+
 if __name__ == "__main__":
     # 创建主窗口
     root = tk.Tk()
     app = ScholarshipReviewer(root)
 
-    # 加载图标
+    # 加载图标（缺失时静默跳过）
     icon_path = "logo.ico"
-    icon_image = ImageTk.PhotoImage(file=icon_path)
-    # 设置窗口 Logo
-    root.iconphoto(False, icon_image)
-
-    class CustomToplevel(Toplevel):
-        def __init__(self, master=None, icon=None, **kwargs):
-            super().__init__(master, **kwargs)
-            if icon:
-                self.iconphoto(False, icon)  # 自动设置图标
-
-
-    # 使用封装的弹窗类
-    def create_popup():
-        popup = CustomToplevel(root, icon=icon_image)
-        popup.title("统一图标的弹窗")
-        popup.geometry("512*512")
-
-        # 添加内容
-        label = tk.Label(popup, text="这是一个统一图标的弹窗")
-        label.pack(pady=20)
-
-        button_close = tk.Button(popup, text="关闭", command=popup.destroy)
-        button_close.pack(pady=10)
+    icon_image = None
+    try:
+        icon_image = ImageTk.PhotoImage(file=icon_path)
+        root.iconphoto(False, icon_image)
+    except Exception:
+        pass  # logo 缺失不影响核心功能
 
     # 窗口主循环
     root.mainloop()

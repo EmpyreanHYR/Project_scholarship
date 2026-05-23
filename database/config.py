@@ -6,6 +6,7 @@
 import os
 import json
 import logging
+from urllib.parse import quote_plus
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -50,10 +51,10 @@ class DatabaseConfig:
                         config.update(file_config)
                         self.config_file = candidate
                         logger.info(f"从配置文件加载数据库配置: {candidate}")
-                    break
+                        break  # 成功加载，不再尝试后续候选文件
                 except Exception as e:
-                    logger.warning(f"读取数据库配置文件失败: {candidate} -> {e}，使用默认配置")
-                    break
+                    logger.warning(f"读取数据库配置文件失败: {candidate} -> {e}，尝试下一个候选")
+                    continue
         
         # 从环境变量读取（优先级最高）
         env_mapping = {
@@ -105,9 +106,9 @@ class DatabaseConfig:
         database = self._config['database']
         
         if db_type == 'postgresql':
-            connection_string = f"postgresql://{username}:{password}@{host}:{port}/{database}"
+            connection_string = f"postgresql://{quote_plus(username)}:{quote_plus(password)}@{host}:{port}/{database}"
         elif db_type == 'mysql':
-            connection_string = f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}"
+            connection_string = f"mysql+pymysql://{quote_plus(username)}:{quote_plus(password)}@{host}:{port}/{database}"
         else:
             logger.error(f"不支持的数据库类型: {db_type}")
             return None

@@ -22,7 +22,7 @@
 \end{figure}
 
 
-\textcolor{mygreen}{	
+{\color{mygreen}	
 	版本V2.0的启动界面如图\ref{fig:2.0启动界面}所示。
 	\begin{figure}[H]
 		\centering
@@ -32,11 +32,11 @@
 	\end{figure}
 }
 
-	\textcolor{myred}{
+	{\color{myred}
 	版本V3.0新增了“数据库（可选）”能力：当用户需要对历史评审数据进行查询、导出或追溯操作日志时，可通过配置文件启用数据库功能；当不启用数据库时，软件原有功能不受影响。
 }
 
-	\textcolor{myred}{
+	{\color{myred}
 	其中新增/涉及的关键文件包括：\texttt{db\_config.json}（数据库连接配置，默认不启用，可由\texttt{db\_config.example.json}复制得到）、\texttt{verify\_system.py}（配置与完整性验证脚本），以及\texttt{database/}目录（数据库模块）。
 }
 
@@ -53,7 +53,7 @@
 	\label{fig:导航栏}
 \end{figure}
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	如图\ref{fig:2.0导航栏}所示，版本V2.0的导航栏新添加了“批量导入Excel文件”按钮和“补充导入Excel文件”按钮。
 }
 \begin{figure}[H]
@@ -63,20 +63,25 @@
 	\label{fig:2.0导航栏}
 \end{figure}
 
+{\color{myred}
+	版本V3.0在导航栏新增了“管理”按钮。该按钮默认隐藏，仅当以管理员（admin）身份登录后才会在“登录”按钮左侧显示。点击“管理”按钮可打开管理员面板，进行用户解锁、角色切换、删除用户等管理操作。
+	% 【需补充截图：V3.0导航栏——管理员登录后显示“管理”按钮的界面，命名为 fig/V3.0_navbar_admin.png】
+}
+
 \subsection{文件导入按钮}
 
 如图\ref{fig:2.0文件导入}所示，文件导入按钮“请选择Excel文件”位于导航栏中，默认为暗色（不要可点选），只有登录后才可点选。
-\begin{figure}[H]
+\begin{figure}[!ht]
 	\centering
-	\includegraphics[width=0.5\linewidth]{fig/2.0文件导入}
+	\includegraphics[width=0.7\linewidth]{fig/2.0文件导入}
 	\caption{文件导入按钮}
 	\label{fig:2.0文件导入}
 \end{figure}
 
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	如图\ref{fig:3.0文件导入}所示，版本V2.0支持“批量导入Excel文件”和“补充导入Excel文件”这两个文件导入功能，两个功能按钮默认为暗色（不要可点选），只有登录后才可点选。}
-	\begin{figure}[H]
+	\begin{figure}[!ht]
 		\centering
 		\includegraphics[width=0.7\linewidth]{fig/3.0文件导入}
 		\caption{2.0文件导入按钮}
@@ -96,7 +101,7 @@
 	\label{fig:评审界面}
 \end{figure}
 
-\textcolor{mygreen}{
+{\color{mygreen}
 	如图\ref{fig:版本V3.0评审界面新功能按钮展示}所示，为版本V2.0的评审界面，在学生信息的上方新增加了“学生选择”下拉菜单；在评审内容区域，新增加了“导入加分详情”按钮、“重置为默认”按钮、“批量评审结果导出”按钮、“批量统计结果导出”按钮，其各自功能将在后续章节内容进行阐述。
 }
 \begin{figure}[h]
@@ -106,8 +111,13 @@
 	\label{fig:版本V3.0评审界面新功能按钮展示}
 \end{figure}
 
-\textcolor{myred}{
+{\color{myred}
 	版本V3.0在评审界面新增了“历史记录”入口（仅在数据库功能启用且数据库可用时显示）。点击该入口将打开历史记录查询窗口，支持查询批次、学生、申请与评审记录，并支持导出查询结果或导出完整评审批次。
+}
+
+{\color{myred}
+	版本V3.0在评审界面“确定”按钮下方新增了“撤销”和“重做”两个按钮，分别用于撤销和重做最近一次的评审操作。同时新增了“统计面板”按钮（用于打开数据可视化窗口）、“导出PDF报告”按钮（导出当前学生的A4格式PDF评审报告）和“批量PDF汇总”按钮（导出所有学生的PDF排名汇总表）。
+	% 【需补充截图：V3.0评审界面全貌——展示撤销/重做按钮、统计面板按钮、PDF导出按钮的位置，命名为 fig/V3.0_review_panel.png】
 }
 
    \subsection{支撑材料预览区}
