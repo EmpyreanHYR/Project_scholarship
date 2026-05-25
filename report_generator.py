@@ -4,25 +4,47 @@ PDF 报告生成模块
 依赖: reportlab（可选，未安装时优雅降级）
 """
 
+# pyright: reportMissingImports=false
+
 import os
 import logging
+import importlib
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 # ---- 尝试导入 reportlab ----
 try:
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.units import mm, cm
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.colors import HexColor, black, white, grey
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-    from reportlab.platypus import (
-        SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer,
-        PageBreak, KeepTogether
-    )
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
+    _pagesizes = importlib.import_module('reportlab.lib.pagesizes')
+    _units = importlib.import_module('reportlab.lib.units')
+    _styles = importlib.import_module('reportlab.lib.styles')
+    _colors = importlib.import_module('reportlab.lib.colors')
+    _enums = importlib.import_module('reportlab.lib.enums')
+    _platypus = importlib.import_module('reportlab.platypus')
+    _pdfbase = importlib.import_module('reportlab.pdfbase.pdfmetrics')
+    _ttfonts = importlib.import_module('reportlab.pdfbase.ttfonts')
+
+    A4 = _pagesizes.A4
+    mm = _units.mm
+    cm = _units.cm
+    getSampleStyleSheet = _styles.getSampleStyleSheet
+    ParagraphStyle = _styles.ParagraphStyle
+    HexColor = _colors.HexColor
+    black = _colors.black
+    white = _colors.white
+    grey = _colors.grey
+    TA_CENTER = _enums.TA_CENTER
+    TA_LEFT = _enums.TA_LEFT
+    TA_RIGHT = _enums.TA_RIGHT
+    SimpleDocTemplate = _platypus.SimpleDocTemplate
+    Table = _platypus.Table
+    TableStyle = _platypus.TableStyle
+    Paragraph = _platypus.Paragraph
+    Spacer = _platypus.Spacer
+    PageBreak = _platypus.PageBreak
+    KeepTogether = _platypus.KeepTogether
+    pdfmetrics = _pdfbase
+    TTFont = _ttfonts.TTFont
 
     REPORTLAB_AVAILABLE = True
 except ImportError:
@@ -79,10 +101,16 @@ def _get_font_name():
 
 
 # ---- 样式常量 ----
-PRIMARY_COLOR = HexColor('#1a5276')
-SECONDARY_COLOR = HexColor('#2980b9')
-LIGHT_BG = HexColor('#f2f4f4')
-BORDER_COLOR = HexColor('#bdc3c7')
+if REPORTLAB_AVAILABLE:
+    PRIMARY_COLOR = HexColor('#1a5276')
+    SECONDARY_COLOR = HexColor('#2980b9')
+    LIGHT_BG = HexColor('#f2f4f4')
+    BORDER_COLOR = HexColor('#bdc3c7')
+else:
+    PRIMARY_COLOR = None
+    SECONDARY_COLOR = None
+    LIGHT_BG = None
+    BORDER_COLOR = None
 
 
 def _build_styles(font_name):
@@ -179,7 +207,7 @@ def generate_student_report(file_path, student_info, df, statistics, capped_tota
             ['学号', student_info.get('学号', ''),
              '评审日期', datetime.now().strftime('%Y-%m-%d')],
         ]
-        info_table = Table(info_data, colWidths=[40, 120, 40, 120])
+        info_table = Table(info_data, colWidths=[50, 120, 100, 240])
         info_table.setStyle(TableStyle([
             ('FONTNAME', (0, 0), (-1, -1), font_name),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
@@ -201,33 +229,57 @@ def generate_student_report(file_path, student_info, df, statistics, capped_tota
             # 表头
             header = ['序号', '奖项名称', '获奖时间', '奖项等级', '项目类型', '评定等级', '认定情况', '加分', '备注']
             col_widths = [25, 110, 65, 55, 60, 55, 45, 30, 70]
-            table_data = [header]
+            
+            # 创建单元格样式（支持自动换行）
+            cell_style = ParagraphStyle(
+                'TableCell',
+                fontName=font_name,
+                fontSize=8,
+                leading=10,
+                wordWrap='CJK',
+            )
+            header_style = ParagraphStyle(
+                'TableHeader',
+                fontName=font_name,
+                fontSize=8,
+                leading=10,
+                textColor=white,
+                alignment=TA_CENTER,
+            )
+            
+            table_data = [[
+                Paragraph(col, header_style) for col in header
+            ]]
 
             for i, (_, row) in enumerate(df.iterrows()):
-                table_data.append([
-                    str(i + 1),
-                    str(row.get('所获奖项名称', ''))[:30],
-                    str(row.get('获奖时间', ''))[:20],
-                    str(row.get('奖项等级', ''))[:15],
-                    str(row.get('项目类型', ''))[:20],
-                    str(row.get('评定等级', ''))[:20],
-                    str(row.get('认定情况', ''))[:8],
-                    str(row.get('加分', '')),
-                    str(row.get('备注', ''))[:25],
-                ])
+                # 只取年月日（取前10个字符 'YYYY-MM-DD'）
+                award_time = str(row.get('获奖时间', ''))[:10]
+                row_data = [
+                    Paragraph(str(i + 1), cell_style),
+                    Paragraph(str(row.get('所获奖项名称', '')), cell_style),
+                    Paragraph(award_time, cell_style),
+                    Paragraph(str(row.get('奖项等级', '')), cell_style),
+                    Paragraph(str(row.get('项目类型', '')), cell_style),
+                    Paragraph(str(row.get('评定等级', '')), cell_style),
+                    Paragraph(str(row.get('认定情况', '')), cell_style),
+                    Paragraph(str(row.get('加分', '')), cell_style),
+                    Paragraph(str(row.get('备注', '')), cell_style),
+                ]
+                table_data.append(row_data)
 
             tbl = Table(table_data, colWidths=col_widths, repeatRows=1)
             tbl_style = [
                 ('FONTNAME', (0, 0), (-1, -1), font_name),
                 ('FONTSIZE', (0, 0), (-1, -1), 8),
                 ('BACKGROUND', (0, 0), (-1, 0), PRIMARY_COLOR),
-                ('TEXTCOLOR', (0, 0), (-1, 0), white),
                 ('ALIGN', (0, 0), (0, -1), 'CENTER'),
-                ('ALIGN', (6, 0), (7, 0), 'CENTER'),
+                ('ALIGN', (6, 0), (7, -1), 'CENTER'),
                 ('GRID', (0, 0), (-1, -1), 0.3, BORDER_COLOR),
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                 ('TOPPADDING', (0, 0), (-1, -1), 3),
                 ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+                ('LEFTPADDING', (0, 0), (-1, -1), 3),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 3),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [white, LIGHT_BG]),
             ]
             tbl.setStyle(TableStyle(tbl_style))
@@ -265,7 +317,7 @@ def generate_student_report(file_path, student_info, df, statistics, capped_tota
 
         # ---- 页脚 ----
         story.append(Spacer(1, 15 * mm))
-        footer_text = f"评审人: {reviewer_name or '—'}　　导出时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        footer_text = f"评审人: {reviewer_name or '—'}　　导出时间: {datetime.now().strftime('%Y-%m-%d')}"
         story.append(Paragraph(footer_text, styles['ChineseSmall']))
 
         # 生成
@@ -316,7 +368,7 @@ def generate_batch_summary_report(file_path, all_students_data, project_types=No
         # 标题
         story.append(Paragraph("奖学金评审批量汇总报告", styles['ChineseTitle']))
         story.append(Paragraph(
-            f"导出时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}　　"
+            f"导出时间: {datetime.now().strftime('%Y-%m-%d')}　　"
             f"评审人: {reviewer_name or '—'}　　"
             f"总人数: {len(all_students_data)}",
             styles['ChineseSmall']

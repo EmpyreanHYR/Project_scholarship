@@ -1,1 +1,1 @@
-{"123": {"password": "123", "locked": false}, "555": {"password": "555", "locked": false}, "111": {"password": "111", "locked": false}}
+{"123": {"password": "123", "locked": false, "role": "reviewer"}, "555": {"password": "555", "locked": false, "role": "reviewer"}, "111": {"password": "111", "locked": false, "role": "reviewer"}}

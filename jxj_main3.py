@@ -598,7 +598,8 @@ class ScholarshipReviewer:
         if not selected_item:
             messagebox.showerror("错误", "请先在表格中选择一行奖项！")
             return
-        award_name = self.tree.item(selected_item)['values'][0]
+        selected_id = selected_item[0]
+        award_name = self.tree.item(selected_id)['values'][0]
         base_dir = os.path.dirname(self.current_file)
         pdf_path = self._safe_join_material(base_dir, award_name, ".pdf")
         if pdf_path and os.path.exists(pdf_path):
@@ -752,7 +753,8 @@ class ScholarshipReviewer:
             remarks = values[7] if len(values) > 7 else None
             if not recognition:
                 unreviewed_awards.append(values[0])
-            if remarks == "请填写备注":
+            # 只有在“不予认定”时才需要备注；占位文本视为未填写
+            if recognition == "不予认定" and (not remarks or remarks == "请填写备注"):
                 incomplete_remarks.append(values[0])
         return unreviewed_awards, incomplete_remarks
 
@@ -836,6 +838,19 @@ class ScholarshipReviewer:
             return s
         return s
 
+    @staticmethod
+    def _normalize_review_columns(df):
+        """确保评审相关列存在，并让“加分”列可同时容纳字符串和数值。"""
+        review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
+        for col in review_columns:
+            if col not in df.columns:
+                df[col] = ''
+
+        if '加分' in df.columns:
+            df['加分'] = df['加分'].astype('object')
+
+        return df
+
     def load_excel_data(self, excel_path):
         """加载Excel文件并将数据添加到表格中"""
         # 清空之前的数据
@@ -895,10 +910,7 @@ class ScholarshipReviewer:
                 student_id_warnings += 1
 
         # ---- 添加评审相关列 ----
-        review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
-        for col in review_columns:
-            if col not in self.df.columns:
-                self.df[col] = ''
+        self._normalize_review_columns(self.df)
 
         # ---- 校验：已存在的加分列是否为合法数值 ----
         points_bad = 0
@@ -920,8 +932,6 @@ class ScholarshipReviewer:
         summary_parts = [f"文件已加载: {basename}"]
         summary_parts.append(f"共 {len(self.df)} 条奖项记录")
         warns = []
-        if skipped_empty:
-            warns.append(f"跳过 {skipped_empty} 个空行")
         if date_warnings:
             warns.append(f"规范化 {date_warnings} 个日期格式")
         if student_id_warnings:
@@ -1042,10 +1052,7 @@ class ScholarshipReviewer:
                     warning_summary.append((basename, f"清除 {points_bad} 个无效加分值"))
                 
                 # 添加评审相关的列（如果不存在的话）
-                review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
-                for col in review_columns:
-                    if col not in df.columns:
-                        df[col] = ''
+                self._normalize_review_columns(df)
                 
                 # 获取学生基本信息（取第一行）
                 student_info = df.iloc[0]
@@ -1237,10 +1244,7 @@ class ScholarshipReviewer:
                     warning_summary.append((basename, f"清除 {points_bad} 个无效加分值"))
                 
                 # 添加评审相关的列（如果不存在的话）
-                review_columns = ['项目类型', '评定等级', '认定情况', '加分', '备注']
-                for col in review_columns:
-                    if col not in df.columns:
-                        df[col] = ''
+                self._normalize_review_columns(df)
                 
                 # 获取学生基本信息（取第一行）
                 student_info = df.iloc[0]
@@ -1357,14 +1361,15 @@ class ScholarshipReviewer:
         """当用户点击表格中的一行时，更新右侧的评审界面，并显示奖项支撑材料"""
         selected_item = self.tree.selection()
         if selected_item:
+            selected_id = selected_item[0]
             # 获取所选行的数据
-            selected_values = self.tree.item(selected_item)['values']
+            selected_values = self.tree.item(selected_id)['values']
 
             # 这里更新评审界面对应的输入框或标签
             award_name = selected_values[0]  # 奖项名称
             level = selected_values[2]  # 奖项等级
 
-            # 将奖项名称和等级显示在评审界面上
+            # 将奖项名称和等级显示在评审界面上（保持输入控件清空）
             self.project_type_var.set("")  # 清空项目类型选择
             self.level_var.set("")  # 不默认显示读取的Excel的奖项等级
             self.recognition_var.set("")  # 清空认定情况选择
@@ -1433,17 +1438,7 @@ class ScholarshipReviewer:
                 except Exception as e:
                     self.material_canvas.create_text(200, 150, text=f"图片加载失败: {e}")
                     return
-        # 查找pdf
-        pdf_path = self._safe_join_material(base_dir, award_name, ".pdf")
-        if pdf_path and os.path.exists(pdf_path):
-            def open_pdf():
-                import webbrowser
-                webbrowser.open(pdf_path)
-            self.material_pdf_btn = tk.Button(self.material_frame, text="打开PDF支撑材料", command=open_pdf)
-            self.material_pdf_btn.pack(side=tk.TOP, pady=10)
-            self.material_canvas.create_text(200, 150, text="点击上方按钮打开PDF文件")
-            return
-        self.material_canvas.create_text(200, 150, text="未找到相关支撑材料（图片或PDF）")
+        self.material_canvas.create_text(200, 150, text="点击上方「打开PDF支撑材料」按钮查看PDF")
 
     def update_award_levels(self, event=None):
         """根据选择的项目类型，动态更新奖项级别下拉列表的选项"""
@@ -1538,16 +1533,17 @@ class ScholarshipReviewer:
                 return
 
         if selected_item:
-            # 获取当前选中的行号
-            selected_idx = self.tree.index(selected_item[0])
+            # 获取当前选中的行号和 item id
+            selected_id = selected_item[0]
+            selected_idx = self.tree.index(selected_id)
             # 获取用户输入的内容
             project_type = self.project_type_var.get()
             level = self.level_var.get()
             recognition = self.recognition_var.get()
             remarks = self.remarks_var.get()
 
-            # 如果认定情况为“不予认定”，则必须有备注
-            if recognition == "不予认定" and not remarks:
+            # 如果认定情况为“不予认定”，则必须有备注（占位文本视为未填写）
+            if recognition == "不予认定" and (not remarks or remarks == "请填写备注"):
                 messagebox.showerror("错误", "请填写备注信息")
                 return  # 退出方法，不更新表格
 
@@ -1556,10 +1552,17 @@ class ScholarshipReviewer:
                 messagebox.showerror("错误", "项目类型和评定等级不能为空")
                 return  # 退出方法，不更新表格
 
+            # 计算加分
             if recognition == "认定":
                 points = self.calculate_points(project_type, level)
             else:
                 points = 0
+
+            self._normalize_review_columns(self.df)
+
+            # 如果认定为"认定"，不保存占位备注，强制清空备注变量
+            if recognition == "认定":
+                remarks = ''
 
             # ---- 撤销栈：保存旧值快照 ----
             old_values = (
@@ -1584,26 +1587,17 @@ class ScholarshipReviewer:
             if self.students_data and self.current_student_id:
                 self.students_data[self.current_student_id]['df'] = self.df.copy()
 
-            # 更新界面的加分显示
-
-            # 计算加分
-            points = self.calculate_points(project_type, level)
-
-            # 如果认定情况为“不予认定”，则加分为0
-            if recognition == "不予认定":
-                points = 0
-
-            # 获取当前选中行的索引
-            index = self.tree.index(selected_item)
-            award_name = self.tree.item(selected_item)['values'][0]  # 奖项名称
+            # 获取当前选中行的索引（用于自动选择下一行）
+            index = self.tree.index(selected_id)
+            award_name = self.tree.item(selected_id)['values'][0]  # 奖项名称
 
             self.points_label.config(text=f"加分: {points}")  # 更新加分显示
 
             # 更新表格
-            self.tree.item(selected_item, values=(
+            self.tree.item(selected_id, values=(
                 award_name,
-                self.tree.item(selected_item)['values'][1],  # 保持获奖时间不变
-                self.tree.item(selected_item)['values'][2],  # 保持奖项等级不变
+                self.tree.item(selected_id)['values'][1],  # 保持获奖时间不变
+                self.tree.item(selected_id)['values'][2],  # 保持奖项等级不变
                 project_type,
                 level,
                 recognition,
@@ -2685,6 +2679,29 @@ class ScholarshipReviewer:
 class VisualizationPanel:
     """数据可视化面板——在独立窗口中展示统计图表。"""
 
+    @staticmethod
+    def _configure_chinese_font(matplotlib):
+        """尽量选择系统中可用的中文字体，避免图表中文字显示为方框。"""
+        from matplotlib import font_manager
+
+        available_fonts = {font.name for font in font_manager.fontManager.ttflist}
+        preferred_fonts = [
+            'Microsoft YaHei',
+            'SimHei',
+            'SimSun',
+            'PingFang SC',
+            'Noto Sans CJK SC',
+            'WenQuanYi Zen Hei',
+        ]
+
+        for font_name in preferred_fonts:
+            if font_name in available_fonts:
+                matplotlib.rcParams['font.family'] = 'sans-serif'
+                matplotlib.rcParams['font.sans-serif'] = [font_name] + matplotlib.rcParams.get('font.sans-serif', [])
+                break
+
+        matplotlib.rcParams['axes.unicode_minus'] = False
+
     def __init__(self, parent, all_stats, project_types, reviewed_counts=None):
         """
         参数:
@@ -2695,6 +2712,7 @@ class VisualizationPanel:
         """
         import matplotlib
         matplotlib.use('TkAgg')
+        self._configure_chinese_font(matplotlib)
         from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
         from matplotlib.figure import Figure
 
@@ -2739,14 +2757,23 @@ class VisualizationPanel:
         else:
             total_items = 0
             reviewed_count = 0
-        sizes = [reviewed_count, max(0, total_items - reviewed_count)]
-        labels = ['已完成', '未完成'] if total_items > reviewed_count else ['已完成']
-        colors3 = ['#4CAF50', '#E0E0E0']
-        if sum(sizes) > 0 and any(s > 0 for s in sizes):
-            ax3.pie(sizes, labels=labels, colors=colors3[:len(sizes)],
-                    autopct='%1.1f%%' if total_items > reviewed_count else None,
-                    startangle=90, wedgeprops={'width': 0.4})
-            ax3.set_title(f"评审进度 (共{total_items}项)")
+        if reviewed_counts and total_items > 0:
+            sizes = [reviewed_count, max(0, total_items - reviewed_count)]
+            # 当全部完成时只显示已完成
+            if reviewed_count >= total_items:
+                sizes = [reviewed_count]
+                labels_pie = ['已完成']
+            else:
+                sizes = [reviewed_count, max(0, total_items - reviewed_count)]
+                labels_pie = ['已完成', '未完成']
+            colors3 = ['#4CAF50', '#E0E0E0']
+            if sum(sizes) > 0:
+                ax3.pie(sizes, labels=labels_pie, colors=colors3[:len(sizes)],
+                        autopct='%1.1f%%' if len(sizes) > 1 else None,
+                        startangle=90, wedgeprops={'width': 0.4}, pctdistance=0.6)
+                ax3.set_title(f"评审进度 (共{total_items}项)")
+            else:
+                ax3.text(0.5, 0.5, "无数据", ha='center', va='center', transform=ax3.transAxes)
         else:
             ax3.text(0.5, 0.5, "无数据", ha='center', va='center', transform=ax3.transAxes)
 
