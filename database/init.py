@@ -15,7 +15,6 @@ def init_database():
     """
     初始化数据库
     检查数据库连接并记录状态
-    不会抛出异常，确保不影响主程序启动
     
     返回:
         bool: 初始化成功返回 True，失败返回 False
@@ -24,7 +23,7 @@ def init_database():
     
     # 检查数据库是否可用
     if not check_database_available():
-        logger.info("数据库未启用或不可用，程序将正常运行（不使用数据库功能）")
+        logger.info("数据库未启用，程序将正常运行（不使用数据库功能）")
         return False
     
     try:
@@ -101,8 +100,8 @@ def get_database_info():
     info = {
         'enabled': db_config.is_enabled(),
         'available': False,
-        'type': db_config._config.get('db_type', 'unknown'),
-        'version': 'unknown'
+        'type': 'sqlite',
+        'version': '3.x (Python内置)'
     }
     
     if not info['enabled']:
@@ -114,14 +113,8 @@ def get_database_info():
         try:
             with session_scope() as session:
                 if session:
-                    # 尝试获取数据库版本
-                    if info['type'] == 'postgresql':
-                        result = session.execute(text("SELECT version()"))
-                        version = result.scalar()
-                        info['version'] = version.split(',')[0] if version else 'unknown'
-                    elif info['type'] == 'mysql':
-                        result = session.execute(text("SELECT VERSION()"))
-                        info['version'] = result.scalar() or 'unknown'
+                    result = session.execute(text("SELECT sqlite_version()"))
+                    info['version'] = f"SQLite {result.scalar()}"
         except Exception as e:
             logger.warning(f"获取数据库版本信息失败: {e}")
     

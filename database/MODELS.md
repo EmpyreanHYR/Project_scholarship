@@ -149,26 +149,21 @@ python test_database_schema.py
 
 ## 注意事项
 
-1. **模型已定义，但未在业务代码中使用**
+1. **模型与业务代码集成**
    - 所有模型定义在 `database/models.py`
-   - 主程序 `jxj_main3.py` 不导入这些模型
+   - 主程序通过 `db_integration.py` 旁路调用数据库功能
    - 完全独立，不影响现有功能
 
 2. **建表是可选的**
    - 只有启用数据库后才会建表
    - 不建表不影响主程序运行
 
-3. **数据库驱动要求**
-   ```bash
-   # PostgreSQL
-   pip install psycopg2-binary
-   
-   # MySQL
-   pip install pymysql
-   ```
+3. **数据库类型**
+   - 默认使用 SQLite（Python 内置）
+   - 只需安装 sqlalchemy：`pip install sqlalchemy`
 
 4. **配置文件**
-   - 需要创建 `database_config.json`
+   - 创建 `db_config.json`（参考 `db_config.example.json`）
    - 设置 `enabled: true` 启用数据库
 
 ## 测试验证

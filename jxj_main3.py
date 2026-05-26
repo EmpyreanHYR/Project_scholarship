@@ -25,6 +25,7 @@ try:
         safe_record_single_excel_import,
         safe_record_batch_excel_import,
         safe_record_review_result,
+        safe_record_single_award_review,
         is_database_enabled
     )
     DB_INTEGRATION_AVAILABLE = True
@@ -33,6 +34,7 @@ except ImportError:
     safe_record_single_excel_import = lambda *args, **kwargs: None
     safe_record_batch_excel_import = lambda *args, **kwargs: None
     safe_record_review_result = lambda *args, **kwargs: None
+    safe_record_single_award_review = lambda *args, **kwargs: None
     is_database_enabled = lambda: False
 
 
@@ -392,6 +394,10 @@ class ScholarshipReviewer:
         }
         for label in self.info_labels.values():
             label.pack(side=tk.LEFT, padx=5)
+
+        # 评审进度显示标签
+        self.review_progress_label = tk.Label(self.student_info_frame, text="评审进度: 0/0 (0%)", fg="blue")
+        self.review_progress_label.pack(side=tk.LEFT, padx=10)
 
         # ========== 奖项信息展示区（表格） ==========  高度减少 ==========
         table_frame = tk.Frame(left_frame)
@@ -1355,6 +1361,9 @@ class ScholarshipReviewer:
                     row['所获奖项名称'], row['获奖时间'], row['奖项等级'], 
                     project_type, level, recognition, points, remarks
                 ))
+            
+            # 切换学生后更新评审进度显示
+            self.update_review_progress()
 
 
     def on_select(self, event):
@@ -1605,8 +1614,86 @@ class ScholarshipReviewer:
                 remarks
             ))
 
+            # 【新增】即时保存评审结果到数据库
+            if DB_INTEGRATION_AVAILABLE:
+                try:
+                    # 获取当前学生信息和批次ID
+                    if self.students_data and self.current_student_id:
+                        student_data = self.students_data[self.current_student_id]
+                        student_info = student_data['student_info']
+                        batch_id = student_data.get('db_batch_id')
+                    else:
+                        # 单文件模式
+                        student_info = {
+                            '学院': self.info_labels["学院"].cget("text").split(": ")[1],
+                            '姓名': self.info_labels["姓名"].cget("text").split(": ")[1],
+                            '年级': self.info_labels["年级"].cget("text").split(": ")[1],
+                            '班级': self.info_labels["班级"].cget("text").split(": ")[1],
+                            '学号': self.info_labels["学号"].cget("text").split(": ")[1]
+                        }
+                        batch_id = getattr(self, 'db_batch_id', None)
+                    
+                    # 构建奖项数据
+                    award_data = {
+                        '所获奖项名称': award_name,
+                        '项目类型': project_type,
+                        '评定等级': level,
+                        '认定情况': recognition,
+                        '加分': points,
+                        '备注': remarks
+                    }
+                    
+                    # 写入数据库
+                    safe_record_single_award_review(
+                        batch_id=batch_id,
+                        student_info=student_info,
+                        award_data=award_data,
+                        reviewer_account=getattr(self, 'current_user', None),
+                        reviewer_name=getattr(self, 'current_user', None)
+                    )
+                except Exception as e:
+                    # 完全静默失败，不影响用户操作
+                    logging.getLogger(__name__).error(
+                        "即时保存评审结果到数据库失败: %s\n%s",
+                        e,
+                        traceback.format_exc(limit=8)
+                    )
+
+            # 更新评审进度显示
+            self.update_review_progress()
+
             # 自动选择下一行
             self.select_next_item(index)
+
+    def update_review_progress(self):
+        """更新评审进度显示"""
+        if self.df is None and not self.students_data:
+            self.review_progress_label.config(text="评审进度: 0/0 (0%)", fg="blue")
+            return
+        
+        if self.df is not None:
+            total = len(self.df)
+            reviewed = 0
+            for idx in range(len(self.df)):
+                if self.df.at[idx, '认定情况'] and self.df.at[idx, '认定情况'] != '':
+                    reviewed += 1
+            pct = int(reviewed / total * 100) if total > 0 else 0
+            if pct == 100:
+                self.review_progress_label.config(text=f"评审进度: {reviewed}/{total} ({pct}%) ✓", fg="green")
+            else:
+                self.review_progress_label.config(text=f"评审进度: {reviewed}/{total} ({pct}%)", fg="blue")
+        elif self.students_data and self.current_student_id:
+            df = self.students_data[self.current_student_id]['df']
+            total = len(df)
+            reviewed = 0
+            for idx in range(len(df)):
+                if df.at[idx, '认定情况'] and df.at[idx, '认定情况'] != '':
+                    reviewed += 1
+            pct = int(reviewed / total * 100) if total > 0 else 0
+            if pct == 100:
+                self.review_progress_label.config(text=f"评审进度: {reviewed}/{total} ({pct}%) ✓", fg="green")
+            else:
+                self.review_progress_label.config(text=f"评审进度: {reviewed}/{total} ({pct}%)", fg="blue")
 
     def select_next_item(self, current_index):
         """选择下一行，如果没有则从头开始检查未评审的行"""

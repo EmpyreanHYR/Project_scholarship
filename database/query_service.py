@@ -16,6 +16,15 @@ from .models import ReviewBatch, Student, Application, Review, AuditLog
 # 配置日志
 logger = logging.getLogger(__name__)
 
+# 确保数据库已初始化
+def _ensure_tables():
+    """确保数据库表已创建"""
+    try:
+        from .migrate import init_database_schema
+        init_database_schema()
+    except Exception as e:
+        logger.warning(f"自动建表失败: {e}")
+
 
 class QueryService:
     """查询服务类"""
@@ -36,6 +45,9 @@ class QueryService:
         """
         if not check_database_available():
             return []
+        
+        # 确保数据库表已创建
+        _ensure_tables()
         
         try:
             with session_scope() as session:
@@ -96,6 +108,9 @@ class QueryService:
         if not check_database_available():
             return []
         
+        # 确保数据库表已创建
+        _ensure_tables()
+        
         try:
             with session_scope() as session:
                 if session is None:
@@ -155,6 +170,9 @@ class QueryService:
         """
         if not check_database_available():
             return []
+        
+        # 确保数据库表已创建
+        _ensure_tables()
         
         try:
             with session_scope() as session:
@@ -223,6 +241,9 @@ class QueryService:
         """
         if not check_database_available():
             return []
+        
+        # 确保数据库表已创建
+        _ensure_tables()
         
         try:
             with session_scope() as session:
@@ -336,6 +357,9 @@ class QueryService:
         """
         if not check_database_available():
             return None
+        
+        # 确保数据库表已创建
+        _ensure_tables()
         
         try:
             with session_scope() as session:

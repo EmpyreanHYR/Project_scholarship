@@ -14,7 +14,8 @@ try:
     from database.services import (
         record_excel_import_to_db,
         record_batch_excel_import_to_db,
-        record_review_result_to_db
+        record_review_result_to_db,
+        record_single_award_review
     )
     from database import check_database_available
     DB_AVAILABLE = True
@@ -173,6 +174,46 @@ def safe_record_review_result(student_info, total_points, review_details,
             
     except Exception as e:
         logger.error(f"记录评审结果时发生错误: {e}", exc_info=True)
+        return None
+
+
+def safe_record_single_award_review(batch_id, student_info, award_data,
+                                    reviewer_account, reviewer_name):
+    """
+    安全地记录单个奖项的评审结果到数据库
+    
+    参数:
+        batch_id: 批次ID
+        student_info: 学生信息字典 {'学号', '姓名', '学院', '班级', '年级'}
+        award_data: 奖项信息字典 {'所获奖项名称', '项目类型', '评定等级', '认定情况', '加分', '备注'}
+        reviewer_account: 评审人账号
+        reviewer_name: 评审人姓名
+    
+    返回:
+        dict: 包含 success, message 等字段
+    """
+    if not DB_AVAILABLE or not check_database_available():
+        logger.debug("数据库不可用，跳过记录奖项评审")
+        return None
+    
+    try:
+        result = record_single_award_review(
+            batch_id=batch_id,
+            student_info=student_info,
+            award_data=award_data,
+            reviewer_account=reviewer_account,
+            reviewer_name=reviewer_name
+        )
+        
+        if result.get('success'):
+            logger.info(f"奖项评审已记录到数据库: {student_info.get('姓名')} - {award_data.get('所获奖项名称', '')}")
+        else:
+            logger.debug(f"奖项评审记录失败: {result.get('message')}")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"记录奖项评审时发生错误: {e}", exc_info=True)
         return None
 
 

@@ -12,6 +12,15 @@ from .connection import check_database_available
 # 配置日志
 logger = logging.getLogger(__name__)
 
+# 确保数据库已初始化
+def _ensure_tables():
+    """确保数据库表已创建"""
+    try:
+        from .migrate import init_database_schema
+        init_database_schema()
+    except Exception as e:
+        logger.warning(f"自动建表失败: {e}")
+
 
 def record_excel_import_to_db(file_path, student_info, awards_data, batch_name=None, 
                               reviewer_account=None, reviewer_name=None):
@@ -49,6 +58,9 @@ def record_excel_import_to_db(file_path, student_info, awards_data, batch_name=N
         logger.debug("数据库不可用，跳过记录导入数据")
         result['message'] = '数据库未启用'
         return result
+    
+    # 确保数据库表已创建
+    _ensure_tables()
     
     try:
         # 1. 生成批次编号和名称
@@ -198,6 +210,9 @@ def record_batch_excel_import_to_db(students_data_dict, batch_name=None,
         result['message'] = '数据库未启用'
         return result
     
+    # 确保数据库表已创建
+    _ensure_tables()
+    
     try:
         # 1. 创建统一的批次
         now = datetime.now()
@@ -308,6 +323,124 @@ def record_batch_excel_import_to_db(students_data_dict, batch_name=None,
     return result
 
 
+def record_single_award_review(batch_id, student_info, award_data,
+                               reviewer_account, reviewer_name):
+    """
+    记录单个奖项的评审结果到数据库
+    
+    参数:
+        batch_id: 批次ID（如果为None，尝试查找或创建）
+        student_info: 学生信息字典 {'学号', '姓名', '学院', '班级', '年级'}
+        award_data: 奖项信息字典 {'所获奖项名称', '项目类型', '评定等级', '认定情况', '加分', '备注'}
+        reviewer_account: 评审人账号
+        reviewer_name: 评审人姓名
+    
+    返回:
+        dict: {
+            'success': bool,
+            'application_id': int,
+            'message': str
+        }
+    """
+    result = {
+        'success': False,
+        'application_id': None,
+        'message': ''
+    }
+    
+    if not check_database_available():
+        logger.debug("数据库不可用，跳过记录奖项评审")
+        result['message'] = '数据库未启用'
+        return result
+    
+    # 确保数据库表已创建
+    _ensure_tables()
+    
+    try:
+        # 1. 确保有批次ID
+        if not batch_id:
+            now = datetime.now()
+            batch_code = f"REVIEW_{now.strftime('%Y%m%d%H%M%S')}_{student_info.get('学号', 'unknown')}"
+            batch_id = ReviewBatchDAO.create_batch(
+                batch_code=batch_code,
+                batch_name=f"评审_{now.strftime('%Y%m%d_%H%M%S')}",
+                academic_year=f"{now.year}-{now.year+1}",
+                semester="第一学期" if now.month >= 9 or now.month <= 2 else "第二学期",
+                reviewer_name=reviewer_name
+            )
+        
+        if not batch_id:
+            result['message'] = '无法获取或创建批次'
+            return result
+        
+        # 2. 获取或创建学生记录
+        student_db_id = StudentDAO.create_or_get_student(
+            batch_id=batch_id,
+            student_id=student_info.get('学号', ''),
+            name=student_info.get('姓名', ''),
+            class_name=student_info.get('班级', ''),
+            major=student_info.get('学院', ''),
+            grade=student_info.get('年级', '')
+        )
+        
+        if not student_db_id:
+            result['message'] = '无法获取学生记录'
+            return result
+        
+        # 3. 解析认定情况为状态
+        recognition = award_data.get('认定情况', '')
+        if recognition == '认定':
+            status = 'approved'
+        elif recognition == '不予认定':
+            status = 'rejected'
+        else:
+            status = 'pending'
+        
+        # 4. 更新奖项评审结果
+        success = ApplicationDAO.update_award_review(
+            batch_id=batch_id,
+            student_db_id=student_db_id,
+            project_name=award_data.get('所获奖项名称', ''),
+            project_type=award_data.get('项目类型', ''),
+            award_level=award_data.get('评定等级', ''),
+            status=status,
+            points=float(award_data.get('加分', 0) or 0),
+            remarks=award_data.get('备注', ''),
+            reviewer_account=reviewer_account
+        )
+        
+        if success:
+            # 5. 记录审计日志
+            AuditLogDAO.log_operation(
+                operation_type='update',
+                operation_action='评审奖项',
+                operator_account=reviewer_account,
+                operator_name=reviewer_name,
+                batch_id=batch_id,
+                student_id=student_db_id,
+                new_value={
+                    'award_name': award_data.get('所获奖项名称', ''),
+                    'project_type': award_data.get('项目类型', ''),
+                    'award_level': award_data.get('评定等级', ''),
+                    'recognition': recognition,
+                    'points': award_data.get('加分', 0)
+                },
+                status='success'
+            )
+            
+            result['success'] = True
+            result['message'] = '奖项评审结果已记录'
+            logger.info(f"奖项评审记录到数据库: 学生={student_info.get('姓名')}, 奖项={award_data.get('所获奖项名称', '')}")
+        else:
+            result['message'] = '更新奖项评审结果失败'
+            
+    except Exception as e:
+        result['message'] = f'记录奖项评审失败: {str(e)}'
+        logger.error(result['message'], exc_info=True)
+    
+    return result
+
+
 def record_review_result_to_db(batch_id, student_info, total_points, review_details,
                                reviewer_account, reviewer_name, final_result=None,
                                rank=None, comments=None):
@@ -342,6 +475,9 @@ def record_review_result_to_db(batch_id, student_info, total_points, review_deta
         logger.debug("数据库不可用，跳过记录评审结果")
         result['message'] = '数据库未启用'
         return result
+    
+    # 确保数据库表已创建
+    _ensure_tables()
     
     try:
         # 1. 确保有批次ID

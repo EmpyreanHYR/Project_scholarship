@@ -1,12 +1,6 @@
 {
-    "enabled": false,
-    "db_type": "postgresql",
-    "host": "localhost",
-    "port": 5432,
-    "database": "scholarship_db",
-    "username": "your_username",
-    "password": "your_password",
-    "pool_size": 5,
-    "max_overflow": 10,
+    "enabled": true,
+    "db_type": "sqlite",
+    "database": "data/scholarship.db",
     "echo": false
 }

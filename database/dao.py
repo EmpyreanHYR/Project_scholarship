@@ -220,6 +220,70 @@ class ApplicationDAO:
     """申请数据访问对象"""
     
     @staticmethod
+    def update_award_review(batch_id, student_db_id, project_name,
+                           project_type=None, award_level=None, status=None,
+                           points=0.0, remarks=None, reviewer_account=None):
+        """
+        更新奖项的评审结果（幂等操作）
+        
+        参数:
+            batch_id: 批次ID
+            student_db_id: 学生数据库ID
+            project_name: 项目/奖项名称
+            project_type: 项目类型
+            award_level: 奖项等级
+            status: 状态（pending/approved/rejected）
+            points: 加分值
+            remarks: 备注
+            reviewer_account: 评审人账号
+        
+        返回:
+            bool: 更新是否成功
+        """
+        if not check_database_available():
+            return False
+        
+        try:
+            with session_scope() as session:
+                if session is None:
+                    return False
+                
+                # 查找该奖项记录
+                application = session.query(Application).filter(
+                    and_(
+                        Application.batch_id == batch_id,
+                        Application.student_id == student_db_id,
+                        Application.project_name == project_name
+                    )
+                ).first()
+                
+                if application:
+                    # 更新现有记录
+                    if project_type is not None:
+                        application.project_type = project_type
+                    if award_level is not None:
+                        application.award_level = award_level
+                    if status is not None:
+                        application.status = status
+                    application.points = points
+                    if remarks is not None:
+                        application.remarks = remarks
+                    if reviewer_account:
+                        application.reviewer_notes = reviewer_account
+                    application.reviewed_at = datetime.now()
+                    session.flush()
+                    
+                    logger.info(f"更新奖项评审结果: {project_name}, 状态={status}, 加分={points}")
+                    return True
+                else:
+                    logger.warning(f"未找到奖项记录: batch_id={batch_id}, student_id={student_db_id}, project={project_name}")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"更新奖项评审结果失败: {e}", exc_info=True)
+            return False
+    
+    @staticmethod
     def create_application(batch_id, student_db_id, project_name, award_level=None,
                           award_date=None, points=0.0, project_type=None,
                           award_name=None, certificate_path=None, remarks=None):

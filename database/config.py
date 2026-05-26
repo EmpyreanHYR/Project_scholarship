@@ -1,12 +1,11 @@
 """
 数据库配置模块
-从环境变量或配置文件读取数据库连接字符串
+SQLite 数据库连接配置
 """
 
 import os
 import json
 import logging
-from urllib.parse import quote_plus
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -15,145 +14,84 @@ logger = logging.getLogger(__name__)
 class DatabaseConfig:
     """数据库配置类"""
     
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        # 兼容两种配置文件命名：db_config.json（根目录模板）与 database_config.json（历史遗留）
-        # 优先使用 db_config.json
-        self.config_files = ["db_config.json", "database_config.json"]
-        self.config_file = self.config_files[0]
+        if hasattr(self, '_initialized'):
+            return
+        self._initialized = True
+        self.config_file = "db_config.json"
+        # 项目根目录
+        self._project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self._config = self._load_config()
     
     def _load_config(self):
         """
-        从配置文件或环境变量加载数据库配置
-        优先级：环境变量 > 配置文件 > 默认值
+        从配置文件加载数据库配置
         """
         config = {
-            'enabled': False,  # 默认禁用数据库
-            'db_type': 'postgresql',  # 数据库类型：postgresql 或 mysql
-            'host': 'localhost',
-            'port': 5432,
-            'username': '',
-            'password': '',
-            'database': 'scholarship_db',
-            'pool_size': 5,
-            'max_overflow': 10,
-            'pool_timeout': 30,
-            'pool_recycle': 3600,
+            'enabled': True,  # 默认启用数据库
+            'db_type': 'sqlite',  # 数据库类型
+            'database': 'data/scholarship.db',  # SQLite 数据库文件路径
             'echo': False  # 是否打印SQL语句
         }
         
-        # 尝试从配置文件读取（兼容两种命名）
-        for candidate in self.config_files:
-            if os.path.exists(candidate):
-                try:
-                    with open(candidate, 'r', encoding='utf-8') as f:
-                        file_config = json.load(f)
-                        config.update(file_config)
-                        self.config_file = candidate
-                        logger.info(f"从配置文件加载数据库配置: {candidate}")
-                        break  # 成功加载，不再尝试后续候选文件
-                except Exception as e:
-                    logger.warning(f"读取数据库配置文件失败: {candidate} -> {e}，尝试下一个候选")
-                    continue
-        
-        # 从环境变量读取（优先级最高）
-        env_mapping = {
-            'DB_ENABLED': 'enabled',
-            'DB_TYPE': 'db_type',
-            'DB_HOST': 'host',
-            'DB_PORT': 'port',
-            'DB_USERNAME': 'username',
-            'DB_PASSWORD': 'password',
-            'DB_DATABASE': 'database',
-            'DB_POOL_SIZE': 'pool_size',
-            'DB_MAX_OVERFLOW': 'max_overflow',
-            'DB_POOL_TIMEOUT': 'pool_timeout',
-            'DB_POOL_RECYCLE': 'pool_recycle',
-            'DB_ECHO': 'echo'
-        }
-        
-        for env_key, config_key in env_mapping.items():
-            env_value = os.getenv(env_key)
-            if env_value is not None:
-                # 类型转换
-                if config_key == 'enabled' or config_key == 'echo':
-                    config[config_key] = env_value.lower() in ('true', '1', 'yes')
-                elif config_key == 'port' or config_key in ('pool_size', 'max_overflow', 'pool_timeout', 'pool_recycle'):
-                    try:
-                        config[config_key] = int(env_value)
-                    except ValueError:
-                        logger.warning(f"环境变量 {env_key} 值无效: {env_value}")
-                else:
-                    config[config_key] = env_value
+        # 尝试从配置文件读取
+        if os.path.exists(self.config_file):
+            try:
+                with open(self.config_file, 'r', encoding='utf-8') as f:
+                    file_config = json.load(f)
+                    config.update(file_config)
+                    logger.info(f"从配置文件加载数据库配置: {self.config_file}")
+            except Exception as e:
+                logger.warning(f"读取数据库配置文件失败: {e}")
         
         return config
     
     def get_connection_string(self):
         """
         生成数据库连接字符串
-        格式：
-        - PostgreSQL: postgresql://username:password@host:port/database
-        - MySQL: mysql+pymysql://username:password@host:port/database
+        格式: sqlite:///absolute/path/to/data.db
         """
         if not self._config['enabled']:
             return None
         
-        db_type = self._config['db_type'].lower()
-        username = self._config['username']
-        password = self._config['password']
-        host = self._config['host']
-        port = self._config['port']
         database = self._config['database']
         
-        if db_type == 'postgresql':
-            connection_string = f"postgresql://{quote_plus(username)}:{quote_plus(password)}@{host}:{port}/{database}"
-        elif db_type == 'mysql':
-            connection_string = f"mysql+pymysql://{quote_plus(username)}:{quote_plus(password)}@{host}:{port}/{database}"
+        # SQLite：数据库文件存储在项目根目录下
+        if os.path.isabs(database):
+            db_path = database
         else:
-            logger.error(f"不支持的数据库类型: {db_type}")
-            return None
+            db_path = os.path.join(self._project_root, database)
         
-        return connection_string
+        # 确保目录存在
+        db_dir = os.path.dirname(db_path)
+        if db_dir and not os.path.exists(db_dir):
+            try:
+                os.makedirs(db_dir, exist_ok=True)
+                logger.info(f"已创建数据库目录: {db_dir}")
+            except Exception as e:
+                logger.warning(f"创建数据库目录失败: {e}")
+        
+        # 使用正斜杠路径
+        db_path_posix = db_path.replace('\\', '/')
+        return f"sqlite:///{db_path_posix}"
     
     def get_engine_options(self):
         """获取数据库引擎选项"""
         return {
-            'pool_size': self._config['pool_size'],
-            'max_overflow': self._config['max_overflow'],
-            'pool_timeout': self._config['pool_timeout'],
-            'pool_recycle': self._config['pool_recycle'],
-            'echo': self._config['echo']
+            'echo': self._config['echo'],
+            'connect_args': {'check_same_thread': False}
         }
     
     def is_enabled(self):
         """检查数据库是否启用"""
         return self._config['enabled']
-    
-    def create_sample_config(self):
-        """创建示例配置文件"""
-        sample_config = {
-            'enabled': False,
-            'db_type': 'postgresql',
-            'host': 'localhost',
-            'port': 5432,
-            'username': 'your_username',
-            'password': 'your_password',
-            'database': 'scholarship_db',
-            'pool_size': 5,
-            'max_overflow': 10,
-            'pool_timeout': 30,
-            'pool_recycle': 3600,
-            'echo': False
-        }
-        
-        try:
-            with open(self.config_file, 'w', encoding='utf-8') as f:
-                json.dump(sample_config, f, indent=4, ensure_ascii=False)
-            logger.info(f"已创建示例配置文件: {self.config_file}")
-            return True
-        except Exception as e:
-            logger.error(f"创建示例配置文件失败: {e}")
-            return False
 
 
 # 全局配置实例

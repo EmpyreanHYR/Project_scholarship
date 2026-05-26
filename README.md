@@ -124,14 +124,17 @@
 3. **分批处理**：对于超大规模数据，建议分批导入处理
 4. **及时保存**：系统会自动保存进度，但建议定期手动导出备份
 
-## 📦 数据库集成功能（V3.0）
+## 📦 SQLite 数据库集成功能（V3.0）
 
 ### 概述
 
-V3.0版本新增了**可选的数据库集成功能**，完全不影响原有功能的使用。数据库功能默认禁用，需手动配置启用。
+V3.0版本新增了**可选的 SQLite 数据库集成功能**，完全不影响原有功能的使用。数据库功能默认禁用，需手动配置启用。
+
+SQLite 是 Python 内置的数据库，无需安装额外数据库服务，数据自动存储在 `data/scholarship.db`。
 
 ### 核心特性
 
+- ✅ **开箱即用**：SQLite 是 Python 内置的，无需安装额外数据库服务
 - ✅ **完全可选**：数据库功能默认禁用，不影响原有功能
 - ✅ **自动记录**：Excel导入和评审结果自动保存到数据库
 - ✅ **历史查询**：支持按批次、学生、项目类型、评审人等多维度查询
@@ -140,134 +143,38 @@ V3.0版本新增了**可选的数据库集成功能**，完全不影响原有功
 
 ### 快速启用
 
-**1. 安装数据库依赖**
+**1. 安装依赖**
 
 ```bash
-# PostgreSQL
-pip install sqlalchemy psycopg2-binary
-
-# MySQL  
-pip install sqlalchemy pymysql
+pip install sqlalchemy
 ```
 
 **2. 配置数据库**
 
-```bash
-cp db_config.example.json db_config.json
-```
-
-编辑 `db_config.json`：
+编辑项目根目录下的 `db_config.json`：
 
 ```json
 {
     "enabled": true,
-    "db_type": "postgresql",
-    "host": "localhost",
-    "port": 5432,
-    "database": "scholarship_db",
-    "username": "your_username",
-    "password": "your_password"
+    "db_type": "sqlite",
+    "database": "data/scholarship.db",
+    "echo": false
 }
-```
-
-**（MySQL 可选）2.1 创建数据库与用户（Ubuntu 常见 root auth_socket 场景）**
-
-如果你遇到 MySQL 报错 `ERROR 1698 (28000): Access denied for user 'root'@'localhost'`，通常表示 root 使用了 `auth_socket` 登录方式。此时可用系统管理员权限进入 MySQL 创建专用用户。
-
-在终端执行（会提示输入 sudo 密码）：
-
-```bash
-sudo mysql
-```
-
-进入 MySQL 后执行以下 SQL（创建数据库 `scholarship_db`，并创建用户 `Anonymous`/`jxj123`，授权本机访问）：
-
-```sql
-CREATE DATABASE IF NOT EXISTS scholarship_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-
-CREATE USER IF NOT EXISTS 'Anonymous'@'localhost' IDENTIFIED BY 'jxj123';
-GRANT ALL PRIVILEGES ON scholarship_db.* TO 'Anonymous'@'localhost';
-
-CREATE USER IF NOT EXISTS 'Anonymous'@'127.0.0.1' IDENTIFIED BY 'jxj123';
-GRANT ALL PRIVILEGES ON scholarship_db.* TO 'Anonymous'@'127.0.0.1';
-
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-然后把 `db_config.json` 的账号改为：
-
-```json
-{
-  "username": "Anonymous",
-  "password": "jxj123"
-}
-```
-
-**（MySQL 可选）2.2 方案B：无需安装 cryptography 的认证修复（推荐）**
-
-如果在执行 `verify_system.py` 或初始化时出现提示：
-
-- `'cryptography' package is required for sha256_password or caching_sha2_password auth methods`
-
-说明当前 MySQL 用户使用了 `caching_sha2_password/sha256_password` 认证方式，而 PyMySQL 需要额外依赖。此时可以把用户认证方式改为 `mysql_native_password` 来绕开该依赖。
-
-进入 MySQL（需要 sudo 权限）：
-
-```bash
-sudo mysql
-```
-
-执行（将 `Anonymous` 在本机两种来源的认证方式都修改）：
-
-```sql
-ALTER USER 'Anonymous'@'localhost' IDENTIFIED WITH mysql_native_password BY 'jxj123';
-ALTER USER 'Anonymous'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'jxj123';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-如果后续仍提示权限不足，可再次执行授权（通常只需一次）：
-
-```sql
-GRANT ALL PRIVILEGES ON scholarship_db.* TO 'Anonymous'@'localhost';
-GRANT ALL PRIVILEGES ON scholarship_db.* TO 'Anonymous'@'127.0.0.1';
-FLUSH PRIVILEGES;
 ```
 
 **3. 初始化数据库**
 
 ```bash
-python3 -c "from database.migrate import init_database_schema; init_database_schema()"
+python -c "from database import init_database_schema; init_database_schema()"
 ```
 
-**4. 验证配置**
+**4. 启动主程序**
 
 ```bash
-python3 verify_system.py
+python jxj_main3.py
 ```
 
-提示：如果你使用的是 conda/venv，请用同一个环境的 Python 解释器来执行以上命令（例如 `.../envs/myenv/bin/python`），确保已安装 `sqlalchemy` 与 `pymysql`。
-
-### MySQL 启动顺序（建议按此执行）
-
-以下顺序适合“已创建数据库与用户、并已配置好 `db_config.json`”的情况：
-
-```bash
-# 1) 进入运行环境（示例：conda）
-conda activate myenv
-
-# 2) 先验证连接是否正常（确保 MySQL 账户/权限无误）
-python3 verify_system.py
-
-# 3) 初始化/建表（只需首次执行一次）
-python3 -c "from database.migrate import init_database_schema; init_database_schema()"
-
-# 4) 启动主程序
-python3 jxj_main3.py
-```
-
-启动后若数据库启用成功，主界面会出现“历史记录”入口，可查询并导出历史批次。
+启动后若数据库启用成功，主界面会出现"历史记录"入口，可查询并导出历史批次。
 
 ### 新增功能
 
@@ -319,9 +226,8 @@ python3 jxj_main3.py
 
 ### 数据库支持（可选）
 
-- PostgreSQL 9.6+ 或 MySQL 5.7+
+- SQLite 3（Python 内置）
 - SQLAlchemy 1.4+
-- psycopg2-binary（PostgreSQL）或 pymysql（MySQL）
 
 ### 可视化与PDF（可选）
 
@@ -340,9 +246,7 @@ pip install pandas openpyxl Pillow
 pip install matplotlib reportlab
 
 # 数据库支持（可选）
-pip install sqlalchemy psycopg2-binary  # PostgreSQL
-# 或
-pip install sqlalchemy pymysql  # MySQL
+pip install sqlalchemy
 ```
 
 ### 运行软件
@@ -474,7 +378,7 @@ python3 jxj_main3.py
 
 ### V3.0
 
-- ✨ **数据库集成**：新增可选的数据库支持（PostgreSQL/MySQL）
+- ✨ **数据库集成**：新增可选的 SQLite 数据库支持，开箱即用，无需安装额外数据库服务
 - ✨ **历史查询**：支持按多维度查询历史评审记录
 - ✨ **批次导出**：支持导出完整批次数据（多Sheet）
 - ✨ **审计日志**：完整记录所有操作历史

@@ -1,14 +1,13 @@
 """
 数据库连接模块
-提供数据库引擎创建、会话管理和连接检查功能
-所有异常都会被捕获并记录，不会影响主程序运行
+提供 SQLite 数据库引擎创建和会话管理功能
 """
 
 import logging
 from contextlib import contextmanager
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, event
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.exc import SQLAlchemyError
+
 from .config import db_config
 
 # 配置日志
@@ -24,7 +23,6 @@ def get_engine():
     """
     获取数据库引擎
     如果数据库未启用或连接失败，返回 None
-    不会抛出异常，确保不影响主程序
     """
     global _engine, _database_available
     
@@ -48,6 +46,13 @@ def get_engine():
         engine_options = db_config.get_engine_options()
         _engine = create_engine(connection_string, **engine_options)
         
+        # SQLite：启用外键约束
+        @event.listens_for(_engine, "connect")
+        def _set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+        
         # 测试连接
         with _engine.connect() as conn:
             conn.execute(text("SELECT 1"))
@@ -55,19 +60,8 @@ def get_engine():
         _database_available = True
         logger.info("数据库引擎创建成功")
         
-    except ImportError as e:
-        logger.warning(f"数据库驱动未安装: {e}")
-        logger.warning("提示：PostgreSQL需要安装 psycopg2，MySQL需要安装 pymysql")
-        _database_available = False
-        return None
-    
-    except SQLAlchemyError as e:
-        logger.warning(f"数据库连接失败: {e}")
-        _database_available = False
-        return None
-    
     except Exception as e:
-        logger.error(f"创建数据库引擎时发生未知错误: {e}")
+        logger.error(f"创建数据库引擎失败: {e}")
         _database_available = False
         return None
     
@@ -77,7 +71,6 @@ def get_engine():
 def _get_session_factory():
     """
     获取Session工厂
-    内部使用，不对外暴露
     """
     global _Session
     
@@ -89,7 +82,6 @@ def _get_session_factory():
         return None
     
     try:
-        # 创建线程安全的Session工厂
         session_factory = sessionmaker(bind=engine)
         _Session = scoped_session(session_factory)
         logger.info("数据库Session工厂创建成功")
@@ -106,19 +98,6 @@ def get_session():
     
     返回:
         Session对象，如果数据库不可用则返回 None
-    
-    使用示例:
-        session = get_session()
-        if session:
-            try:
-                # 执行数据库操作
-                pass
-            finally:
-                session.close()
-    
-    注意：
-        - 使用完毕后需要手动关闭会话
-        - 建议使用 session_scope() 上下文管理器
     """
     Session = _get_session_factory()
     if Session is None:
@@ -136,26 +115,10 @@ def session_scope():
     """
     数据库会话上下文管理器
     自动处理会话的提交、回滚和关闭
-    
-    使用示例:
-        from database import session_scope
-        
-        with session_scope() as session:
-            if session:
-                # 执行数据库操作
-                result = session.execute(text("SELECT * FROM users"))
-                # 会自动提交
-    
-    特性:
-        - 自动提交成功的事务
-        - 自动回滚失败的事务
-        - 自动关闭会话
-        - 异常不会向上传播，只记录日志
     """
     session = get_session()
     
     if session is None:
-        # 数据库不可用，yield None
         logger.debug("数据库不可用，跳过数据库操作")
         yield None
         return
@@ -164,12 +127,9 @@ def session_scope():
         yield session
         session.commit()
         logger.debug("数据库事务提交成功")
-    except SQLAlchemyError as e:
-        session.rollback()
-        logger.error(f"数据库操作失败，已回滚: {e}")
     except Exception as e:
         session.rollback()
-        logger.error(f"数据库会话发生未知错误，已回滚: {e}")
+        logger.error(f"数据库操作失败，已回滚: {e}")
     finally:
         session.close()
         logger.debug("数据库会话已关闭")
@@ -181,14 +141,6 @@ def check_database_available():
     
     返回:
         bool: 数据库可用返回 True，否则返回 False
-    
-    使用示例:
-        from database import check_database_available
-        
-        if check_database_available():
-            print("数据库可用")
-        else:
-            print("数据库不可用，使用本地文件存储")
     """
     global _database_available
     
@@ -205,10 +157,6 @@ def reset_database_connection():
     """
     重置数据库连接
     用于重新加载配置或重新连接数据库
-    
-    使用场景:
-        - 配置文件更新后
-        - 数据库连接断开需要重连
     """
     global _engine, _Session, _database_available
     
@@ -227,7 +175,6 @@ def reset_database_connection():
         logger.error(f"重置数据库连接时发生错误: {e}")
 
 
-# 模块清理
 def cleanup():
     """
     清理数据库资源

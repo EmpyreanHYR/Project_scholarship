@@ -33,11 +33,11 @@
 }
 
 	{\color{myred}
-	版本V3.0新增了“数据库（可选）”能力：当用户需要对历史评审数据进行查询、导出或追溯操作日志时，可通过配置文件启用数据库功能；当不启用数据库时，软件原有功能不受影响。
+	版本V3.0新增了"数据库（可选）"能力：当用户需要对历史评审数据进行查询、导出或追溯操作日志时，可通过配置文件启用数据库功能。数据库默认使用 SQLite（Python 内置，无需安装额外数据库服务），数据自动存储在 \texttt{data/scholarship.db}；当不启用数据库时，软件原有功能不受影响。
 }
 
 	{\color{myred}
-	其中新增/涉及的关键文件包括：\texttt{db\_config.json}（数据库连接配置，默认不启用，可由\texttt{db\_config.example.json}复制得到）、\texttt{verify\_system.py}（配置与完整性验证脚本），以及\texttt{database/}目录（数据库模块）。
+	其中新增/涉及的关键文件包括：\texttt{db\_config.json}（数据库连接配置，默认启用 SQLite，可由\texttt{db\_config.example.json}复制得到）、\texttt{database/}目录（数据库模块，包含连接管理、数据模型、业务服务等）。
 }
 
 \newpage

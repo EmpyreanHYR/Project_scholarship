@@ -2,3 +2,17 @@
 
 # 数据库配置文件（包含敏感信息，不要提交）
 database_config.json
+
+# SQLite 数据库文件（本地数据，不提交）
+db_config.json
+data/
+
+# Python 编译缓存
+__pycache__/
+*.pyc
+
+# IDE 配置
+.idea/
+
+# 敏感脚本
+reset_mysql_password.bat
