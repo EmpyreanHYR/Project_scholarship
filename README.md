@@ -421,4 +421,4 @@ python3 jxj_main3.py
   <img src="https://contrib.rocks/image?repo=EmpyreanHYR/Project_scholarship" />
 </a>
 
-热烈欢迎更多协作者为模板的优化改进提出建议！
+热烈欢迎更多协作者为代码的优化改进提出建议！
