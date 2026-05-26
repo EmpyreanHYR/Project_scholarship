@@ -512,11 +512,25 @@
 	\end{tcolorbox}
 	如验证通过，则数据库功能已就绪；如未通过，请根据提示检查数据库服务是否启动、连接信息是否正确。
 	\end{enumerate}
+	
+	数据库功能启用后，评审界面上的"历史记录"入口即可点击使用，如图\ref{fig:3.2数据库打开按钮}所示。
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=0.5\linewidth]{fig/3.2数据库打开按钮}
+		\caption{数据库打开按钮}
+		\label{fig:3.2数据库打开按钮}
+	\end{figure}
 }	
 
 {\color{myred}
 	\subsection{历史记录查询窗口}
-	当数据库启用且可用时，评审界面将新增“历史记录”入口。点击后打开历史记录查询窗口，支持如下查询类型：
+	当数据库启用且可用时，评审界面将新增“历史记录”入口。点击后打开历史记录查询窗口，如图\ref{fig:3.2数据库历史记录查询窗口}所示，支持如下查询类型：
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=0.7\linewidth]{fig/3.2数据库历史记录查询窗口}
+		\caption{数据库历史记录查询窗口}
+		\label{fig:3.2数据库历史记录查询窗口}
+	\end{figure}
 	\begin{enumerate}
 		\item 批次查询：按学年、学期、状态筛选评审批次；
 		\item 学生查询：按学号、姓名、专业、年级等条件筛选学生；
@@ -529,9 +543,26 @@
 	\subsection{导出查询结果与导出完整批次}
 	历史记录查询窗口支持两类导出：
 	\begin{enumerate}
-		\item 导出查询结果：将当前查询结果导出为单个Excel文件；
+		\item 导出查询结果：将当前查询结果导出为单个Excel文件，如图\ref{fig:3.2导出查询结果}所示；
 		\item 导出完整批次：在“批次查询”界面选择一个批次后导出，将生成包含“批次汇总、学生列表、评审结果、申请详情”等多个Sheet的Excel文件，便于统一归档与查阅。
 	\end{enumerate}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\linewidth]{fig/3.2导出查询结果}
+		\caption{导出查询结果}
+		\label{fig:3.2导出查询结果}
+	\end{figure}
+}
+
+{\color{myred}
+	\subsection{快速统计}
+	历史记录查询窗口中还集成了快速统计功能。如图\ref{fig:3.2快速统计}所示，用户可在查询窗口中快速查看各批次评审的统计数据概览，包括批次总数、已评审学生数、各项目类型的平均加分等关键指标，方便评审人员随时掌握整体评审进度。
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{fig/3.2快速统计}
+		\caption{快速统计面板}
+		\label{fig:3.2快速统计}
+	\end{figure}
 }
 
 
@@ -569,9 +600,14 @@
 		\item \textbf{日期格式规范化}：支持“2023-01-01”“2023/01/01”“2023.01.01”“2023年1月1日”四种常见日期格式，自动统一为“YYYY-MM-DD”标准格式。
 		\item \textbf{无效加分值清除}：若导入的数据已包含加分列，系统会自动检测并清除无法解析为数字的无效加分值。
 	\end{enumerate}
-	导入完成后，系统会弹出校验摘要弹窗，展示成功导入的记录数以及所有警告项（如规范化日期数量、跳过的空行数、清除的无效加分值等），帮助用户快速了解数据质量。
-	% 【需补充截图：单文件导入校验摘要弹窗（含警告项），命名为 fig/V3.0_import_validation.png】
-	% 【需补充截图：批量导入校验摘要弹窗，命名为 fig/V3.0_batch_validation.png】
+	
+	导入完成后，系统会弹出校验摘要弹窗，展示成功导入的记录数以及所有警告项（如规范化日期数量、跳过的空行数、清除的无效加分值等），帮助用户快速了解数据质量。导入数据校验警告界面如图\ref{fig:3.2导入数据校验警告}所示。
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\linewidth]{fig/3.2导入数据校验警告}
+		\caption{导入数据校验警告提示}
+		\label{fig:3.2导入数据校验警告}
+	\end{figure}
 }
 
 {\color{myred}
@@ -582,14 +618,17 @@
 		\item \textbf{评审员（reviewer）}： 默认角色，可进行正常的导入、评审、导出操作。旧版本用户数据会自动迁移，所有已有用户默认赋予评审员角色。
 	\end{enumerate}
 
-	管理员登录后，导航栏“登录”按钮左侧会显示“管理”按钮。点击后打开管理员面板（示意图，待补充实际截图）。面板中以表格列出所有用户的用户名、角色和锁定状态，并提供三个操作按钮：
-	\begin{enumerate}
-		\item \textbf{解锁账户}：解除被锁定用户的锁定状态。
-		\item \textbf{切换角色}：在管理员和评审员之间切换指定用户的角色。
-		\item \textbf{删除用户}：从系统中移除指定用户（不可删除当前登录用户）。
-	\end{enumerate}
-	% 【需补充截图：管理员面板界面，命名为 fig/V3.0_admin_panel.png】
+	管理员登录后，导航栏“登录”按钮左侧会显示“管理”按钮。点击后打开管理员面板（如图\ref{fig:3管理员面版}）。面板中以表格列出所有用户的用户名、角色和锁定状态，并提供解锁账户、切换角色、删除用户三个操作按钮，分别实现解除被锁定用户的锁定状态、在管理员和评审员之间切换指定用户的角色、从系统中移除指定用户（不可删除当前登录用户）的功能。
+
 }
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/3.2管理员面版}
+	\caption{管理员面板}
+	\label{fig:3管理员面版}
+\end{figure}
+
 
 {\color{myred}
 	\section{评审撤销与重做}
@@ -603,42 +642,108 @@
 		\item 进行新的评审操作会使之前可重做的操作失效（重做栈被清空）。
 		\item 撤销/重做会同步更新表格显示和批量模式下的后台数据。
 	\end{itemize}
-	% 【需补充截图：评审界面中撤销/重做按钮的特写，命名为 fig/V3.0_undo_redo.png】
 }
 
 {\color{myred}
 	\section{数据统计可视化面板}
-	评审界面新增“统计面板”按钮。导入数据并完成评审后，点击该按钮将打开数据可视化窗口（需安装 matplotlib 库：\texttt{pip install matplotlib}）。窗口中以 2x2 网格展示四张统计图表：
+	评审界面新增“统计面板”按钮。导入数据并完成评审后，点击该按钮将打开数据可视化窗口）。窗口中以 2x2 网格展示四张统计图表：
 	\begin{enumerate}
 		\item \textbf{总分分布直方图}：展示所有（或当前）学生加分总分的频次分布。
 		\item \textbf{类别加分饼图}：展示各项目类型（竞赛类/科研创新类/外语类等）的加分占比。
 		\item \textbf{评审进度环形图}：以环形图展示已完成评审与未完成评审的项目数量对比。
 		\item \textbf{学生排名/分类柱状图}：批量模式下按总分排名展示各学生，单学生模式下展示各类型的加分分解。
 	\end{enumerate}
-	图表窗口底部配有工具栏，支持缩放、平移以及将图表保存为图片文件。
 
-	若系统未安装 matplotlib，点击“统计面板”会弹出提示，引导用户通过 \texttt{pip install matplotlib} 安装。
-	% 【需补充截图：统计可视化面板全貌（四张图表），命名为 fig/V3.0_visualization.png】
+	
+	如图\ref{fig:3.2数据统计面板}所示，为单学生模式下统计面板的主界面，包含四类统计分析图表。在批量评审模式下（即导入了多名学生数据），点击“统计面板”按钮会展示多人数据统计视图，如图\ref{fig:3.2多人数据统计面板}所示，可同时查看所有学生的总分排名、各项目类型得分分布以及整体评审概况，帮助评审小组快速掌握全局情况。此外，在启用数据库的情况下，在历史记录管理面板下用户也可以进行数据统计（如图\ref{fig:3.2数据库历史记录查询窗口}），如图\ref{fig:3.2数据统计与分析绘图}所示，用户还可进行更深入的数据统计与分析绘图操作。
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{fig/3.2数据统计面板}
+		\caption{单学生统计面板}
+		\label{fig:3.2数据统计面板}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{fig/3.2多人数据统计面板}
+		\caption{批量评审多人数据统计面板}
+		\label{fig:3.2多人数据统计面板}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{fig/3.2数据统计与分析绘图}
+		\caption{数据统计与分析绘图}
+		\label{fig:3.2数据统计与分析绘图}
+	\end{figure}
 }
+
+
 
 {\color{myred}
 	\section{PDF 报告导出}
-	版本V3.0在原有Excel导出功能的基础上，新增了PDF格式的评审报告导出（需安装 reportlab 库：\texttt{pip install reportlab}）。评审界面新增了两个PDF导出按钮：
+	版本V3.0在原有Excel导出功能的基础上，新增了PDF格式的评审报告导出。评审界面新增了两个PDF导出按钮：
 
 	\subsection{导出PDF报告（个人）}
-	点击“导出PDF报告”按钮，将当前学生的评审结果导出为A4格式的PDF文件。报告内容包括：
+	
+	点击“导出PDF报告”按钮，将当前学生的评审结果导出为A4格式的PDF文件。如图\ref{fig:3.2个人评审报告}，报告内容包括：
 	\begin{itemize}
 		\item 学生基本信息表（学院、姓名、年级、班级、学号、评审日期）
 		\item 奖项评审明细表（序号、奖项名称、获奖时间、奖项等级、项目类型、评定等级、认定情况、加分、备注）
 		\item 分类统计汇总表（各项目类型得分及截断后合计）
 		\item 页脚信息（评审人、导出时间）
 	\end{itemize}
+	
 	系统会自动查找系统中文字体以确保中文正常显示。导出前会校验当前学生是否已完成全部评审，未完成时提示用户先完成评审。
 
-	\subsection{批量PDF汇总}
-	点击“批量PDF汇总”按钮，将所有学生的评审数据汇总为一份PDF排名表。表格按总分降序排列，包含排名、姓名、学院、班级、学号、各类型得分和总分。第一名以黄色高亮标识。适合打印存档或提交评审委员会审阅。
 
-	若系统未安装 reportlab，点击PDF导出按钮会弹出提示，引导用户通过 \texttt{pip install reportlab} 安装。
-	% 【需补充截图：个人PDF报告示例（第一页），命名为 fig/V3.0_pdf_report.png】
-	% 【需补充截图：批量PDF汇总报告示例（排名表），命名为 fig/V3.0_pdf_batch.png】
-} 
+\begin{figure}[!ht]
+	\centering
+	% 第一张图
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{fig/钱二评审报告}
+		\caption{个人评审报告}
+		\label{fig:3.2个人评审报告}
+	\end{minipage}
+	\hfill
+	% 第二张图
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{fig/批量评审汇总报告}
+		\caption{批量PDF汇总报告}
+		\label{fig:批量PDF}
+	\end{minipage}
+\end{figure}
+
+
+	\subsection{批量PDF汇总}
+	点击“批量PDF汇总”按钮，将所有学生的评审数据汇总为一份PDF排名表。表格按总分降序排列，包含排名、姓名、学院、班级、学号、各类型得分和总分。第一名以黄色高亮标识。适合打印存档或提交评审委员会审阅，如图\ref{fig:批量PDF}所示。
+
+
+	
+	导出PDF报告时，系统会进行评审完整性校验，若存在未完成评审的项目，则会进行提示。
+
+}
+
+{\color{myred}
+	\section{评审进度显示}
+	版本V3.0新增了评审进度显示功能，帮助评审人员直观了解当前学生加分项目的评审完成情况。如图\ref{fig:3.2评审进度显示}所示，在批量评审过程中，学生信息旁侧会以进度条形式展示当前批次所有学生的评审进度（已评审项目数/总项目数），并标注已完成评审的学生数量。
+
+	
+	当所有学生的所有加分项目均完成评审后，进度条将显示为完成状态，如图\ref{fig:3.2评审进度显示完成}所示，此时方可进行批量结果的完整导出。
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/3.2评审进度显示}
+	\caption{评审进度显示}
+	\label{fig:3.2评审进度显示}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/3.2评审进度显示完成}
+	\caption{评审进度显示（完成状态）}
+	\label{fig:3.2评审进度显示完成}
+\end{figure}
+}
+
+ 
