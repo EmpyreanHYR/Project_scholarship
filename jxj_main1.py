@@ -143,7 +143,7 @@ class AboutHelp:
         about_window = Toplevel(root)
         about_window.title("关于")
         tk.Label(about_window, text="优秀学生奖学金加分项目评审软件 V1.0", font=("Arial", 14)).pack(pady=10)
-        tk.Label(about_window, text="版权所有: 黄耀荣，马荣斌，陈彩蝶，高新雅，王俞欢，张舒一").pack(pady=5)
+        tk.Label(about_window, text="版权所有: 黄耀荣，高新雅").pack(pady=5)
         # 绑定关闭事件，确保资源释放
         about_window.protocol("WM_DELETE_WINDOW", about_window.destroy)
 

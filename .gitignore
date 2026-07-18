@@ -16,3 +16,5 @@ __pycache__/
 
 # 敏感脚本
 reset_mysql_password.bat
+/.reasonix
+reasonix.toml
