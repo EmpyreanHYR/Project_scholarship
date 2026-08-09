@@ -1,1 +1,32 @@
-pyinstaller  -F -w --add-data "template.xlsx;." --onefile --icon=logo.ico --onefile --add-data "logo.ico;." --hidden-import=pandas --hidden-import=json --hidden-import=sys --hidden-import=shutil --hidden-import=PIL --hidden-import=openpyxl --hidden-import=openpyxl.cell._writer jxj_main.py
+pyinstaller -F -w ^
+    --name "奖学金评审系统" ^
+    --icon=logo.ico ^
+    --add-data "template.xlsx;." ^
+    --add-data "logo.ico;." ^
+    --hidden-import=pandas ^
+    --hidden-import=openpyxl ^
+    --hidden-import=openpyxl.cell._writer ^
+    --hidden-import=PIL ^
+    --hidden-import=PIL.Image ^
+    --hidden-import=PIL.ImageTk ^
+    --hidden-import=json ^
+    --hidden-import=hashlib ^
+    --hidden-import=secrets ^
+    --hidden-import=sqlalchemy ^
+    --hidden-import=sqlalchemy.dialects.sqlite ^
+    --hidden-import=sqlalchemy.orm ^
+    --hidden-import=sqlalchemy.sql ^
+    --hidden-import=reportlab ^
+    --hidden-import=reportlab.pdfbase ^
+    --hidden-import=reportlab.pdfbase.ttfonts ^
+    --hidden-import=reportlab.lib ^
+    --hidden-import=reportlab.platypus ^
+    --hidden-import=matplotlib ^
+    --hidden-import=matplotlib.pyplot ^
+    --hidden-import=matplotlib.backends.backend_tkagg ^
+    jxj_main3.py
+
+REM 注意：
+REM 1. 打包后首次运行时，程序会自动创建 users.json 和 db_config.json
+REM 2. 如果需要数据库功能，请确保 data/ 目录可写
+REM 3. 打包后的 exe 会在 dist/ 目录中生成

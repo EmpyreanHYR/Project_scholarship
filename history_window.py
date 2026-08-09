@@ -856,7 +856,7 @@ class HistoryQueryWindow:
         if self.chart_window:
             try:
                 self.chart_window.window.destroy()
-            except:
+            except Exception:
                 pass
         self.window.destroy()
 
@@ -1447,7 +1447,8 @@ class DetailsWindow:
                         student_text += f" ... 等{len(students)}人"
                     
                     ttk.Label(related_frame, text=student_text, foreground="gray").pack(anchor=tk.W)
-            except:
+            except Exception as e:
+                logger.debug(f"加载关联信息失败: {e}")
                 ttk.Label(related_frame, text="无法加载关联信息").pack(anchor=tk.W)
         
         elif self.query_type == "学生" and len(self.values) > 0:
@@ -1472,7 +1473,8 @@ class DetailsWindow:
                              foreground="blue").pack(anchor=tk.W)
                 else:
                     ttk.Label(related_frame, text="暂无申请记录").pack(anchor=tk.W)
-            except:
+            except Exception as e:
+                logger.debug(f"加载关联信息失败: {e}")
                 ttk.Label(related_frame, text="无法加载关联信息").pack(anchor=tk.W)
         
         elif self.query_type == "申请" and len(self.values) > 0:
@@ -1499,7 +1501,8 @@ class DetailsWindow:
                                  foreground="blue").pack(anchor=tk.W)
                     else:
                         ttk.Label(related_frame, text="暂无评审记录").pack(anchor=tk.W)
-                except:
+                except Exception as e:
+                    logger.debug(f"加载关联信息失败: {e}")
                     ttk.Label(related_frame, text="无法加载关联信息").pack(anchor=tk.W)
         
         elif self.query_type == "评审记录" and len(self.values) > 0:
@@ -1529,8 +1532,8 @@ class DetailsWindow:
                     info_text += f"  • 外语类: {language} ({lang_pct:.1f}%)"
                     
                     ttk.Label(related_frame, text=info_text, justify=tk.LEFT).pack(anchor=tk.W)
-                except:
-                    pass
+                except Exception as e:
+                    logger.debug(f"加载分数构成失败: {e}")
     
     def export_single_record(self):
         """导出单条记录"""

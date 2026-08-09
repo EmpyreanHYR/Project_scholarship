@@ -13,6 +13,11 @@
 - 📊 **数据可视化**：统计图表面板，分数分布、排名对比一目了然
 - 🎨 **友好界面**：响应式设计，支持主题切换
 - 💾 **数据库支持**：可选的数据库集成，历史记录查询与导出（v3.0新增）
+- 💾 **数据备份恢复**：🆕 自动/手动备份，支持数据恢复（v3.1新增）
+- ⏱️ **自动保存**：🆕 定时自动保存评审进度，崩溃恢复（v3.1新增）
+- 📈 **进度追踪**：🆕 可视化进度仪表盘，评审预测（v3.1新增）
+- 📥 **多格式导入**：🆕 支持 CSV、JSON 等多种格式导入（v3.1新增）
+- 🔍 **结果对比**：🆕 批次对比分析，评审趋势分析（v3.1新增）
 
 ## 项目简介
 
@@ -211,6 +216,138 @@ python jxj_main3.py
 
 ---
 
+## 🆕 V3.1 新增功能模块
+
+### 数据备份与恢复 (`backup_manager.py`)
+
+**核心功能：**
+- **自动备份**：每次导入数据或完成评审时自动备份
+- **手动备份**：用户可随时手动创建备份，支持添加描述
+- **恢复数据**：从备份文件恢复评审数据
+- **备份管理**：查看、删除、导出备份文件
+- **自动清理**：保留最新的 N 个备份，自动删除旧备份
+
+**使用方式：**
+```python
+from backup_manager import BackupManager, BackupDialog
+
+# 创建备份管理器
+backup_mgr = BackupManager(backup_dir="backups", max_backups=10)
+
+# 创建备份
+result = backup_mgr.create_backup(data, description="评审数据备份")
+
+# 恢复备份
+data = backup_mgr.restore_backup(backup_file)
+```
+
+### 自动保存 (`auto_save.py`)
+
+**核心功能：**
+- **定时自动保存**：可配置间隔（默认 5 分钟）
+- **数据变化检测**：避免重复保存相同数据
+- **崩溃恢复**：程序崩溃后自动检测并恢复数据
+- **状态栏显示**：实时显示保存状态和次数
+
+**使用方式：**
+```python
+from auto_save import AutoSaveManager, AutoSaveStatusBar
+
+# 创建自动保存管理器
+auto_save = AutoSaveManager(save_dir="autosave", save_interval=300)
+
+# 启动自动保存
+auto_save.start(save_callback=get_data_func)
+
+# 立即保存
+auto_save.save_now(description="手动保存")
+```
+
+### 评审进度追踪 (`progress_tracker.py`)
+
+**核心功能：**
+- **可视化仪表盘**：概览卡片、进度条、学生进度表格
+- **多维度统计**：总学生数、总奖项数、已评审、待评审、完成率、认定率
+- **进度预测**：根据评审速度预估完成时间
+- **每日进度**：跟踪每日评审数量
+- **评审历史**：记录所有评审操作
+- **进度报告**：生成文本格式的进度报告
+
+**使用方式：**
+```python
+from progress_tracker import ReviewProgressTracker, ProgressDashboard
+
+# 创建进度追踪器
+tracker = ReviewProgressTracker()
+
+# 初始化
+tracker.initialize(students_data)
+
+# 记录评审
+tracker.record_review(student_id, award_name, decision, reviewer)
+
+# 获取进度摘要
+summary = tracker.get_progress_summary()
+
+# 打开仪表盘
+ProgressDashboard(root, tracker)
+```
+
+### 增强数据导入 (`data_importer.py`)
+
+**核心功能：**
+- **多格式支持**：Excel (.xlsx/.xls)、CSV、JSON、Tab 分隔文本
+- **自动检测**：自动检测文件编码和分隔符
+- **数据验证**：检查必需列、空值、重复行
+- **数据清洗**：删除空行、重复行
+- **批量导入**：支持一次导入多个文件或整个文件夹
+
+**使用方式：**
+```python
+from data_importer import DataImporter, EnhancedImportDialog
+
+# 创建数据导入器
+importer = DataImporter()
+
+# 导入文件
+df = importer.import_file("data.csv")
+
+# 验证数据
+is_valid, errors, warnings = importer.validate_data(df, required_columns=['姓名', '学号'])
+
+# 打开导入对话框
+EnhancedImportDialog(root, importer, callback=on_import_complete)
+```
+
+### 评审结果对比分析 (`review_comparator.py`)
+
+**核心功能：**
+- **批次对比**：对比不同批次的评审结果
+- **学生历史**：查看单个学生的历史评审记录
+- **分数变化**：分析分数增加/减少/不变的情况
+- **趋势分析**：分析评审趋势（上升、下降、稳定）
+- **统计报表**：生成批次统计信息
+
+**使用方式：**
+```python
+from review_comparator import ReviewComparator, ComparisonDialog
+
+# 创建对比器
+comparator = ReviewComparator()
+
+# 添加批次
+comparator.add_batch('2024春季', batch1_data, '2024年春季评审')
+comparator.add_batch('2024秋季', batch2_data, '2024年秋季评审')
+
+# 对比批次
+comparison = comparator.compare_batches('2024春季', '2024秋季')
+
+# 打开对比对话框
+ComparisonDialog(root, comparator)
+```
+
+---
+
 ## 系统要求
 
 ### 基础要求
@@ -234,9 +371,21 @@ python jxj_main3.py
 - matplotlib 3.5+（统计图表面板）
 - reportlab 3.6+（PDF 报告导出）
 
+### 数据导入增强（可选）
+
+- chardet（自动检测文件编码）
+
 ## 安装与使用
 
 ### 环境配置
+
+**方式一：使用 requirements.txt（推荐）**
+
+```bash
+pip install -r requirements.txt
+```
+
+**方式二：手动安装依赖**
 
 ```bash
 # 基础依赖
@@ -363,6 +512,10 @@ python3 jxj_main3.py
 - **多格式导出**：支持 Excel 和 PDF 双格式导出，满足不同场景
 - **可视化分析**：集成 matplotlib，提供丰富的统计图表
 - **高性能**：优化的数据结构和算法，支持大规模学生数据处理
+- **密码安全**：🆕 使用 PBKDF2-SHA256 哈希存储密码，符合 OWASP 安全标准（v3.1新增）
+- **多格式导入**：🆕 支持 Excel、CSV、JSON、Tab 分隔文本等多种格式导入（v3.1新增）
+- **数据备份**：🆕 自动/手动备份，支持数据恢复和导出（v3.1新增）
+- **进度追踪**：🆕 可视化仪表盘，实时显示评审进度和预测（v3.1新增）
 
 ## 版权说明
 
@@ -375,6 +528,19 @@ python3 jxj_main3.py
 本项目采用 MIT License 开源协议。详见 [LICENSE](LICENSE) 文件。
 
 ## 更新日志
+
+### V3.1
+
+- 🔐 **密码安全增强**：使用 PBKDF2-SHA256 哈希存储密码（260000次迭代），移除万能解锁密码后门
+- 🔐 **敏感文件保护**：users.json、数据库文件等敏感文件添加到 .gitignore
+- 💾 **数据备份恢复**：新增 backup_manager.py 模块，支持自动/手动备份、数据恢复、备份管理
+- ⏱️ **自动保存功能**：新增 auto_save.py 模块，支持定时自动保存、崩溃恢复、状态栏显示
+- 📈 **进度追踪面板**：新增 progress_tracker.py 模块，可视化进度仪表盘、进度预测、进度报告
+- 📥 **多格式数据导入**：新增 data_importer.py 模块，支持 CSV、JSON、Tab 分隔文本等多种格式导入
+- 🔍 **评审结果对比**：新增 review_comparator.py 模块，支持批次对比、学生历史对比、趋势分析
+- 🔧 **代码质量改进**：提取硬编码常量为模块级配置，消除代码重复，修复裸 except 语句
+- 🔧 **工程化完善**：添加 requirements.txt、单元测试框架、修正打包命令
+- 📚 **文档完善**：补充关键类和方法的 docstring
 
 ### V3.0
 

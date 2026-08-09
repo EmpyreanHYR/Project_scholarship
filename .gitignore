@@ -6,16 +6,38 @@ database_config.json
 # SQLite 数据库文件（本地数据，不提交）
 db_config.json
 data/
+*.db
+
+# 用户数据文件（包含密码哈希，不要提交）
+users.json
+
+# 评审结果文件（包含真实评审数据，不要提交）
+钱二_*.pdf
+批量评审汇总报告.pdf
 
 # Python 编译缓存
 __pycache__/
 *.pyc
+*.pyo
 
 # IDE 配置
 .idea/
+.vscode/
+*.swp
+*.swo
 
 # 敏感脚本
 reset_mysql_password.bat
 /.reasonix
 reasonix.toml
 软件使用说明书撰写/优秀学生奖学金加分项目评审软件使用说明书.synctex.gz
+
+# 虚拟环境
+venv/
+.venv/
+env/
+
+# PyInstaller 打包输出
+dist/
+build/
+*.spec

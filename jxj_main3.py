@@ -18,6 +18,8 @@ from datetime import datetime
 import logging
 import traceback
 import re
+import hashlib
+import secrets
 
 # 导入数据库集成模块（可选，不影响主程序）
 try:
@@ -37,8 +39,79 @@ except ImportError:
     safe_record_single_award_review = lambda *args, **kwargs: None
     is_database_enabled = lambda: False
 
+# ==================== 全局配置常量 ====================
+# Excel 导入限制
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB - 单个 Excel 文件最大大小
+MAX_EXCEL_ROWS = 5000  # 单个 Excel 文件最大行数
+
+# 加分规则默认值
+DEFAULT_SCORE_CAP = 6  # 每类项目默认加分上限（分）
+
+# 项目类型列表
+DEFAULT_PROJECT_TYPES = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+
+# 认定选项
+REVIEW_DECISIONS = ["认定", "不予认定"]
+
+# 备注选项列表（不予认定时可选）
+REJECTION_REASONS = [
+    "材料不清晰",
+    "奖项名称不匹配",
+    "时间不在评审范围内",
+    "不符合加分条件",
+    "其他"
+]
+
+# 安全配置
+MAX_LOGIN_ATTEMPTS = 3  # 最大登录失败次数
+MIN_USERNAME_LENGTH = 2  # 用户名最小长度
+MAX_USERNAME_LENGTH = 20  # 用户名最大长度
+MIN_PASSWORD_LENGTH = 4  # 密码最小长度
+
+# 支撑材料文件扩展名
+SUPPORTED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png']
+SUPPORTED_PDF_EXTENSION = '.pdf'
+
+# 主题配置
+THEMES = {
+    "浅色": {
+        "bg": "#ffffff",
+        "fg": "#000000",
+        "select_bg": "#0078d7",
+        "select_fg": "#ffffff"
+    },
+    "深色": {
+        "bg": "#2d2d2d",
+        "fg": "#ffffff",
+        "select_bg": "#0078d7",
+        "select_fg": "#ffffff"
+    }
+}
+
 
 class LoginManager:
+    """用户登录管理器，负责用户认证、注册、密码哈希和账户安全。
+    
+    主要功能：
+    - 用户注册和登录验证
+    - 密码使用 PBKDF2-SHA256 哈希存储
+    - 登录失败次数限制和账户锁定
+    - 管理员面板（用户管理、解锁账户、角色切换）
+    - 自动迁移旧版本用户数据格式
+    
+    Attributes:
+        _HASH_ALGORITHM: 哈希算法名称
+        _HASH_ITERATIONS: PBKDF2 迭代次数（OWASP 推荐 260000）
+        root: Tkinter 根窗口
+        scholarship_reviewer: 主程序实例
+        user_data_file: 用户数据文件路径
+        users: 用户数据字典
+        failed_attempts: 登录失败次数记录
+    """
+    # 密码哈希参数
+    _HASH_ALGORITHM = 'sha256'
+    _HASH_ITERATIONS = 260000  # OWASP 推荐的最小迭代次数
+
     def __init__(self, root, scholarship_reviewer):
         self.root = root
         self.scholarship_reviewer = scholarship_reviewer
@@ -46,13 +119,45 @@ class LoginManager:
         self.users = self.load_user_data()
         self.failed_attempts = {}  # 记录登录失败次数
 
+    @staticmethod
+    def hash_password(password: str) -> str:
+        """使用 PBKDF2-SHA256 对密码进行哈希，返回 'salt:hash' 格式字符串。"""
+        salt = secrets.token_bytes(32)
+        key = hashlib.pbkdf2_hmac(
+            LoginManager._HASH_ALGORITHM,
+            password.encode('utf-8'),
+            salt,
+            LoginManager._HASH_ITERATIONS
+        )
+        return salt.hex() + ':' + key.hex()
+
+    @staticmethod
+    def verify_password(stored: str, password: str) -> bool:
+        """验证密码是否与存储的哈希匹配。支持旧格式（明文）自动兼容。"""
+        # 新格式：'salt:hash'
+        if ':' in stored and len(stored) == 129:  # 64(salt) + 1(:) + 64(hash)
+            try:
+                salt_hex, key_hex = stored.split(':')
+                salt = bytes.fromhex(salt_hex)
+                new_key = hashlib.pbkdf2_hmac(
+                    LoginManager._HASH_ALGORITHM,
+                    password.encode('utf-8'),
+                    salt,
+                    LoginManager._HASH_ITERATIONS
+                )
+                return new_key.hex() == key_hex
+            except (ValueError, IndexError):
+                return False
+        # 旧格式（明文）：直接比较，用于向后兼容和自动迁移
+        return stored == password
+
     def load_user_data(self):
         if not os.path.exists(self.user_data_file):
             return {}
-        with open(self.user_data_file, "r") as f:
+        with open(self.user_data_file, "r", encoding='utf-8') as f:
             users = json.load(f)
 
-        # 自动迁移旧格式
+        # 自动迁移旧格式 + 密码哈希迁移
         changed = False
         for username, data in users.items():
             # 旧格式：值是字符串（密码）
@@ -67,6 +172,14 @@ class LoginManager:
             if isinstance(data, dict) and "locked" not in data:
                 data["locked"] = False
                 changed = True
+
+            # 密码哈希迁移：将明文密码转为哈希存储
+            if isinstance(data, dict) and "password" in data:
+                pwd = data["password"]
+                # 如果不是哈希格式（长度不是129或没有:分隔符），则进行哈希迁移
+                if ':' not in pwd or len(pwd) != 129:
+                    data["password"] = self.hash_password(pwd)
+                    changed = True
 
         # 保存修正后的数据（仅在有修正时写入）
         if changed:
@@ -114,16 +227,26 @@ class LoginManager:
         password_entry.grid(row=1, column=1, padx=5, pady=5)
 
         def attempt_register():
-            username = username_var.get()
+            username = username_var.get().strip()
             password = password_var.get()
             if not username or not password:
                 messagebox.showerror("错误", "用户名和密码不能为空！")
                 return
+            if len(username) < MIN_USERNAME_LENGTH or len(username) > MAX_USERNAME_LENGTH:
+                messagebox.showerror("错误", f"用户名长度应为 {MIN_USERNAME_LENGTH}-{MAX_USERNAME_LENGTH} 个字符！")
+                return
+            if len(password) < MIN_PASSWORD_LENGTH:
+                messagebox.showerror("错误", f"密码长度至少 {MIN_PASSWORD_LENGTH} 个字符！")
+                return
             if username in self.users:
                 messagebox.showerror("错误", "用户名已存在")
             else:
-                # 确保每个用户数据是嵌套字典结构
-                self.users[username] = {"password": password, "locked": False}
+                # 确保每个用户数据是嵌套字典结构，密码使用哈希存储
+                self.users[username] = {
+                    "password": self.hash_password(password),
+                    "locked": False,
+                    "role": "reviewer"
+                }
                 self.save_user_data()
                 messagebox.showinfo("成功", "注册成功！")
                 register_window.destroy()
@@ -160,19 +283,12 @@ class LoginManager:
 
             user_data = self.users[username]  # 获取用户的数据（字典形式）
 
-            # 如果账户被锁定，且输入的是管理员密码，解锁该账户
+            # 如果账户被锁定，提示用户联系管理员
             if user_data.get("locked"):
-                if password == "deblocking":
-                    user_data["locked"] = False
-                    self.save_user_data()
-                    messagebox.showinfo("成功", f"账户 {username} 已解锁！")
-                    login_window.destroy()
-                    return
-                else:
-                    messagebox.showerror("错误", "账户已锁定，且密码错误！")
-                    return
+                messagebox.showerror("错误", "账户已锁定！请联系管理员解锁。")
+                return
 
-            if user_data["password"] == password:
+            if self.verify_password(user_data["password"], password):
                 messagebox.showinfo("成功", f"欢迎，{username}！")
                 # 记录当前登录用户（用于数据库旁路记录等可选功能）
                 self.scholarship_reviewer.current_user = username
@@ -181,12 +297,12 @@ class LoginManager:
                 login_window.destroy()
             else:
                 self.failed_attempts[username] = self.failed_attempts.get(username, 0) + 1
-                if self.failed_attempts[username] >= 3:
+                if self.failed_attempts[username] >= MAX_LOGIN_ATTEMPTS:
                     user_data["locked"] = True
                     self.save_user_data()
-                    messagebox.showerror("错误", "登录失败3次，账户已锁定！")
+                    messagebox.showerror("错误", f"登录失败{MAX_LOGIN_ATTEMPTS}次，账户已锁定！请联系管理员解锁。")
                 else:
-                    remaining_attempts = 3 - self.failed_attempts[username]
+                    remaining_attempts = MAX_LOGIN_ATTEMPTS - self.failed_attempts[username]
                     messagebox.showerror("错误", f"密码错误！还有{remaining_attempts}次机会。")
 
         tk.Button(login_window, text="登录", command=attempt_login).grid(row=2, column=0, columnspan=2, pady=10)
@@ -299,6 +415,27 @@ class AboutHelp:
         help_window.protocol("WM_DELETE_WINDOW", help_window.destroy)
 
 class ScholarshipReviewer:
+    """奖学金评审主程序类，负责整个评审流程的 UI 和业务逻辑。
+    
+    主要功能：
+    - Excel 数据导入（单文件/批量/补充导入）
+    - 学生信息展示和切换
+    - 奖项评审（认定/不予认定）
+    - 评审结果导出（Excel/PDF）
+    - 数据可视化（统计图表）
+    - 撤销/重做操作
+    - 自定义加分规则管理
+    - 数据库集成（可选）
+    
+    Attributes:
+        root: Tkinter 根窗口
+        login_manager: 登录管理器实例
+        current_user: 当前登录用户名
+        db_batch_id: 数据库批次 ID
+        df: 当前学生数据 DataFrame（单文件模式）
+        students_data: 批量模式下的学生数据字典
+        custom_scoring_rules: 自定义加分规则
+    """
 
     @staticmethod
     def adjust_combobox_width(combobox, max_width=60):
@@ -857,24 +994,113 @@ class ScholarshipReviewer:
 
         return df
 
+    def _validate_and_clean_excel(self, df, file_path):
+        """验证和清理 Excel 数据的公共方法。
+        
+        Args:
+            df: pandas DataFrame，已加载的 Excel 数据
+            file_path: 文件路径，用于日志和错误提示
+            
+        Returns:
+            tuple: (df, warnings_dict) 或 (None, None) 如果验证失败
+            warnings_dict 包含: date_warnings, student_id_warnings, points_bad, skipped_empty
+        """
+        basename = os.path.basename(file_path)
+        
+        # ---- 校验：必需列 ----
+        required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            return None, {
+                'error': f"文件缺少必需的列：\n{', '.join(missing_columns)}\n\n必需列：{', '.join(required_columns)}",
+                'missing_columns': missing_columns
+            }
+
+        # ---- 校验：跳过完全空行 ----
+        before_rows = len(df)
+        df = df.dropna(subset=['所获奖项名称', '姓名'], how='all').reset_index(drop=True)
+        skipped_empty = before_rows - len(df)
+        if len(df) == 0:
+            return None, {
+                'error': "文件中没有有效数据行（所有行的奖项名称和姓名均为空）。",
+                'skipped_empty': skipped_empty
+            }
+
+        # ---- 校验：日期格式规范化 ----
+        date_warnings = 0
+        if '获奖时间' in df.columns:
+            for idx in df.index:
+                raw = df.at[idx, '获奖时间']
+                parsed = self._parse_date(raw)
+                if parsed != raw:
+                    df.at[idx, '获奖时间'] = parsed
+                    if raw and str(raw).strip():
+                        date_warnings += 1
+
+        # ---- 校验：学号格式 ----
+        student_id_warnings = 0
+        for idx in df.index:
+            sid = str(df.at[idx, '学号']).strip()
+            if not sid:
+                student_id_warnings += 1
+
+        # ---- 添加评审相关列 ----
+        self._normalize_review_columns(df)
+
+        # ---- 校验：已存在的加分列是否为合法数值 ----
+        points_bad = 0
+        for idx in df.index:
+            val = df.at[idx, '加分']
+            if val != '' and val is not None:
+                try:
+                    float(val)
+                except (ValueError, TypeError):
+                    df.at[idx, '加分'] = ''
+                    points_bad += 1
+
+        warnings = {
+            'date_warnings': date_warnings,
+            'student_id_warnings': student_id_warnings,
+            'points_bad': points_bad,
+            'skipped_empty': skipped_empty,
+            'missing_columns': missing_columns,
+            'basename': basename
+        }
+        return df, warnings
+
     def load_excel_data(self, excel_path):
-        """加载Excel文件并将数据添加到表格中"""
+        """加载单个 Excel 文件并将数据添加到表格中。
+        
+        处理流程：
+        1. 检查文件大小（限制 MAX_FILE_SIZE）
+        2. 读取 Excel 文件（限制 MAX_EXCEL_ROWS 行）
+        3. 验证必需列是否存在
+        4. 过滤空行
+        5. 规范化日期格式
+        6. 初始化评审列
+        7. 记录到数据库（可选）
+        
+        Args:
+            excel_path: Excel 文件路径
+            
+        Returns:
+            None，数据存储在 self.df 中
+        """
         # 清空之前的数据
         self.tree.delete(*self.tree.get_children())  # 清空表格中的内容
         self.df = None  # 清空之前的df数据
 
         # 检查文件大小（上限 50MB）
-        MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
         try:
             file_size = os.path.getsize(excel_path)
             if file_size > MAX_FILE_SIZE:
-                messagebox.showerror("错误", f"文件过大（{file_size / 1024 / 1024:.1f}MB），请使用小于50MB的文件。")
+                messagebox.showerror("错误", f"文件过大（{file_size / 1024 / 1024:.1f}MB），请使用小于{MAX_FILE_SIZE // (1024*1024)}MB的文件。")
                 return
         except OSError:
             pass
 
         # 加载新的Excel文件（限制最大行数 5000）
-        self.df = pd.read_excel(excel_path, nrows=5000)
+        self.df = pd.read_excel(excel_path, nrows=MAX_EXCEL_ROWS)
         basename = os.path.basename(excel_path)
 
         # ---- 校验：必需列 ----
@@ -986,7 +1212,21 @@ class ScholarshipReviewer:
             self.tree.insert("", "end", values=(row['所获奖项名称'], row['获奖时间'], row['奖项等级'], "", "", "", ""))
 
     def batch_load_excel_data(self, file_paths):
-        """批量加载多个Excel文件并将数据添加到学生数据字典中"""
+        """批量加载多个 Excel 文件并将数据添加到学生数据字典中。
+        
+        处理流程：
+        1. 清空之前的学生数据
+        2. 遍历所有文件，逐个加载和验证
+        3. 提取学生信息并建立索引
+        4. 记录到数据库（可选）
+        5. 显示导入结果摘要
+        
+        Args:
+            file_paths: Excel 文件路径列表
+            
+        Returns:
+            None，数据存储在 self.students_data 字典中
+        """
         success_count = 0
         error_files = []
         warning_summary = []  # (filename, message)
@@ -1000,7 +1240,6 @@ class ScholarshipReviewer:
             try:
                 basename = os.path.basename(file_path)
                 # 检查文件大小（上限 50MB）
-                MAX_FILE_SIZE = 50 * 1024 * 1024
                 try:
                     file_size = os.path.getsize(file_path)
                     if file_size > MAX_FILE_SIZE:
@@ -1009,7 +1248,7 @@ class ScholarshipReviewer:
                 except OSError:
                     pass
                 # 加载Excel文件（限制最大行数 5000）
-                df = pd.read_excel(file_path, nrows=5000)
+                df = pd.read_excel(file_path, nrows=MAX_EXCEL_ROWS)
                 
                 # 验证必要的列是否存在
                 required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
@@ -1192,7 +1431,6 @@ class ScholarshipReviewer:
             try:
                 basename = os.path.basename(file_path)
                 # 检查文件大小（上限 50MB）
-                MAX_FILE_SIZE = 50 * 1024 * 1024
                 try:
                     file_size = os.path.getsize(file_path)
                     if file_size > MAX_FILE_SIZE:
@@ -1201,7 +1439,7 @@ class ScholarshipReviewer:
                 except OSError:
                     pass
                 # 加载Excel文件（限制最大行数 5000）
-                df = pd.read_excel(file_path, nrows=5000)
+                df = pd.read_excel(file_path, nrows=MAX_EXCEL_ROWS)
                 
                 # 验证必要的列是否存在
                 required_columns = ['学院', '姓名', '年级', '班级', '学号', '所获奖项名称', '获奖时间', '奖项等级']
@@ -1493,7 +1731,7 @@ class ScholarshipReviewer:
         if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
             project_types = self.custom_scoring_rules['project_types']
         else:
-            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+            project_types = DEFAULT_PROJECT_TYPES
 
         statistics = {ptype: 0.0 for ptype in project_types}
 
@@ -1526,7 +1764,22 @@ class ScholarshipReviewer:
         return project_types, statistics, caps, capped_total
 
     def confirm_review(self):
-        """确认评审结果并更新表格"""
+        """确认评审结果并更新表格。
+        
+        处理流程：
+        1. 验证是否选择了奖项行
+        2. 验证是否已选择项目类型和奖项级别
+        3. 验证认定情况（认定/不予认定）
+        4. 如果不予认定，验证是否填写备注
+        5. 计算加分值
+        6. 更新表格显示
+        7. 记录到撤销栈
+        8. 记录到数据库（可选）
+        9. 自动跳转到下一个未评审项目
+        
+        Returns:
+            None
+        """
         selected_item = self.tree.selection()
         if not selected_item:
             messagebox.showerror("错误", "请先选择一行进行评审")
@@ -1840,7 +2093,19 @@ class ScholarshipReviewer:
             self.root.destroy()  # 如果数据已导出，直接关闭窗口
 
     def export_excel(self):
-        """导出当前学生的评审结果到新的Excel文件"""
+        """导出当前学生的评审结果到新的 Excel 文件。
+        
+        处理流程：
+        1. 验证是否有可导出的数据
+        2. 获取当前学生数据和信息
+        3. 选择保存路径
+        4. 生成规范的文件名（学院_姓名_年级_班级_学号）
+        5. 导出到 Excel 文件
+        6. 记录到数据库（可选）
+        
+        Returns:
+            None
+        """
         # 检查是否有数据
         if self.df is None and not self.students_data:
             messagebox.showerror("错误", "没有可导出的数据！")
@@ -2006,7 +2271,7 @@ class ScholarshipReviewer:
         if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
             project_types = self.custom_scoring_rules['project_types']
         else:
-            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+            project_types = DEFAULT_PROJECT_TYPES
 
         _, statistics, _, capped_total = self._compute_statistics_from_df(current_df)
 
@@ -2074,7 +2339,7 @@ class ScholarshipReviewer:
         if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
             project_types = self.custom_scoring_rules['project_types']
         else:
-            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+            project_types = DEFAULT_PROJECT_TYPES
 
         all_data = []
         for sid, data in self.students_data.items():
@@ -2141,7 +2406,7 @@ class ScholarshipReviewer:
             if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
                 project_types = self.custom_scoring_rules['project_types']
             else:
-                project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+                project_types = DEFAULT_PROJECT_TYPES
 
             # 初始化统计字典
             statistics = {ptype: 0 for ptype in project_types}
@@ -2158,9 +2423,9 @@ class ScholarshipReviewer:
 
             # 限制每类总分最大为自定义上限或6分
             for key in statistics:
-                max_score = 6
+                max_score = DEFAULT_SCORE_CAP
                 if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
-                    max_score = self.custom_scoring_rules['max_dict'].get(key, 6)
+                    max_score = self.custom_scoring_rules['max_dict'].get(key, DEFAULT_SCORE_CAP)
                 statistics[key] = min(statistics[key], max_score)
 
             # 统计合计（截断后）
@@ -2464,7 +2729,7 @@ class ScholarshipReviewer:
         if self.custom_scoring_rules and 'project_types' in self.custom_scoring_rules:
             project_types = self.custom_scoring_rules['project_types']
         else:
-            project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+            project_types = DEFAULT_PROJECT_TYPES
 
         for student_id, data in self.students_data.items():
             try:
@@ -2484,9 +2749,9 @@ class ScholarshipReviewer:
                             pass
                 # 限制每类总分最大为自定义上限或6分
                 for key in statistics:
-                    max_score = 6
+                    max_score = DEFAULT_SCORE_CAP
                     if self.custom_scoring_rules and 'max_dict' in self.custom_scoring_rules:
-                        max_score = self.custom_scoring_rules['max_dict'].get(key, 6)
+                        max_score = self.custom_scoring_rules['max_dict'].get(key, DEFAULT_SCORE_CAP)
                     statistics[key] = min(statistics[key], max_score)
                 # 构建统计行数据
                 stats_row = [
@@ -2558,7 +2823,7 @@ class ScholarshipReviewer:
 
     def init_default_scoring_rules(self):
         """初始化默认的加分规则"""
-        self.default_project_types = ["竞赛类加分", "科研创新类加分", "外语类加分"]
+        self.default_project_types = DEFAULT_PROJECT_TYPES
         
         self.default_level_mapping = {
             "竞赛类加分": [
@@ -2642,17 +2907,16 @@ class ScholarshipReviewer:
                 return
             
             # 检查文件大小（上限 50MB）
-            MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
             try:
                 file_size = os.path.getsize(file_path)
                 if file_size > MAX_FILE_SIZE:
-                    messagebox.showerror("错误", f"文件过大（{file_size / 1024 / 1024:.1f}MB），请使用小于50MB的文件。")
+                    messagebox.showerror("错误", f"文件过大（{file_size / 1024 / 1024:.1f}MB），请使用小于{MAX_FILE_SIZE // (1024*1024)}MB的文件。")
                     return
             except OSError:
                 pass
 
             # 读取Excel文件（限制最大行数 5000）
-            df = pd.read_excel(file_path, nrows=5000)
+            df = pd.read_excel(file_path, nrows=MAX_EXCEL_ROWS)
             
             # 检查文件格式
             if len(df.columns) < 3:
@@ -2700,12 +2964,12 @@ class ScholarshipReviewer:
                         try:
                             custom_max_dict[project_type] = float(max_val.iloc[0])
                         except Exception:
-                            custom_max_dict[project_type] = 6  #  解析失败默认6分
+                            custom_max_dict[project_type] = DEFAULT_SCORE_CAP  #  解析失败默认6分
                     else:
-                        custom_max_dict[project_type] = 6
+                        custom_max_dict[project_type] = DEFAULT_SCORE_CAP
             else:
                 for project_type in custom_project_types:
-                    custom_max_dict[project_type] = 6
+                    custom_max_dict[project_type] = DEFAULT_SCORE_CAP
 
             # 更新自定义规则
             self.custom_scoring_rules = {
